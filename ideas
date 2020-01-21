@@ -1,0 +1,42 @@
+review poi code, need to reduce memory usage
+change pattern (same method as brightness change)
+look more at spiffs save router settings, how to switch from router to AP mode (master and slave)
+
+form fields: 
+
+>>>>>>>>>>>>>>>>Current: >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+		router     	-Huawei
+		pass		-1235ABC
+		newChannel	-1-13
+		newAddr4 	-2-255 (for ip) .....change to ip field 4
+
+>>>>>>>>>>>>>>>>New: >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+spiffs:		router     	-Huawei-B319-...
+spiffs:		pass		-12345ABC
+pre-defined	apName?		-bluefire
+pre-defined	apPass?		-what if this is forgotten? //secure this somehow?
+  eeprom:	channel		-1-13 (11 for US, 14 for Australia?) //for AP mode only
+  eeprom:	maxChannelNum (eg 13 for SA, 11 for USA, 14 for Australia)
+
+****************done:**************************************************************
+eeprom:		addrNumD  	192	(full ip eg: 192.168.8.77) 
+eeprom:		addrNumA	168	
+eeprom:		addrNumB	8	
+eeprom:		addrNumC	77	
+***********************************************************************************
+		gatewayField1
+		gatewayField2
+		gatewayField3
+		gatewayField4
+
+ eeprom:	patternToShow (3 patterns currently, change using this field rather, not randomly!)
+		
+		
+		
+
+
+		
+		
+		

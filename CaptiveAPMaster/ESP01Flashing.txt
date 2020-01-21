@@ -1,0 +1,7 @@
+So, ESP-01 V3 likes to be flashed with Flash Mode DOUT selected in the
+Arduino settings. 
+
+Other ESP-01 I have differ from this. Requires much investigation
+further. 
+
+see: https://hackaday.com/2017/10/01/trouble-flashing-your-esp8266-meet-dio-and-qio/
