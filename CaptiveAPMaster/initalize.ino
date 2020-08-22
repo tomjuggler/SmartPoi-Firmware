@@ -210,7 +210,7 @@ void spiffsLoadSettings() {
   //from: http://www.esp8266.com/viewtopic.php?f=29&t=8194
   //causing out of memory shutdown errors!
   //how to not have these? need a good look at the code, remove some memory usage :)
-  settings = SPIFFS.open("/settings.txt", "r");
+  settings = LittleFS.open("/settings.txt", "r");
   //note: password is stored in plain text, security risk?
   //currently settings.txt avaliable on demand over http
   //  if (!settings) {

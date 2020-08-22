@@ -1,8 +1,8 @@
 void redoLoadSpiffs() {
   String fileName = "f";
   String fileVar = String("/" + fileName + ".txt");
-  //    f = SPIFFS.open("/f.txt", "r");
-  f = SPIFFS.open(fileVar, "r");
+  //    f = LittleFS.open("/f.txt", "r");
+  f = LittleFS.open(fileVar, "r");
   if (!f) {
     FastLED.showColor( CRGB::Blue );
   } else {
@@ -32,8 +32,8 @@ void redoLoadSpiffs() {
 
 void loadSpiffsImage2(String imgPath, uint8_t* message, int num) {
   if (!preloaded) { //need to load once per image change here, not every time it's too slow!
-    g = SPIFFS.open(imgPath, "r");
-    //    g = SPIFFS.open("/f.txt", "r");
+    g = LittleFS.open(imgPath, "r");
+    //    g = LittleFS.open("/f.txt", "r");
     if (!g) {
       FastLED.showColor( CRGB::Blue );
     } else {
@@ -69,6 +69,9 @@ void loadSpiffsImage2(String imgPath, uint8_t* message, int num) {
   }
 }
 
+/////////////////////////////////////////////////////////EXPERIMENTAL //////////////////////////////////
+
+//////////////////////////////////////////////////////END EXPERIMENTAL ///////////////////////////////
 void loadPatternChooser() {
 
   if (pattern == 2) {
@@ -138,4 +141,3 @@ void loadPatternChooser() {
   }
     picToShow = 1; //back to first pic, to sync poi
 }
-

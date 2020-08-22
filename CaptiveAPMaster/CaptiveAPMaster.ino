@@ -14,11 +14,13 @@
 //  }
 //}
 /////////////////////////////////////FSBrowser2/////////////////////////////////////////////////
-#include "FS.h"
+// #include "FS.h"
+#include "LittleFS.h"
+
 File fsUploadFile;
 
 ///////////////////////////////////End FSBrowser2////////////////////////////////////////////
-
+int newINT = 0;
 
 #include <ESP8266WiFi.h>
 #include <DNSServer.h>
@@ -45,8 +47,8 @@ ESP8266WiFiMulti WiFiMulti;
 //#define NUM_PX 72
 
 int newBrightness = 1; //setting 220 for battery and so white is not too much! //20 for testing ok
-#define DATA_PIN 2 //D2 for D1Mini, 2 for ESP-01
-#define CLOCK_PIN 0 //D1 for D1Mini, 0 for ESP-01
+#define DATA_PIN D2 //D2 for D1Mini, 2 for ESP-01
+#define CLOCK_PIN D1 //D1 for D1Mini, 0 for ESP-01
 
 boolean slave = false; //second poi is true
 
@@ -239,8 +241,8 @@ void setup() {
   //  WiFi.onEvent(WiFiEvent,WIFI_EVENT_ANY); //is this thing causing problems? not sure what it's doing here!
   fastLEDInit(); //try get led's responding quicker here!
   //Initialize serial and wait for port to open:
-//    Serial.begin(115200);
-//  Serial.println(""); //new line for readability
+    Serial.begin(115200);
+  Serial.println(""); //new line for readability
 
   //////////////////////////////////////////////read eeprom settings://////////////////////////////////////////////////////////////////
   EEPROM.begin(512);
@@ -259,7 +261,7 @@ void setup() {
   EEPROM.commit(); //save any changes made above
   ///////////////////////////////////////////////////////SPIFFS: /////////////////////////////////////////////////////////
   // always use this to "mount" the filesystem
-  bool result = SPIFFS.begin();
+  bool result = LittleFS.begin();
   String router;
 
   spiffsLoadSettings();
