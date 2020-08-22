@@ -70,7 +70,60 @@ void loadSpiffsImage2(String imgPath, uint8_t* message, int num) {
 }
 
 /////////////////////////////////////////////////////////EXPERIMENTAL //////////////////////////////////
+/*
+void loadSpiffsImage2(String imgPath, uint8_t* message, int num) {
+  if (!preloaded) { //need to load once per image change here, not every time it's too slow!
+    g = LittleFS.open(imgPath, "r");
+    //    g = LittleFS.open("/f.txt", "r");
+    if (!g) {
+      FastLED.showColor( CRGB::Blue );
+    } else {
+      int i = 0;
+      byte X;
+      // we could open the file
+      while (g.available()) {
+        if (message1DataCounter > maxPX) { //message exeeding limit
 
+        }
+        else {
+          String line = g.readStringUntil(',');
+          int Y = line.toInt();
+          message[i] = Y; //need error checking to make sure the file is not too large for the array!
+
+///////////////////////////////////////////////
+          byte R1 = (Y & 0xE0);
+          leds[i].r = R1; //
+          byte G1 =  ((Y << 3) & 0xE0);
+          leds[i].g = G1;
+          byte M1 = (Y << 6);
+          leds[i].b = M1;
+/////////////////////////////////////////////
+      
+          i++;
+          message1DataCounter++;
+        }
+        
+        //read until reaching "," delimeter:
+
+      }
+      /////////////////////////////////////////////
+        FastLED.show(); // Will this work???????
+        /////////////////////////////////////////////
+      pxAcross = i / pxDown;
+      pxAcrossArray[num] = pxAcross;
+      message1DataCounter = 0;
+      g.close();
+      preloaded = true;
+    }
+  }
+  else {
+    //already loaded
+    //test open but don't do anything
+    //   /
+    //seems that this does not take much time... good news
+  }
+}
+*/
 //////////////////////////////////////////////////////END EXPERIMENTAL ///////////////////////////////
 void loadPatternChooser() {
 

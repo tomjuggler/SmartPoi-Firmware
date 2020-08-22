@@ -9,3 +9,8 @@ This code doesn't do much without the corresponding Android and PC programs. All
 this is a code dump, work in progress. 
 
 Good luck!
+
+
+*Important Update: 36px version has migrated to LittleFS. Please note that you will need to use LittleFS Uploader Arduino plugin to upload file system
+
+more details coming soon. 
