@@ -67,11 +67,12 @@ const int maxPX = 4320; //Todo: change to 5184 for 36x144 - after removing other
 //lets try using a maximum number of pixels so very large array to hold any number:
 uint8_t message1Data[maxPX]; //this is much larger than our image - max image 36 down, 120 across
 //Todo: remove below not needed data
+/*
 uint8_t message2Data[4320]; //this is much larger than our image - max image 36 down, 120 across
 uint8_t message3Data[4320]; //this is much larger than our image - max image 36 down, 120 across
 uint8_t message4Data[4320]; //this is much larger than our image - max image 36 down, 120 across
 uint8_t message5Data[4320]; //this is much larger than our image - max image 36 down, 120 across
-
+*/
 //   the above arrays are where the memory goes to . Reduce this somehow?
 //   for eg:
 //   below reduces to 62% Global variables as opposed to 78% for above. Do we need 144px across? This will be double for the 72px poi what then?
@@ -207,9 +208,10 @@ String Field;
 int imageToUse = 0;
 String image = "f.txt";
 String bin = "a.txt";
-boolean reload = true; //for converting all .txt to .bin - not really necessary..
+boolean reload = false; //for converting all .txt to .bin - for testing really.
 
 //todo: remove below once .bin loading is implemented
+/*
 String imgToShow1 = "/f.txt";
 String imgToShow2 = "/g.txt";
 String imgToShow3 = "/h.txt";
@@ -233,7 +235,7 @@ String imgToShow17 = "/q.txt";
 String imgToShow18 = "/r.txt";
 String imgToShow19 = "/s.txt";
 String imgToShow20 = "/t.txt";
-
+*/
 int uploadCounter = 1;
 
 boolean wifiEventDetect = false;
@@ -274,7 +276,8 @@ void setup()
   //  wifiChooser(router_array, pwd_array);
   //  webServerSetupLogic(router_array, pwd_array);
 
-  fastLEDIndicate(); //indicates AP (red) or router (green)
+//leaving indicate out for speed right now:
+  // fastLEDIndicate(); //indicates AP (red) or router (green)
 
   //  dnsServer.start(DNS_PORT, "*", apIP); //AP mode only, surely?? Moved to wifiChooser()
 

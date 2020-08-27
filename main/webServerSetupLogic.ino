@@ -95,7 +95,7 @@ void handleFileUpload() {
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Black;
       // Wait a little bit before we loop around and do it again
-      delay(10);
+      // delay(10); //who has time to wait?
     }
 
     //////////////////////////////////////////////////////Reload after saving:///////////////////////////////////////////////////////////////////////
@@ -342,9 +342,9 @@ void webServerSetupLogic(String router, String pass) {
     //
 
     settings.close();
-    delay(100);
+    // delay(100);
     int newChannelAgainFUP = int(EEPROM.read(13));
-    delay(30);
+    // delay(30);
     //MUST WE READ ALL SETTINGS AGAIN? OR USE INITIALIZED ONES LIKE addrNumA?
     //////////////////////////////////////////end read spiffs settings again/////////////////////////////////////////////////////////////////////////////
     content = anotherSettingsFUP + "," + anotherSettingsFUP2 + "," + newChannelAgainFUP + "," + addrNumA + "," + addrNumB + "," + addrNumC + "," + addrNumD + "," + patternChooser;
@@ -632,7 +632,7 @@ void webServerSetupLogic(String router, String pass) {
     ////////////////////////////////////////////////////end change Pattern Chooser setting in EEPROM////////////////////////////////////////////////////////////////////////////////
 
     server.send(statusCode, "application/json", content);
-    delay(50);
+    // delay(50);
     //    ESP.restart(); //not using this right now but see https://github.com/esp8266/Arduino/issues/1722#issuecomment-192829825
 
   });

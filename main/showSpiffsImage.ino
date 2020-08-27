@@ -7,14 +7,14 @@ void showLittleFSImage()
   if (!a)
   {
     FastLED.showColor(CRGB::Blue);
-    Serial.println("Code Blue - no file found!");
+    // Serial.println("Code Blue - no file found!");
   }
   else
   {
     size_t size = a.size();
     a.read(message1Data, size);
-    Serial.print("size is: ");
-    Serial.println(size);
+    // Serial.print("size is: ");
+    // Serial.println(size);
     i++;
     if (i >= pxDown)
     {
@@ -122,6 +122,7 @@ void showSpiffsImage2(uint8_t *message)
 
 ///////////////////////////////////////////////////todo: load 1 byte at a time per row of pixels displayed. Takes about 1ms to load (apparently) so should work.
 //how to do this???????? >
+/*
 void loadWhileShowingSpiffsImage1()
 {
   //  if(!preloaded){
@@ -211,3 +212,4 @@ void loadWhileShowingSpiffsImage2()
   }
   //  }
 }
+*/

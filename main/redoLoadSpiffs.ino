@@ -247,12 +247,12 @@ void loadPatternChooser() {
       {
         if (a.write(message1Data, sizeof(message1Data)))
         {
-          Serial.println("record added");
+          // Serial.println("record added");
         }
         a.close();
       }
  }
-      Serial.println("start finished");
+      // Serial.println("start finished");
     }
   }
   /*
