@@ -361,7 +361,7 @@ void webServerSetupLogic(String router, String pass) {
 
   /////////////////////////////////////////////////////////quick change Router://////////////////////////////////////////////////////////////////////////////////
   //to activate in browser: http://192.168.1.78/router?router=1
-  //don't forget master: http://192.168.1.1/router?router=1
+  //don't forget main: http://192.168.1.1/router?router=1
   //nothing happens, but router is now switched on. 
   //to deactivate: router=0
   
@@ -540,7 +540,7 @@ void webServerSetupLogic(String router, String pass) {
 
       //test: use address field for patternChooser:
       //make another field here for this, has it's own eeprom address and everything!
-      //ok can't use html because of slave poi not working with this. Use other method. Just a test delete this!
+      //ok can't use html because of auxillary poi not working with this. Use other method. Just a test delete this!
       //      patternChooser = onAddress.toInt();
       //      //error check:
       //      if(patternChooser > 3){

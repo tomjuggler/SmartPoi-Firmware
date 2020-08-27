@@ -1,12 +1,12 @@
 ESP8266 based firmware for SmartPoi WiFi Streaming graphic poi. 
 
-Check out circusscientist.com for all the details on how to make your own. 
+Check out https://circusscientist.com for all the details on how to make your own (look under Advanced Projects -> SmarPoi). 
 
 Two branches correspond to different versions, 36px or 72px
 
 This code doesn't do much without the corresponding Android and PC programs. All will be revealed on the website. 
 
-this is a code dump, work in progress. 
+This is a code dump, work in progress. I'm busy with a major rewrite of all code, so expect breaking changes. 
 
 Good luck!
 

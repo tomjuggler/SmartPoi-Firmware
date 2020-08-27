@@ -15,7 +15,7 @@
 //}
 /////////////////////////////////////FSBrowser2/////////////////////////////////////////////////
 // #include "FS.h"
-#include "LittleFS.h"
+#include "LittleFS.h" //SPIFFS DEPRECIATED! using LittleFS now. Faster 
 
 File fsUploadFile;
 
@@ -50,7 +50,7 @@ int newBrightness = 1; //setting 220 for battery and so white is not too much! /
 #define DATA_PIN D2 //D2 for D1Mini, 2 for ESP-01
 #define CLOCK_PIN D1 //D1 for D1Mini, 0 for ESP-01
 
-boolean slave = false; //second poi is true
+boolean auxillary = false; //second poi is true
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
@@ -66,9 +66,10 @@ File g;
 File settings;
 
 
-const int maxPX = 4320; //5184 for 36x144, what we do for 72px???
+const int maxPX = 4320; //Todo: change to 5184 for 36x144 - after removing other messages
 //lets try using a maximum number of pixels so very large array to hold any number:
-uint8_t message1Data[4320]; //this is much larger than our image - max image 36 down, 120 across
+uint8_t message1Data[maxPX]; //this is much larger than our image - max image 36 down, 120 across
+//Todo: remove below not needed data 
 uint8_t message2Data[4320]; //this is much larger than our image - max image 36 down, 120 across
 uint8_t message3Data[4320]; //this is much larger than our image - max image 36 down, 120 across
 uint8_t message4Data[4320]; //this is much larger than our image - max image 36 down, 120 across
@@ -104,7 +105,7 @@ volatile int message2DataCounter = 0;
 ////////////////////////////////////////////////////Mostly networking stuff: ////////////////////////////////////////////
 const byte DNS_PORT = 53;
 IPAddress apIP(192, 168, 1, 1);
-IPAddress apIPSlave(192, 168, 1, 78);
+IPAddress apIPauxillary(192, 168, 1, 78);
 DNSServer dnsServer;
 ESP8266WebServer server(80);
 
@@ -121,7 +122,7 @@ int keyIndex = 0;            // your network key Index number (needed only for W
 
 IPAddress ipSubnet(255, 255, 255, 0);
 IPAddress ipGateway(192, 168, 8, 1);
-IPAddress ipGatewaySlave(192, 168, 1, 1);
+IPAddress ipGatewayauxillary(192, 168, 1, 1);
 //IPAddress ipDns(8, 8, 8, 8);
 IPAddress ip(192, 168, 8, 77);
 
@@ -308,7 +309,7 @@ void loop() {
   //  //Serial.print(state);
   //  //Serial.println(" one for no signal, zero for signal");
   //if(millis() > firstRunMillis){ //do only on first run???
-  //if(wifiEventDetect && !slave){ //master poi
+  //if(wifiEventDetect && !auxillary){ //main poi
   ChangePatternPeriodically(); //trying a new way
   
   if (start) {
@@ -329,7 +330,7 @@ void loop() {
       ////Serial.println("state changed to 1");
     }
   }
-  //else{ //slave poi
+  //else{ //auxillary poi
   //  if (currentMillis - previousMillis >= interval) {   //should not ever be true if udp is sending at correct speed!
   ////    Serial.println(millis());
   //    // save the last time you checked the time
