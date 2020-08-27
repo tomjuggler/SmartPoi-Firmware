@@ -15,7 +15,7 @@
 //}
 /////////////////////////////////////FSBrowser2/////////////////////////////////////////////////
 // #include "FS.h"
-#include "LittleFS.h" //SPIFFS DEPRECIATED! using LittleFS now. Faster 
+#include "LittleFS.h" //SPIFFS DEPRECIATED! using LittleFS now. Faster
 
 File fsUploadFile;
 
@@ -34,8 +34,6 @@ ESP8266WiFiMulti WiFiMulti;
 //#include <WiFi.h>
 #include <WiFiUdp.h>
 
-
-
 //#include <user_interface.h> //for frequency update - from: https://github.com/esp8266/Arduino/issues/579
 //////////////////////////////////////////FastLED code:////////////
 #include "FastLED.h"
@@ -47,8 +45,8 @@ ESP8266WiFiMulti WiFiMulti;
 //#define NUM_PX 72
 
 int newBrightness = 1; //setting 220 for battery and so white is not too much! //20 for testing ok
-#define DATA_PIN D2 //D2 for D1Mini, 2 for ESP-01
-#define CLOCK_PIN D1 //D1 for D1Mini, 0 for ESP-01
+#define DATA_PIN D2    //D2 for D1Mini, 2 for ESP-01
+#define CLOCK_PIN D1   //D1 for D1Mini, 0 for ESP-01
 
 boolean auxillary = false; //second poi is true
 
@@ -56,25 +54,23 @@ boolean auxillary = false; //second poi is true
 CRGB leds[NUM_LEDS];
 ///////////////////////////////////////////end FastLED code//////////////////
 
-
 File f;
 File w;
 File g;
+File a;
 //File html; //removed to save space...
 
 //settings init:
 File settings;
 
-
 const int maxPX = 4320; //Todo: change to 5184 for 36x144 - after removing other messages
 //lets try using a maximum number of pixels so very large array to hold any number:
 uint8_t message1Data[maxPX]; //this is much larger than our image - max image 36 down, 120 across
-//Todo: remove below not needed data 
+//Todo: remove below not needed data
 uint8_t message2Data[4320]; //this is much larger than our image - max image 36 down, 120 across
 uint8_t message3Data[4320]; //this is much larger than our image - max image 36 down, 120 across
 uint8_t message4Data[4320]; //this is much larger than our image - max image 36 down, 120 across
 uint8_t message5Data[4320]; //this is much larger than our image - max image 36 down, 120 across
-
 
 //   the above arrays are where the memory goes to . Reduce this somehow?
 //   for eg:
@@ -95,7 +91,7 @@ const int maxPicsToShow = 5;
 int counter = 0;
 
 int pxDown = 36;
-int pxAcross = 36; //this will change with the image
+int pxAcross = 36;     //this will change with the image
 int pxAcrossArray[10]; //array for saving different px across
 int pxDownCounter = 0;
 int pxAcrossCounter = 0;
@@ -112,10 +108,10 @@ ESP8266WebServer server(80);
 int status = WL_IDLE_STATUS;
 //char ssid[] = "ROUTER_NAME"; //  your network SSID (name) - now read from SPIFFS, no need for hard coding
 //char pass[] = "ROUTER_PASSWORD";    // your network password (use for WPA, or use as key for WEP)
-char apName[] = "Smart_Poi_1"; 
-char apPass[] = "SmartOne"; 
+char apName[] = "Smart_Poi_1";
+char apPass[] = "SmartOne";
 int apChannel = 1;
-int keyIndex = 0;            // your network key Index number (needed only for WEP)
+int keyIndex = 0; // your network key Index number (needed only for WEP)
 
 //IPAddress ipBroadcast(255, 255, 255, 255);
 //IPAddress ipMulti(0, 0, 0, 0);
@@ -135,8 +131,7 @@ uint8_t addrNumD = 78;
 //unsigned int portBroad = 5656;
 //unsigned int portMulti = 6000;      // local port to listen on
 
-const unsigned int localPort = 2390;      // local port to listen on
-
+const unsigned int localPort = 2390; // local port to listen on
 
 byte packetBuffer[NUM_PX]; //buffer to hold incoming packet
 //char  ReplyBuffer[] = "acknowledged";       // a string to send back
@@ -154,19 +149,21 @@ int statusCode;
 
 // Generally, you should use "unsigned long" for variables that hold time
 // The value will quickly become too large for an int to store
-unsigned long previousMillis = 0;        // will store last time LED was updated
+unsigned long previousMillis = 0; // will store last time LED was updated
 unsigned long previousMillis2 = 0;
+unsigned long previousMillis3 = 0;
+
 //const unsigned long firstRunMillis = 22000;
 
 // constants won't change :
-const long interval = 5000;           // after this interval switch over to internal
+const long interval = 5000; // after this interval switch over to internal
 //const long longWait = 10000;           // interval to wait before checking setting on udp send //using above to save space!?
 boolean checkit = false;
 boolean channelChange = false;
 boolean savingToSpiffs = false;
 
-unsigned long previousFlashy = 0;        // will store last time LED was updated
-const long intervalBetweenFlashy = 5;           // after this interval switch over to internal
+unsigned long previousFlashy = 0;     // will store last time LED was updated
+const long intervalBetweenFlashy = 5; // after this interval switch over to internal
 boolean black = true;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -179,7 +176,7 @@ boolean lines = true;
 
 #define UPDATES_PER_SECOND 30000
 CRGBPalette16 currentPalette;
-TBlendType    currentBlending = NOBLEND;
+TBlendType currentBlending = NOBLEND;
 
 //extern CRGBPalette16 myRedWhiteBluePalette;
 //extern const TProgmemPalette16 myRedWhiteBluePalette_p PROGMEM;
@@ -207,6 +204,12 @@ IPAddress tmpIP(192, 168, 8, 77);
 
 String Field;
 
+int imageToUse = 0;
+String image = "f.txt";
+String bin = "a.txt";
+boolean reload = true; //for converting all .txt to .bin - not really necessary..
+
+//todo: remove below once .bin loading is implemented
 String imgToShow1 = "/f.txt";
 String imgToShow2 = "/g.txt";
 String imgToShow3 = "/h.txt";
@@ -238,11 +241,12 @@ boolean start = false;
 
 boolean routerOption = false;
 
-void setup() {
+void setup()
+{
   //  WiFi.onEvent(WiFiEvent,WIFI_EVENT_ANY); //is this thing causing problems? not sure what it's doing here!
   fastLEDInit(); //try get led's responding quicker here!
-  //Initialize serial and wait for port to open:
-    Serial.begin(115200);
+                 //Initialize serial and wait for port to open:
+  Serial.begin(115200);
   Serial.println(""); //new line for readability
 
   //////////////////////////////////////////////read eeprom settings://////////////////////////////////////////////////////////////////
@@ -254,10 +258,10 @@ void setup() {
   //EEPROM.write(16, 192); //addrNumA
   //EEPROM.write(17, 168); //addrNumB
   //EEPROM.write(18, 8); //addrNumC
-  eepromBrightnessChooser(15); //up to 220 max
-  eepromRouterOptionChooser(100); //do we try to connect to router or not? default is no. 
-  eepromWifiModeChooser(5); //AP or STA mode
-  eepromPatternChooser(10); //3 settings
+  eepromBrightnessChooser(15);    //up to 220 max
+  eepromRouterOptionChooser(100); //do we try to connect to router or not? default is no.
+  eepromWifiModeChooser(5);       //AP or STA mode
+  eepromPatternChooser(10);       //3 settings
   eepromReadChannelAndAddress(13, 14, 16, 17, 18);
   EEPROM.commit(); //save any changes made above
   ///////////////////////////////////////////////////////SPIFFS: /////////////////////////////////////////////////////////
@@ -272,28 +276,32 @@ void setup() {
 
   fastLEDIndicate(); //indicates AP (red) or router (green)
 
-
-
   //  dnsServer.start(DNS_PORT, "*", apIP); //AP mode only, surely?? Moved to wifiChooser()
 
   Udp.begin(localPort);
 
   loadPatternChooser(); //in redoLoadSpiffs tab
-
 }
 
-void loop() {
+void loop()
+{
   //this only works once:
-  if (start == false) {
-    if(routerOption){
-      if (millis() > interval * 4) { //perhaps wait a little longer...?
+  if (start == false)
+  {
+    if (routerOption)
+    {
+      if (millis() > interval * 4)
+      { //perhaps wait a little longer...?
         start = true;
       }
-    } else{
-        if (millis() > interval) { //wait for less time...
+    }
+    else
+    {
+      if (millis() > interval)
+      { //wait for less time...
         start = true;
       }
-      }
+    }
   }
   //  if(wifiEventDetect){
   //    Serial.println("detected!!!!!!!!!!!!!!!!!!!!!!");
@@ -311,22 +319,24 @@ void loop() {
   //if(millis() > firstRunMillis){ //do only on first run???
   //if(wifiEventDetect && !auxillary){ //main poi
   ChangePatternPeriodically(); //trying a new way
-  
-  if (start) {
-//  
-    if (currentMillis - previousMillis >= interval) {   //should not ever be true if udp is sending at correct speed!
+
+  if (start)
+  {
+    //
+    if (currentMillis - previousMillis >= interval)
+    { //should not ever be true if udp is sending at correct speed!
       //    Serial.println(millis());
       // save the last time you checked the time
       previousMillis = currentMillis;
       state = 1; //udp no signal state
-//      tempSwitch = !tempSwitch; //for switching picture at interval test
-//      //first run sync
-//      picToShow++;
-//      //      Serial.print("first run millis: ");
-//      //      Serial.println(millis());
-//      if (picToShow > maxPicsToShow) {
-//        picToShow = 1;
-//      }
+                 //      tempSwitch = !tempSwitch; //for switching picture at interval test
+                 //      //first run sync
+                 //      picToShow++;
+                 //      //      Serial.print("first run millis: ");
+                 //      //      Serial.println(millis());
+                 //      if (picToShow > maxPicsToShow) {
+                 //        picToShow = 1;
+                 //      }
       ////Serial.println("state changed to 1");
     }
   }
@@ -353,7 +363,8 @@ void loop() {
   int packetSize = Udp.parsePacket();
   if (packetSize) // if udp packet is received:
   {
-    if (currentMillis2 - previousMillis2 > interval * 2) { //message received after long wait, may be config message? check it
+    if (currentMillis2 - previousMillis2 > interval * 2)
+    { //message received after long wait, may be config message? check it
       // save the last time you checked the time
       previousMillis2 = currentMillis2;
       ////Serial.println("long wait hey!");
@@ -373,7 +384,8 @@ void loop() {
 
     // read the packet into packetBufffer
     int len = Udp.read(packetBuffer, NUM_PX);
-    if (len > 0) packetBuffer[len] = 0;
+    if (len > 0)
+      packetBuffer[len] = 0;
     //    //Serial.println("Contents:");
     //    //Serial.println(packetBuffer);
     ////////////////////////////////////FastLED Code://///////////
@@ -382,86 +394,100 @@ void loop() {
       byte X;
       byte Y;
       ///////////////////////////////////////////////////////settings mode////////////////////////////////////////////////////////////////////////
-      if (checkit) { //need some sort of cylon thingy here to show that poi is doing something!!!
+      if (checkit)
+      { //need some sort of cylon thingy here to show that poi is doing something!!!
         Y = packetBuffer[i];
 
-        switch (i) {
-          case 0:
-            if (Y == 0) { //Y is 0 at 1st packetBuffer array member
-              ////Serial.println("checked 0, signal received");
-            }
-            else {
-              checkit = false; //not on track, try again next time
-            }
-            break;
-          case 1:
-            if (Y == 1) {
-              ////Serial.println("checked 1, signal received");
-            }
-            else {
-              checkit = false; //not on track, try again next time
-            }
-            break;
-          case 2:
-            if (Y == 2) { //default 2
-              ////Serial.println("checked 2, Brightness change signal received");
-            } else if (Y == 3) {
-              ////Serial.println("checked 2, Channel change signal received");
-              channelChange = true;
-            } //add another option for pattern change here?
+        switch (i)
+        {
+        case 0:
+          if (Y == 0)
+          { //Y is 0 at 1st packetBuffer array member
+            ////Serial.println("checked 0, signal received");
+          }
+          else
+          {
+            checkit = false; //not on track, try again next time
+          }
+          break;
+        case 1:
+          if (Y == 1)
+          {
+            ////Serial.println("checked 1, signal received");
+          }
+          else
+          {
+            checkit = false; //not on track, try again next time
+          }
+          break;
+        case 2:
+          if (Y == 2)
+          { //default 2
+            ////Serial.println("checked 2, Brightness change signal received");
+          }
+          else if (Y == 3)
+          {
+            ////Serial.println("checked 2, Channel change signal received");
+            channelChange = true;
+          } //add another option for pattern change here?
 
-            else {
-              checkit = false; //not on track, try again next time
+          else
+          {
+            checkit = false; //not on track, try again next time
+          }
+          break;
+        case 3:
+          if (channelChange)
+          {
+            if ((int)Y > 11 || (int)Y < 1)
+            {
+              //wrong channel information received - error checking
             }
-            break;
-          case 3:
-            if (channelChange) {
-              if ((int)Y > 11 || (int)Y < 1) {
-                //wrong channel information received - error checking
-              } else {
-                EEPROM.write(13, 1); //clearing
-                EEPROM.commit();
-                int newChannel2; //temp variable
-                newChannel2 = int(Y);
-                EEPROM.write(13, newChannel2);
-                EEPROM.commit();
-                ////Serial.print("channel changed to :");
-                ////Serial.println(newChannel2);
-                //              ESP.restart(); //not using this right now but see https://github.com/esp8266/Arduino/issues/1722#issuecomment-192829825
-                FastLED.showColor(CRGB::Magenta); //visual indicator
-                channelChange = false;
-                checkit = false; //Finished settings, exit
-              }
-            } else {
-              //set eeprom:
-              ////Serial.print("received Y: ");
-              ////Serial.println(Y);
-              EEPROM.write(15, int(Y)); //set for next time
+            else
+            {
+              EEPROM.write(13, 1); //clearing
               EEPROM.commit();
-              newBrightness = int(Y);
-              FastLED.setBrightness(  newBrightness );
-              ////Serial.println(" ");
-              ////Serial.print("Brightness now set to: ");
-              ////Serial.println(newBrightness);
-              FastLED.showColor(CRGB::Blue); //visual indicator
+              int newChannel2; //temp variable
+              newChannel2 = int(Y);
+              EEPROM.write(13, newChannel2);
+              EEPROM.commit();
+              ////Serial.print("channel changed to :");
+              ////Serial.println(newChannel2);
+              //              ESP.restart(); //not using this right now but see https://github.com/esp8266/Arduino/issues/1722#issuecomment-192829825
+              FastLED.showColor(CRGB::Magenta); //visual indicator
+              channelChange = false;
               checkit = false; //Finished settings, exit
-
-              //            if (Y == 3) {
-              //              //Serial.println("checked 3, signal received");
-              //            }
-              //            else{
-              //             checkit = false; //not on track, try again next time
-              //            }
             }
-            break;
-          default:
+          }
+          else
+          {
+            //set eeprom:
+            ////Serial.print("received Y: ");
             ////Serial.println(Y);
-            //checkit = false;
-            break;
-            //etc for 32, can write values according to signal received
+            EEPROM.write(15, int(Y)); //set for next time
+            EEPROM.commit();
+            newBrightness = int(Y);
+            FastLED.setBrightness(newBrightness);
+            ////Serial.println(" ");
+            ////Serial.print("Brightness now set to: ");
+            ////Serial.println(newBrightness);
+            FastLED.showColor(CRGB::Blue); //visual indicator
+            checkit = false;               //Finished settings, exit
 
+            //            if (Y == 3) {
+            //              //Serial.println("checked 3, signal received");
+            //            }
+            //            else{
+            //             checkit = false; //not on track, try again next time
+            //            }
+          }
+          break;
+        default:
+          ////Serial.println(Y);
+          //checkit = false;
+          break;
+          //etc for 32, can write values according to signal received
         }
-
       }
       ///////////////////////////////////////////////////////////////////////////////////////end settings mode///////////////////////////
 
@@ -471,7 +497,7 @@ void loop() {
 
       byte R1 = (X & 0xE0);
       leds[i].r = R1; //
-      byte G1 =  ((X << 3) & 0xE0);
+      byte G1 = ((X << 3) & 0xE0);
       leds[i].g = G1;
       byte M1 = (X << 6);
       leds[i].b = M1;
@@ -480,8 +506,6 @@ void loop() {
     }
 
     //FastLED.delay(2); //not just for emulator!
-
-
 
     LEDS.show();
     delay(1);
@@ -492,19 +516,91 @@ void loop() {
     //    Udp.write(ReplyBuffer);
     //    Udp.endPacket();
   }
-  else if (!packetSize && state == 1) { // this is backup, if udp not received ie: connection dropped for > interval millisecs
-    switch (pattern) {
-      case 1: {
-          funColourJam();
-          //sendTestMessage(); //test send message for now...
-          break;
-        }
-      //more options for patterns and spiffs loading here
-      case 2: case 3: case 4: case 5: { //cases 2, 3, 4 and 5 the same just with different pre-loaded pics! todo: add some more patterns, pattern 0...
-          //          showSpiffsImage();
+  else if (!packetSize && state == 1)
+  { // this is backup, if udp not received ie: connection dropped for > interval millisecs
+    switch (pattern)
+    {
+    case 1:
+    {
+      funColourJam();
+      //sendTestMessage(); //test send message for now...
+      break;
+    }
+    //more options for patterns and spiffs loading here
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    { //cases 2, 3, 4 and 5 the same just with different pre-loaded pics! 
+    //todo: add some more patterns, pattern 0...
+      switch (imageToUse)
+      {
+      case 0:
+        bin = "/a.bin";
+        break;
+      case 1:
+        bin = "/b.bin";
+        break;
+      case 2:
+        bin = "/c.bin";
+        break;
+      case 3:
+        bin = "/d.bin";
+        break;
+      case 4:
+        bin = "/e.bin";
+        break;
+      case 5:
+        bin = "/f.bin";
+        break;
+      case 6:
+        bin = "/g.bin";
+        break;
+      case 7:
+        bin = "/h.bin";
+        break;
+      case 8:
+        bin = "i.bin";
+        break;
+      case 9:
+        bin = "j.bin";
+        break;
+      case 10:
+        bin = "k.bin";
+        break;
+      case 11:
+        bin = "l.bin";
+        break;
+      case 12:
+        bin = "m.bin";
+        break;
+      case 13:
+        bin = "n.bin";
+        break;
+      case 14:
+        bin = "o.bin";
+        break;
+      case 15:
+        bin = "p.bin";
+        break;
+      case 16:
+        bin = "q.bin";
+        break;
+      case 17:
+        bin = "r.bin";
+        break;
+      case 18:
+        bin = "s.bin";
+        break;
+      case 19:
+        bin = "t.bin";
+        break;
+      }
 
-          //  tempSwitch = !tempSwitch;
-          /*
+      showLittleFSImage();
+
+      //  tempSwitch = !tempSwitch;
+      /*
             if(tempSwitch){
             pxAcross = pxAcrossArray[1]; //do this only on change?
             showSpiffsImage2(message1Data);
@@ -514,43 +610,48 @@ void loop() {
             showSpiffsImage2(message2Data);
             }
           */
-          //          //Serial.print("pic number: ");
-          //          //Serial.println(picToShow);
-          switch (picToShow) {
-            case 1:
-              pxAcross = pxAcrossArray[1]; //do this only on change?
-              showSpiffsImage2(message1Data);
-              break;
-            case 2:
-              pxAcross = pxAcrossArray[2]; //do this only on change?
-              showSpiffsImage2(message2Data);
-              break;
-            case 3:
-              pxAcross = pxAcrossArray[3]; //do this only on change?
-              showSpiffsImage2(message3Data);
-              break;
-            case 4:
-              pxAcross = pxAcrossArray[4]; //do this only on change?
-              showSpiffsImage2(message4Data);
-              break;
-            case 5:
-              pxAcross = pxAcrossArray[5]; //do this only on change?
-              showSpiffsImage2(message5Data);
-              break;
-          }
-          //          //Serial.println("Spiffs");
-          //sendTestMessage(); //test send message for now...
-          break;
-        }
+      //          //Serial.print("pic number: ");
+      //          //Serial.println(picToShow);
+      /*
+      switch (picToShow)
+      {
+      case 1:
+        pxAcross = pxAcrossArray[1]; //do this only on change?
+        showSpiffsImage2(message1Data);
+        break;
+      case 2:
+        pxAcross = pxAcrossArray[2]; //do this only on change?
+        showSpiffsImage2(message2Data);
+        break;
+      case 3:
+        pxAcross = pxAcrossArray[3]; //do this only on change?
+        showSpiffsImage2(message3Data);
+        break;
+      case 4:
+        pxAcross = pxAcrossArray[4]; //do this only on change?
+        showSpiffsImage2(message4Data);
+        break;
+      case 5:
+        pxAcross = pxAcrossArray[5]; //do this only on change?
+        showSpiffsImage2(message5Data);
+        break;
+      }
+      */
+      //          //Serial.println("Spiffs");
+      //sendTestMessage(); //test send message for now...
+      break;
+    }
     }
   }
-  else {
+  else
+  {
     //    //Serial.println("/");
     //nothing for <interval> seconds wait for signal
   }
 }
 
-void funColourJam() {
+void funColourJam()
+{
   //  unsigned long currentFlashy = millis();
   //
   //  if (currentFlashy - previousFlashy >= intervalBetweenFlashy) {   //should not ever be true if udp is sending at correct speed!
@@ -571,9 +672,11 @@ void funColourJam() {
   //  }
 
   //colour palette code://///////////////////////////
-  if (setting == 1) {
+  if (setting == 1)
+  {
 
-    if (lines == false) { //toggled in ChangePalettePeriodically3()
+    if (lines == false)
+    { //toggled in ChangePalettePeriodically3()
       //ChangePalettePeriodically2();
       //ChangePaletteEveryTime();
       ////Serial.println(paletteVar);
@@ -582,19 +685,23 @@ void funColourJam() {
       //SetupRandomVariablePalette(CRGB::Red, CRGB::Gray, CRGB::Blue, CRGB::Black);
       ChangePalettePeriodically3();
       static uint8_t startIndex = 0;
-      if (upDown == true) {
+      if (upDown == true)
+      {
         startIndex = startIndex + motionSpeed; /* motion speed */
-        FillLEDsFromPaletteColors( startIndex);
+        FillLEDsFromPaletteColors(startIndex);
         ////Serial.println(startIndex);
-        if (startIndex == maxStartIndex) {
+        if (startIndex == maxStartIndex)
+        {
           upDown = false;
         }
       }
-      else {
+      else
+      {
         startIndex = startIndex - motionSpeed; /* motion speed */
-        FillLEDsFromPaletteColors( startIndex);
+        FillLEDsFromPaletteColors(startIndex);
         ////Serial.println(startIndex);
-        if (startIndex == minStartIndex) {
+        if (startIndex == minStartIndex)
+        {
           upDown = true;
         }
       }
@@ -619,8 +726,9 @@ void funColourJam() {
         maxStartIndex = 70;
         }
       */
-    }//end if(lines)
-    else {
+    } //end if(lines)
+    else
+    {
       //ChangePalettePeriodically2();
       //ChangePaletteEveryTime();
       ////Serial.println(paletteVar);
@@ -630,9 +738,10 @@ void funColourJam() {
       ChangePalettePeriodically3();
       static uint8_t startIndex = 0;
       startIndex = startIndex + motionSpeed; /* motion speed */
-      FillLEDsFromPaletteColors( startIndex);
+      FillLEDsFromPaletteColors(startIndex);
       ////Serial.println(startIndex);
-      if (startIndex == maxStartIndex) {
+      if (startIndex == maxStartIndex)
+      {
         startIndex = 0;
       }
       //add_glitter();
@@ -656,17 +765,18 @@ void funColourJam() {
         }
       */
 
-    }//end else(lines)
-  }//end if(setting ==1)
+    } //end else(lines)
+  }   //end if(setting ==1)
 
   else if (setting == 2)
   {
     ChangeStripesPeriodically();
     static uint8_t stripeIndex = 0;
     stripeIndex = stripeIndex + 1;
-    FillStripesFromPaletteColors( stripeIndex);
+    FillStripesFromPaletteColors(stripeIndex);
     ////Serial.println(startIndex);
-    if (stripeIndex > 15) {
+    if (stripeIndex > 15)
+    {
       stripeIndex = 0;
     }
     //add_glitter();
@@ -674,15 +784,16 @@ void funColourJam() {
     FastLED.show();
     FastLED.delay(1); //for 160mhz
     //FastLED.delay(1000 / UPDATES_PER_SECOND);
-  }//end if(setting == 2)
+  } //end if(setting == 2)
   else
   {
     ChangeStripesPeriodically();
     static uint8_t stripeIndex2 = 0;
     stripeIndex2 = stripeIndex2 + 1;
-    FillPatternStripesFromPaletteColors( stripeIndex2, 4);
+    FillPatternStripesFromPaletteColors(stripeIndex2, 4);
     ////Serial.println(startIndex);
-    if (stripeIndex2 > 15) {
+    if (stripeIndex2 > 15)
+    {
       stripeIndex2 = 0;
     }
     //add_glitter();
@@ -690,7 +801,7 @@ void funColourJam() {
     FastLED.show();
     FastLED.delay(1); //for 160mhz
     //FastLED.delay(1000 / UPDATES_PER_SECOND);
-  }//end else 3
+  } //end else 3
   /////////////////////////end colour palette///////////////////////////////////////
 }
 

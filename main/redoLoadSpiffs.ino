@@ -126,7 +126,136 @@ void loadSpiffsImage2(String imgPath, uint8_t* message, int num) {
 */
 //////////////////////////////////////////////////////END EXPERIMENTAL ///////////////////////////////
 void loadPatternChooser() {
+//todo: change to .bin load code here
+ if (reload)
+  {
+    for (int i = 0; i < 20; i++)
+    {
+      switch (i)
+      {
+      case 0:
+        image = "a.txt";
+        bin = "a.bin";
+        break;
+      case 1:
+        image = "b.txt";
+        bin = "b.bin";
+        break;
+      case 2:
+        image = "c.txt";
+        bin = "c.bin";
+        break;
+      case 3:
+        image = "d.txt";
+        bin = "d.bin";
+        break;
+      case 4:
+        image = "e.txt";
+        bin = "e.bin";
+        break;
+      case 5:
+        image = "f.txt";
+        bin = "f.bin";
+        break;
+      case 6:
+        image = "g.txt";
+        bin = "g.bin";
+        break;
+      case 7:
+        image = "h.txt";
+        bin = "h.bin";
+        break;
+      case 8:
+        image = "i.txt";
+        bin = "i.bin";
+        break;
+      case 9:
+        image = "j.txt";
+        bin = "j.bin";
+        break;
+      case 10:
+        image = "k.txt";
+        bin = "k.bin";
+        break;
+      case 11:
+        image = "l.txt";
+        bin = "l.bin";
+        break;
+      case 12:
+        image = "m.txt";
+        bin = "m.bin";
+        break;
+      case 13:
+        image = "n.txt";
+        bin = "n.bin";
+        break;
+      case 14:
+        image = "o.txt";
+        bin = "o.bin";
+        break;
+      case 15:
+        image = "p.txt";
+        bin = "p.bin";
+        break;
+      case 16:
+        image = "q.txt";
+        bin = "q.bin";
+        break;
+      case 17:
+        image = "r.txt";
+        bin = "r.bin";
+        break;
+      case 18:
+        image = "s.txt";
+        bin = "s.bin";
+        break;
+      case 19:
+        image = "t.txt";
+        bin = "t.bin";
+        break;
+      }
 
+      f = LittleFS.open(image, "r");
+      if (!f)
+      {
+        FastLED.showColor(CRGB::Blue);
+      }
+      else
+      {
+        int i = 0;
+        byte X;
+        // we could open the file
+
+        while (f.available())
+        {
+
+          //read until reaching "," delimeter:
+          String line = f.readStringUntil(',');
+          int Y = line.toInt();
+          message1Data[i] = Y; //need error checking to make sure the file is not too large for the array!
+          i++;
+        }
+        pxAcross = i / pxDown;
+        f.close();
+     
+      //remove unecessary .txt file:
+      LittleFS.remove(image);
+      // memset(&message1Data, 0, sizeof(message1Data)); //crashes FastLED..?
+      a = LittleFS.open(bin, "w");
+      // a.write(message1Data, sizeof(a))
+      if (a)
+      {
+        if (a.write(message1Data, sizeof(message1Data)))
+        {
+          Serial.println("record added");
+        }
+        a.close();
+      }
+ }
+      Serial.println("start finished");
+    }
+  }
+  /*
   if (pattern == 2) {
     //    String imgToShow1 = "/f.txt";
     //    String imgToShow2 = "/g.txt";
@@ -192,5 +321,6 @@ void loadPatternChooser() {
     preloaded = false;
     loadSpiffsImage2(imgToShow20, message5Data, 5);
   }
+  */
     picToShow = 1; //back to first pic, to sync poi
 }
