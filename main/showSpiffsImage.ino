@@ -1,4 +1,4 @@
-int i = 0; //bad name change this!
+int cnti = 0; 
 
 void showLittleFSImage()
 {
@@ -15,10 +15,10 @@ void showLittleFSImage()
     a.read(message1Data, size);
     // Serial.print("size is: ");
     // Serial.println(size);
-    i++;
-    if (i >= pxDown)
+    cnti++;
+    if (cnti >= pxDown)
     {
-      i = 0;
+      cnti = 0;
     }
     a.close();
   }
@@ -40,6 +40,8 @@ void showLittleFSImage()
       //            Serial.print(R1); Serial.print(", "); Serial.print(G1); Serial.print(", "); Serial.println(M1);
     }
     FastLED.show();
+    FastLED.delay(1); // for 160mhz
+
   }
 }
 

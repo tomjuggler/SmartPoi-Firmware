@@ -239,7 +239,7 @@ void spiffsLoadSettings() {
   //    //Serial.println("ssid same same");
   //  }
 
-  delay(40);
+  // delay(40);
   //and again for password:
   // Define
   Field = settings.readStringUntil('\n');
@@ -289,11 +289,11 @@ void spiffsLoadSettings() {
   //Serial.print("FIELD 4 is: ");
   //Serial.println(ipField4Arr);
 */
-  delay(40);
+  // delay(40);
 
 
   settings.close();
-  delay(100);
+  // delay(100);
   ///////////////////////////////////////////////////////////////End Read Settings////////////////////////////////////////////////////////////////////////////
   //more setup below, has to be inside this function...???
   wifiChooser(router_array, pwd_array);
@@ -319,7 +319,7 @@ void wifiChooser(char router_array[], char pwd_array[]) {
 //      while (WiFiMulti.run() != WL_CONNECTED) {
 while (WiFi.status() != WL_CONNECTED) {
                 //Serial.print(".");
-        delay(500); //why 500 exactly?
+        delay(50); //was set to 500, why? todo: try FastLED.delay()
       }
     } else {
       //Serial.println("main POI");
@@ -445,7 +445,7 @@ void fastLEDIndicate(){
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Black;
       // Wait a little bit before we loop around and do it again
-      delay(10);
+      FastLED.delay(10);
     }
     for (int i = 0; i < NUM_LEDS; i++) {
       // Set the i'th led to whatever
@@ -455,7 +455,7 @@ void fastLEDIndicate(){
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Black;
       // Wait a little bit before we loop around and do it again
-      delay(10);
+      FastLED.delay(10);
     }
     for (int i = 0; i < NUM_LEDS; i++) {
       // Set the i'th led to whatever
@@ -465,10 +465,10 @@ void fastLEDIndicate(){
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Red;
       // Wait a little bit before we loop around and do it again
-      delay(10);
+      FastLED.delay(10);
     }
 
-    delay(10);
+    FastLED.delay(10);
 
 
   } else {
@@ -480,7 +480,7 @@ void fastLEDIndicate(){
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Black;
       // Wait a little bit before we loop around and do it again
-      delay(10);
+      FastLED.delay(10);
     }
     for (int i = 0; i < NUM_LEDS; i++) {
       // Set the i'th led to whatever
@@ -490,7 +490,7 @@ void fastLEDIndicate(){
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Black;
       // Wait a little bit before we loop around and do it again
-      delay(10);
+      FastLED.delay(10);
     }
     for (int i = 0; i < NUM_LEDS; i++) {
       // Set the i'th led to whatever
@@ -500,10 +500,87 @@ void fastLEDIndicate(){
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Green;
       // Wait a little bit before we loop around and do it again
-      delay(10);
+      FastLED.delay(10);
     }
 
-    delay(10);
+    FastLED.delay(10);
+
+  }
+
+  FastLED.showColor( CRGB::Black );
+}
+
+void fastLEDIndicateFast(){
+   //indicate wifi mode:
+//  //Serial.println("FASTLED NOW");
+  if (wifiModeChooser == 1) {
+    for (int i = 0; i < NUM_LEDS; i++) {
+      // Set the i'th led to whatever
+      leds[i] = CRGB::Magenta;
+      // Show the leds
+      FastLED.show();
+      // now that we've shown the leds, reset the i'th led to black
+      leds[i] = CRGB::Black;
+      // Wait a little bit before we loop around and do it again
+      // FastLED.delay(10);
+    }
+    for (int i = 0; i < NUM_LEDS; i++) {
+      // Set the i'th led to whatever
+      leds[i] = CRGB::Magenta;
+      // Show the leds
+      FastLED.show();
+      // now that we've shown the leds, reset the i'th led to black
+      leds[i] = CRGB::Black;
+      // Wait a little bit before we loop around and do it again
+      // FastLED.delay(10);
+    }
+    for (int i = 0; i < NUM_LEDS; i++) {
+      // Set the i'th led to whatever
+      leds[i] = CRGB::Magenta;
+      // Show the leds
+      FastLED.show();
+      // now that we've shown the leds, reset the i'th led to black
+      leds[i] = CRGB::Magenta;
+      // Wait a little bit before we loop around and do it again
+      // FastLED.delay(10);
+    }
+
+    // FastLED.delay(10);
+
+
+  } else {
+    for (int i = 0; i < NUM_LEDS; i++) {
+      // Set the i'th led to whatever
+      leds[i] = CRGB::Green;
+      // Show the leds
+      FastLED.show();
+      // now that we've shown the leds, reset the i'th led to black
+      leds[i] = CRGB::Black;
+      // Wait a little bit before we loop around and do it again
+      // FastLED.delay(10);
+    }
+    for (int i = 0; i < NUM_LEDS; i++) {
+      // Set the i'th led to whatever
+      leds[i] = CRGB::Green;
+      // Show the leds
+      FastLED.show();
+      // now that we've shown the leds, reset the i'th led to black
+      leds[i] = CRGB::Black;
+      // Wait a little bit before we loop around and do it again
+      // FastLED.delay(10);
+    }
+    for (int i = 0; i < NUM_LEDS; i++) {
+      // Set the i'th led to whatever
+      leds[i] = CRGB::Green;
+      // Show the leds
+      FastLED.show();
+      // now that we've shown the leds, reset the i'th led to black
+      leds[i] = CRGB::Green;
+      // Wait a little bit before we loop around and do it again
+      // FastLED.delay(10);
+    }
+
+    // FastLED.delay(10);
 
   }
 

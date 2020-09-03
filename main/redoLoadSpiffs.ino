@@ -4,7 +4,8 @@ void redoLoadSpiffs() {
   //    f = LittleFS.open("/f.txt", "r");
   f = LittleFS.open(fileVar, "r");
   if (!f) {
-    FastLED.showColor( CRGB::Blue );
+fastLEDIndicate();
+    // FastLED.showColor( CRGB::Blue );
   } else {
     int i = 0;
     byte X;
@@ -30,12 +31,14 @@ void redoLoadSpiffs() {
 
 }
 
+//do we need this function?
 void loadSpiffsImage2(String imgPath, uint8_t* message, int num) {
   if (!preloaded) { //need to load once per image change here, not every time it's too slow!
     g = LittleFS.open(imgPath, "r");
     //    g = LittleFS.open("/f.txt", "r");
     if (!g) {
-      FastLED.showColor( CRGB::Blue );
+      fastLEDIndicate();
+      // FastLED.showColor( CRGB::Blue );
     } else {
       int i = 0;
       byte X;
@@ -218,7 +221,8 @@ void loadPatternChooser() {
       f = LittleFS.open(image, "r");
       if (!f)
       {
-        FastLED.showColor(CRGB::Blue);
+        fastLEDIndicateFast();
+        // FastLED.showColor(CRGB::Blue);
       }
       else
       {

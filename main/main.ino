@@ -3,7 +3,6 @@
 //works with postTXTtoPoi processing sketch
 
 //#define SPIFFS_CACHE true //enable ram cache for pics - not necessary I think
-
 #include "user_interface.h" //for testing
 //#include "lwip/tcp_impl.h" //more testing
 //void tcpCleanup()
@@ -36,7 +35,7 @@ ESP8266WiFiMulti WiFiMulti;
 
 //#include <user_interface.h> //for frequency update - from: https://github.com/esp8266/Arduino/issues/579
 //////////////////////////////////////////FastLED code:////////////
-#include "FastLED.h"
+#include <FastLED.h>
 // How many leds in your strip?
 #define NUM_LEDS 37
 //#define NUM_LEDS 73
@@ -166,9 +165,6 @@ boolean savingToSpiffs = false;
 unsigned long previousFlashy = 0;     // will store last time LED was updated
 const long intervalBetweenFlashy = 5; // after this interval switch over to internal
 boolean black = true;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 int state = 0;
 
 //colour palette code://////////////////////////
@@ -208,7 +204,7 @@ String Field;
 int imageToUse = 0;
 String image = "f.txt";
 String bin = "a.txt";
-boolean reload = false; //for converting all .txt to .bin - for testing really.
+boolean reload = true; //for converting all .txt to .bin - for testing really.
 
 //todo: remove below once .bin loading is implemented
 /*
@@ -276,8 +272,7 @@ void setup()
   //  wifiChooser(router_array, pwd_array);
   //  webServerSetupLogic(router_array, pwd_array);
 
-//leaving indicate out for speed right now:
-  // fastLEDIndicate(); //indicates AP (red) or router (green)
+   fastLEDIndicate(); //indicates AP (red) or router (green)
 
   //  dnsServer.start(DNS_PORT, "*", apIP); //AP mode only, surely?? Moved to wifiChooser()
 
@@ -300,7 +295,7 @@ void loop()
     }
     else
     {
-      if (millis() > interval)
+      if (millis() > interval) //why wait here? 
       { //wait for less time...
         start = true;
       }
@@ -511,7 +506,7 @@ void loop()
     //FastLED.delay(2); //not just for emulator!
 
     LEDS.show();
-    delay(1);
+    FastLED.delay(1);
     ///////////////////////////////////end FastLed Code//////////////
 
     // send a reply, to the IP address and port that sent us the packet we received

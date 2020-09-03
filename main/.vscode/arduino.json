@@ -1,7 +1,0 @@
-{
-    "programmer": "AVRISP mkII",
-    "board": "esp8266:esp8266:d1_mini",
-    "configuration": "xtal=160,vt=flash,exception=legacy,ssl=all,eesz=4M2M,ip=lm2f,dbg=Serial,lvl=None____,wipe=all,baud=921600",
-    "port": "/dev/ttyUSB0",
-    "sketch": "main.ino"
-}
