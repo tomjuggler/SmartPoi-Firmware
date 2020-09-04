@@ -53,7 +53,7 @@ void eepromWifiModeChooser(int addr) {
     }
   } else{ //skip router option
 //    EEPROM.write(5, 1); //not necessary
-    wifiModeChooser = 1; //1 means Master AP mode, with Slave connected to Master.
+    wifiModeChooser = 1; //1 means main AP mode, with auxillary connected to main.
   }
 
 
@@ -210,7 +210,7 @@ void spiffsLoadSettings() {
   //from: http://www.esp8266.com/viewtopic.php?f=29&t=8194
   //causing out of memory shutdown errors!
   //how to not have these? need a good look at the code, remove some memory usage :)
-  settings = SPIFFS.open("/settings.txt", "r");
+  settings = LittleFS.open("/settings.txt", "r");
   //note: password is stored in plain text, security risk?
   //currently settings.txt avaliable on demand over http
   //  if (!settings) {
@@ -239,7 +239,7 @@ void spiffsLoadSettings() {
   //    //Serial.println("ssid same same");
   //  }
 
-  delay(40);
+  // delay(40);
   //and again for password:
   // Define
   Field = settings.readStringUntil('\n');
@@ -256,7 +256,7 @@ void spiffsLoadSettings() {
   ////Serial.println(pwd_array);
   ////Serial.print("str() is: ");
   ////Serial.println(String(pwd_array));
-  String str = str((char*)pwd_array);
+//  String str = str((char*)pwd_array); //s
   //Serial.print("str((char* is: ");
   //Serial.println(str);
 
@@ -289,11 +289,11 @@ void spiffsLoadSettings() {
   //Serial.print("FIELD 4 is: ");
   //Serial.println(ipField4Arr);
 */
-  delay(40);
+  // delay(40);
 
 
   settings.close();
-  delay(100);
+  // delay(100);
   ///////////////////////////////////////////////////////////////End Read Settings////////////////////////////////////////////////////////////////////////////
   //more setup below, has to be inside this function...???
   wifiChooser(router_array, pwd_array);
@@ -303,33 +303,33 @@ void spiffsLoadSettings() {
 void wifiChooser(char router_array[], char pwd_array[]) {
   ////////////////////////////////////////////////////Wifi Chooser: /////////////////////////////////////////////////////////////////////////////////////
 
-  if (wifiModeChooser == 1) { //Master AP mode, with Slave connected to Master.
-    //this may be all that is needed to put master and slave in one! That would save time...
-    if (slave) {
-      //Serial.println("SLAVE POI");
+  if (wifiModeChooser == 1) { //main AP mode, with auxillary connected to main.
+    //this may be all that is needed to put main and auxillary in one! That would save time...
+    if (auxillary) {
+      //Serial.println("auxillary POI");
       WiFi.mode(WIFI_STA); 
 //      WiFiMulti.addAP(apName, apPass);
       WiFi.begin(apName, apPass);
-      WiFi.config(apIPSlave, ipGatewaySlave, ipSubnet, ipGatewaySlave);
+      WiFi.config(apIPauxillary, ipGatewayauxillary, ipSubnet, ipGatewayauxillary);
       //change ipGateway for connect to AP?
       //do we want this anymore? ...leaving for now - no signal no picture
-//      WiFi.config(apIPSlave, ipDns, ipGatewaySlave);
+//      WiFi.config(apIPauxillary, ipDns, ipGatewayauxillary);
       //Serial.print("Connecting to AP, IP should be: ");
-      //Serial.println(apIPSlave);
+      //Serial.println(apIPauxillary);
 //      while (WiFiMulti.run() != WL_CONNECTED) {
 while (WiFi.status() != WL_CONNECTED) {
                 //Serial.print(".");
-        delay(500); //why 500 exactly?
+        delay(50); //was set to 500, why? todo: try FastLED.delay()
       }
     } else {
-      //Serial.println("MASTER POI");
+      //Serial.println("main POI");
       WiFi.mode(WIFI_AP);
       //WiFi.softAPConfig(IPAddress(192, 168, 1, addrNumD), IPAddress(192, 168, 1, addrNumD), IPAddress(255, 255, 255, 0));
       WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
       WiFi.softAP(apName, apPass, apChannel); //use pre-set values here
       dnsServer.start(DNS_PORT, "*", apIP); //AP mode only, surely??
     }
-  } else { //both Master and Slave the same, connected to pre-defined Router
+  } else { //both main and auxillary the same, connected to pre-defined Router
     //Serial.println("ROUTER");
     //////////////////////////////////////////////////////////Connect to Router here://///////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////Input Settings from Spiffs: ////////////////////////////////////////////////////////////////////
@@ -445,7 +445,7 @@ void fastLEDIndicate(){
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Black;
       // Wait a little bit before we loop around and do it again
-      delay(10);
+      FastLED.delay(10);
     }
     for (int i = 0; i < NUM_LEDS; i++) {
       // Set the i'th led to whatever
@@ -455,7 +455,7 @@ void fastLEDIndicate(){
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Black;
       // Wait a little bit before we loop around and do it again
-      delay(10);
+      FastLED.delay(10);
     }
     for (int i = 0; i < NUM_LEDS; i++) {
       // Set the i'th led to whatever
@@ -465,10 +465,10 @@ void fastLEDIndicate(){
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Red;
       // Wait a little bit before we loop around and do it again
-      delay(10);
+      FastLED.delay(10);
     }
 
-    delay(10);
+    FastLED.delay(10);
 
 
   } else {
@@ -480,7 +480,7 @@ void fastLEDIndicate(){
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Black;
       // Wait a little bit before we loop around and do it again
-      delay(10);
+      FastLED.delay(10);
     }
     for (int i = 0; i < NUM_LEDS; i++) {
       // Set the i'th led to whatever
@@ -490,7 +490,7 @@ void fastLEDIndicate(){
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Black;
       // Wait a little bit before we loop around and do it again
-      delay(10);
+      FastLED.delay(10);
     }
     for (int i = 0; i < NUM_LEDS; i++) {
       // Set the i'th led to whatever
@@ -500,10 +500,87 @@ void fastLEDIndicate(){
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Green;
       // Wait a little bit before we loop around and do it again
-      delay(10);
+      FastLED.delay(10);
     }
 
-    delay(10);
+    FastLED.delay(10);
+
+  }
+
+  FastLED.showColor( CRGB::Black );
+}
+
+void fastLEDIndicateFast(){
+   //indicate wifi mode:
+//  //Serial.println("FASTLED NOW");
+  if (wifiModeChooser == 1) {
+    for (int i = 0; i < NUM_LEDS; i++) {
+      // Set the i'th led to whatever
+      leds[i] = CRGB::Magenta;
+      // Show the leds
+      FastLED.show();
+      // now that we've shown the leds, reset the i'th led to black
+      leds[i] = CRGB::Black;
+      // Wait a little bit before we loop around and do it again
+      // FastLED.delay(10);
+    }
+    for (int i = 0; i < NUM_LEDS; i++) {
+      // Set the i'th led to whatever
+      leds[i] = CRGB::Magenta;
+      // Show the leds
+      FastLED.show();
+      // now that we've shown the leds, reset the i'th led to black
+      leds[i] = CRGB::Black;
+      // Wait a little bit before we loop around and do it again
+      // FastLED.delay(10);
+    }
+    for (int i = 0; i < NUM_LEDS; i++) {
+      // Set the i'th led to whatever
+      leds[i] = CRGB::Magenta;
+      // Show the leds
+      FastLED.show();
+      // now that we've shown the leds, reset the i'th led to black
+      leds[i] = CRGB::Magenta;
+      // Wait a little bit before we loop around and do it again
+      // FastLED.delay(10);
+    }
+
+    // FastLED.delay(10);
+
+
+  } else {
+    for (int i = 0; i < NUM_LEDS; i++) {
+      // Set the i'th led to whatever
+      leds[i] = CRGB::Green;
+      // Show the leds
+      FastLED.show();
+      // now that we've shown the leds, reset the i'th led to black
+      leds[i] = CRGB::Black;
+      // Wait a little bit before we loop around and do it again
+      // FastLED.delay(10);
+    }
+    for (int i = 0; i < NUM_LEDS; i++) {
+      // Set the i'th led to whatever
+      leds[i] = CRGB::Green;
+      // Show the leds
+      FastLED.show();
+      // now that we've shown the leds, reset the i'th led to black
+      leds[i] = CRGB::Black;
+      // Wait a little bit before we loop around and do it again
+      // FastLED.delay(10);
+    }
+    for (int i = 0; i < NUM_LEDS; i++) {
+      // Set the i'th led to whatever
+      leds[i] = CRGB::Green;
+      // Show the leds
+      FastLED.show();
+      // now that we've shown the leds, reset the i'th led to black
+      leds[i] = CRGB::Green;
+      // Wait a little bit before we loop around and do it again
+      // FastLED.delay(10);
+    }
+
+    // FastLED.delay(10);
 
   }
 

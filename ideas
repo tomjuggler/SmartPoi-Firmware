@@ -1,6 +1,6 @@
 review poi code, need to reduce memory usage
 change pattern (same method as brightness change)
-look more at spiffs save router settings, how to switch from router to AP mode (master and slave)
+look more at spiffs save router settings, how to switch from router to AP mode (main and auxillary)
 
 form fields: 
 

@@ -8,14 +8,12 @@
 //builtin led 1
 
 
-//todo: change if else master/slave code to #ifdef syntax, to save on program space (applied at compile time)
+//todo: change if else main/auxillary code to #ifdef syntax, to save on program space (applied at compile time)
 //works with postTXTtoPoi processing sketch
 
 //#define SPIFFS_CACHE true //enable ram cache for pics - not necessary I think
-
-//#include "user_interface.h" //for debugging
-
-//#include "lwip/tcp_impl.h" //more testing which never worked...
+#include "user_interface.h" //for testing
+//#include "lwip/tcp_impl.h" //more testing
 //void tcpCleanup()
 //{
 //  while(tcp_tw_pcbs!=NULL)
@@ -24,11 +22,13 @@
 //  }
 //}
 /////////////////////////////////////FSBrowser2/////////////////////////////////////////////////
-#include "FS.h"
+// #include "FS.h"
+#include "LittleFS.h" //SPIFFS DEPRECIATED! using LittleFS now. Faster
+
 File fsUploadFile;
 
 ///////////////////////////////////End FSBrowser2////////////////////////////////////////////
-
+int newINT = 0;
 
 #include <ESP8266WiFi.h>
 #include <DNSServer.h>
@@ -46,7 +46,7 @@ ESP8266WiFiMulti WiFiMulti;
 
 //#include <user_interface.h> //for frequency update - from: https://github.com/esp8266/Arduino/issues/579
 //////////////////////////////////////////FastLED code:////////////
-#include "FastLED.h"
+#include <FastLED.h>
 // How many leds in your strip?
 //#define NUM_LEDS 37
 #define NUM_LEDS 73
@@ -55,10 +55,10 @@ ESP8266WiFiMulti WiFiMulti;
 #define NUM_PX 72
 
 int newBrightness = 1; //setting 220 for battery and so white is not too much! //20 for testing ok
+#define DATA_PIN D2    //D2 for D1Mini, 2 for ESP-01
+#define CLOCK_PIN D1   //D1 for D1Mini, 0 for ESP-01
 
-#define DATA_PIN 2 //D2 for D1Mini, 2 for ESP-01
-#define CLOCK_PIN 0 //D1 for D1Mini, 0 for ESP-01
-boolean slave = false;
+boolean auxillary = false; //true for second (auxillary) poi
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
@@ -68,31 +68,21 @@ CRGB leds[NUM_LEDS];
 File f;
 File w;
 File g;
+File a;
 //File html; //removed to save space...
 
 //settings init:
 File settings;
 
 
-const int maxPX = 8640; //8640 for 72px poi, 72x120
+const int maxPX = 10368; //8640 for 72px poi, 72x120
 //lets try using a maximum number of pixels so very large array to hold any number:
-uint8_t message1Data[8640]; //this is much larger than our image - max image 36 down, 120 across
-uint8_t message2Data[8640]; //this is much larger than our image - max image 36 down, 120 across
+uint8_t message1Data[maxPX]; //this is much larger than our image - max image 36 down, 120 across
+//uint8_t message2Data[8640]; //this is much larger than our image - max image 36 down, 120 across
 //uint8_t message3Data[4320]; //this is much larger than our image - max image 36 down, 120 across
 //uint8_t message4Data[4320]; //this is much larger than our image - max image 36 down, 120 across
 //uint8_t message5Data[4320]; //this is much larger than our image - max image 36 down, 120 across
-/*
-   the above arrays are where the memory goes to . Reduce this somehow?
-   for eg:
-   below reduces to 62% Global variables as opposed to 78% for above. Do we need 144px across? This will be double for the 72px poi what then?
-  int maxPX = 2592; //5184
-  //lets try using a maximum number of pixels so very large array to hold any number:
-  uint8_t message1Data[2592]; //this is much larger than our image - max image 36 down, 144 across
-  uint8_t message2Data[2592]; //this is much larger than our image - max image 36 down, 144 across
-  uint8_t message3Data[2592]; //this is much larger than our image - max image 36 down, 144 across
-  uint8_t message4Data[2592]; //this is much larger than our image - max image 36 down, 144 across
-  uint8_t message5Data[2592]; //this is much larger than our image - max image 36 down, 144 across
-*/
+
 
 int picToShow = 1;
 const int maxPicsToShow = 5;
@@ -110,7 +100,7 @@ volatile int message2DataCounter = 0;
 ////////////////////////////////////////////////////Mostly networking stuff: ////////////////////////////////////////////
 const byte DNS_PORT = 53;
 IPAddress apIP(192, 168, 1, 1);
-IPAddress apIPSlave(192, 168, 1, 78);
+IPAddress apIPauxillary(192, 168, 1, 78);
 DNSServer dnsServer;
 ESP8266WebServer server(80);
 
@@ -127,7 +117,7 @@ int keyIndex = 0;            // your network key Index number (needed only for W
 
 IPAddress ipSubnet(255, 255, 255, 0);
 IPAddress ipGateway(192, 168, 8, 1);
-IPAddress ipGatewaySlave(192, 168, 1, 1);
+IPAddress ipGatewayauxillary(192, 168, 1, 1);
 //IPAddress ipDns(8, 8, 8, 8);
 IPAddress ip(192, 168, 8, 77);
 
@@ -142,7 +132,6 @@ uint8_t addrNumD = 78;
 
 const unsigned int localPort = 2390;      // local port to listen on
 
-
 byte packetBuffer[NUM_PX]; //buffer to hold incoming packet
 //char  ReplyBuffer[] = "acknowledged";       // a string to send back
 
@@ -156,16 +145,10 @@ int statusCode;
 //////////////////////////////////////////////////////////////end mostly networking stuff////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////setup timer: ////////////////////////////////////////////////////////////////
-
-// Generally, you should use "unsigned long" for variables that hold time
-// The value will quickly become too large for an int to store
-unsigned long previousMillis = 0;        // will store last time LED was updated
+unsigned long previousMillis = 0; // will store last time LED was updated
 unsigned long previousMillis2 = 0;
-//const unsigned long firstRunMillis = 22000;
-
-// constants won't change :
-const long interval = 5000;           // after this interval switch over to internal
-//const long longWait = 10000;           // interval to wait before checking setting on udp send //using above to save space!?
+unsigned long previousMillis3 = 0;
+const long interval = 5000; // after this interval switch over to internal
 boolean checkit = false;
 boolean channelChange = false;
 boolean savingToSpiffs = false;
@@ -185,9 +168,6 @@ boolean lines = true;
 #define UPDATES_PER_SECOND 30000
 CRGBPalette16 currentPalette;
 TBlendType    currentBlending = NOBLEND;
-
-//extern CRGBPalette16 myRedWhiteBluePalette;
-//extern const TProgmemPalette16 myRedWhiteBluePalette_p PROGMEM;
 
 int paletteVar = 1;
 
@@ -212,29 +192,10 @@ IPAddress tmpIP(192, 168, 8, 77);
 
 String Field;
 
-String imgToShow1 = "/f.txt";
-String imgToShow2 = "/g.txt";
-String imgToShow3 = "/h.txt";
-String imgToShow4 = "/i.txt";
-String imgToShow5 = "/j.txt";
-
-String imgToShow6 = "/a.txt";
-String imgToShow7 = "/b.txt";
-String imgToShow8 = "/c.txt";
-//String imgToShow9 = "/d.txt";
-//String imgToShow10 = "/e.txt";
-//
-//String imgToShow11 = "/k.txt";
-//String imgToShow12 = "/l.txt";
-//String imgToShow13 = "/m.txt";
-//String imgToShow14 = "/n.txt";
-//String imgToShow15 = "/o.txt";
-//
-//String imgToShow16 = "/p.txt";
-//String imgToShow17 = "/q.txt";
-//String imgToShow18 = "/r.txt";
-//String imgToShow19 = "/s.txt";
-//String imgToShow20 = "/t.txt";
+int imageToUse = 0;
+String image = "f.txt";
+String bin = "a.txt";
+boolean reload = true; //for converting all .txt to .bin - for testing really.
 
 int uploadCounter = 1;
 
@@ -267,7 +228,7 @@ void setup() {
   EEPROM.commit(); //save any changes made above
   ///////////////////////////////////////////////////////SPIFFS: /////////////////////////////////////////////////////////
   // always use this to "mount" the filesystem
-  bool result = SPIFFS.begin();
+  bool result = LittleFS.begin();
   String router;
 
   spiffsLoadSettings();
@@ -277,14 +238,11 @@ void setup() {
 
   fastLEDIndicate(); //indicates AP (red) or router (green)
 
-
-
   //  dnsServer.start(DNS_PORT, "*", apIP); //AP mode only, surely?? Moved to wifiChooser()
 
   Udp.begin(localPort);
 
   loadPatternChooser(); //in redoLoadSpiffs tab
-
 }
 
 volatile byte X;
@@ -292,6 +250,7 @@ volatile byte Y;
 volatile byte R1;
 volatile byte G1;
 volatile byte M1;
+//Todo: check if the below is already assigned:
 volatile unsigned long currentMillis = millis();
 volatile unsigned long currentMillis2 = millis();
 volatile int packetSize;
@@ -324,7 +283,7 @@ void loop() {
   //  //Serial.print(state);
   //  //Serial.println(" one for no signal, zero for signal");
   //if(millis() > firstRunMillis){ //do only on first run???
-  //if(wifiEventDetect && !slave){ //master poi
+  //if(wifiEventDetect && !auxillary){ //main poi
   ChangePatternPeriodically(); //trying a new way
   
   if (start) {
@@ -345,7 +304,7 @@ void loop() {
       ////Serial.println("state changed to 1");
     }
   }
-  //else{ //slave poi
+  //else{ //auxillary poi
   //  if (currentMillis - previousMillis >= interval) {   //should not ever be true if udp is sending at correct speed!
   ////    Serial.println(millis());
   //    // save the last time you checked the time
@@ -505,19 +464,62 @@ void loop() {
     //    Udp.write(ReplyBuffer);
     //    Udp.endPacket();
   }
-  else if (!packetSize && state == 1) { // this is backup, if udp not received ie: connection dropped for > interval millisecs
-    switch (pattern) {
-      case 1: {
-          funColourJam();
-          //sendTestMessage(); //test send message for now...
-          break;
-        }
-      //more options for patterns and spiffs loading here
-      case 2: case 3: case 4: case 5: { //cases 2, 3, 4 and 5 the same just with different pre-loaded pics! todo: add some more patterns, pattern 0...
-          //          showSpiffsImage();
+  else if (!packetSize && state == 1)
+  { // this is backup, if udp not received ie: connection dropped for > interval millisecs
+    switch (pattern)
+    {
+    case 1:
+    {
+      funColourJam();
+      //sendTestMessage(); //test send message for now...
+      break;
+    }
+    //more options for patterns and spiffs loading here
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    { //cases 2, 3, 4 and 5 the same just with different pre-loaded pics! 
+    //todo: add some more patterns, pattern 0...
+      switch (imageToUse)
+      {
+      case 0:
+        bin = "/a.bin";
+        break;
+      case 1:
+        bin = "/b.bin";
+        break;
+      case 2:
+        bin = "/c.bin";
+        break;
+      case 3:
+        bin = "/d.bin";
+        break;
+      case 4:
+        bin = "/e.bin";
+        break;
+      case 5:
+        bin = "/f.bin";
+        break;
+      case 6:
+        bin = "/g.bin";
+        break;
+      case 7:
+        bin = "/h.bin";
+        break;
+      case 8:
+        bin = "i.bin";
+        break;
+      case 9:
+        bin = "j.bin";
+        break;
+      
+      }
 
-          //  tempSwitch = !tempSwitch;
-          /*
+      showLittleFSImage();
+
+      //  tempSwitch = !tempSwitch;
+      /*
             if(tempSwitch){
             pxAcross = pxAcrossArray[1]; //do this only on change?
             showSpiffsImage2(message1Data);
@@ -527,35 +529,9 @@ void loop() {
             showSpiffsImage2(message2Data);
             }
           */
-          //          //Serial.print("pic number: ");
-          //          //Serial.println(picToShow);
-          switch (picToShow) {
-            case 1:
-              pxAcross = pxAcrossArray[1]; //do this only on change?
-              showSpiffsImage2(message1Data);
-              break;
-            case 2:
-              pxAcross = pxAcrossArray[2]; //do this only on change?
-              showSpiffsImage2(message2Data);
-              break;
-//            case 3:
-//              pxAcross = pxAcrossArray[3]; //do this only on change?
-//              showSpiffsImage2(message3Data);
-//              break;
-//            case 4:
-//              pxAcross = pxAcrossArray[4]; //do this only on change?
-//              showSpiffsImage2(message4Data);
-//              break;
-//            case 5:
-//              pxAcross = pxAcrossArray[5]; //do this only on change?
-//              showSpiffsImage2(message5Data);
-//              break;
-          }
-          //          //Serial.println("Spiffs");
-          //sendTestMessage(); //test send message for now...
-//          funColourJam(); //was only for testing
-          break;
-        }
+      
+      break;
+    }
     }
   }
   else {

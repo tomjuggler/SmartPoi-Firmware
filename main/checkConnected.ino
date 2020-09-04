@@ -3,7 +3,7 @@
 //void WiFiEvent(WiFiEvent_t event) {
 //  switch (event)  {
 //    case WIFI_EVENT_SOFTAPMODE_STACONNECTED:
-////    delay(5000); //wait for slave to catch up?
+////    delay(5000); //wait for auxillary to catch up?
 ////    Serial.println("connect event");
 //      wifiEventDetect = true;
 //      break;

@@ -39,10 +39,10 @@ bool handleFileRead(String path) {
   if (path.endsWith("/")) path += "index.htm";
   String contentType = getContentType(path);
   String pathWithGz = path + ".gz";
-  if (SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)) {
-    if (SPIFFS.exists(pathWithGz))
+  if (LittleFS.exists(pathWithGz) || LittleFS.exists(path)) {
+    if (LittleFS.exists(pathWithGz))
       path += ".gz";
-    File file = SPIFFS.open(path, "r");
+    File file = LittleFS.open(path, "r");
     size_t sent = server.streamFile(file, contentType);
     file.close();
     return true;
@@ -75,7 +75,7 @@ void handleFileUpload() {
     String filename = upload.filename;
     if (!filename.startsWith("/")) filename = "/" + filename;
     //Serial.print("handleFileUpload Name: "); //Serial.println(filename);
-    fsUploadFile = SPIFFS.open(filename, "w");
+    fsUploadFile = LittleFS.open(filename, "w");
     filename = String();
   } else if (upload.status == UPLOAD_FILE_WRITE) {
     ////Serial.print("handleFileUpload Data: "); //Serial.println(upload.currentSize);
@@ -128,9 +128,9 @@ void handleFileDelete() {
   //Serial.println("handleFileDelete: " + path);
   if (path == "/")
     return server.send(500, "text/plain", "BAD PATH");
-  if (!SPIFFS.exists(path))
+  if (!LittleFS.exists(path))
     return server.send(404, "text/plain", "FileNotFound");
-  SPIFFS.remove(path);
+  LittleFS.remove(path);
   server.send(200, "text/plain", "");
   path = String();
 }
@@ -142,9 +142,9 @@ void handleFileCreate() {
   //Serial.println("handleFileCreate: " + path);
   if (path == "/")
     return server.send(500, "text/plain", "BAD PATH");
-  if (SPIFFS.exists(path))
+  if (LittleFS.exists(path))
     return server.send(500, "text/plain", "FILE EXISTS");
-  File file = SPIFFS.open(path, "w");
+  File file = LittleFS.open(path, "w");
   if (file)
     file.close();
   else
@@ -161,7 +161,7 @@ void handleFileList() {
 
   String path = server.arg("dir");
   //Serial.println("handleFileList: " + path);
-  Dir dir = SPIFFS.openDir(path);
+  Dir dir = LittleFS.openDir(path);
   path = String();
 
   String output = "[";
@@ -214,7 +214,7 @@ void webServerSetupLogic(String router, String pass) {
 
   //html taking up too much room? moved to spiffs!
   responseHTML = "";
-  //  html = SPIFFS.open("/site.htm", "r");
+  //  html = LittleFS.open("/site.htm", "r");
   //  if (!html) {
   //    //Serial.println("no html");
   //  } else {
@@ -336,16 +336,16 @@ void webServerSetupLogic(String router, String pass) {
     ///////////////////////////////////////////////////////////////////////read spiffs settings again://///////////////////////////////////////////////////////
     //why do I have to read it all again? ???????
 
-    settings = SPIFFS.open("/settings.txt", "r");
+    settings = LittleFS.open("/settings.txt", "r");
     String anotherSettingsFUP = settings.readStringUntil('\n');
     String anotherSettingsFUP2 = settings.readStringUntil('\n');
 
     //
 
     settings.close();
-    delay(100);
+    // delay(100);
     int newChannelAgainFUP = int(EEPROM.read(13));
-    delay(30);
+    // delay(30);
     //MUST WE READ ALL SETTINGS AGAIN? OR USE INITIALIZED ONES LIKE addrNumA?
     //////////////////////////////////////////end read spiffs settings again/////////////////////////////////////////////////////////////////////////////
     content = anotherSettingsFUP + "," + anotherSettingsFUP2 + "," + newChannelAgainFUP + "," + addrNumA + "," + addrNumB + "," + addrNumC + "," + addrNumD + "," + patternChooser;
@@ -362,6 +362,11 @@ void webServerSetupLogic(String router, String pass) {
   //  });
 
   /////////////////////////////////////////////////////////quick change Router://////////////////////////////////////////////////////////////////////////////////
+  //to activate in browser: http://192.168.1.78/router?router=1
+  //don't forget main: http://192.168.1.1/router?router=1
+  //nothing happens, but router is now switched on. 
+  //to deactivate: router=0
+  
   server.on("/router", []() {
     //////////////////////////////////////////////////////change PatternChooser setting in EEPROM://///////////////////////////////////////////////////////////////////////////////
     String onRouter = server.arg("router"); //need to handle errors what if it's too big
@@ -456,7 +461,7 @@ void webServerSetupLogic(String router, String pass) {
     //change router settings in Spiffs://////////////////////////////////////////////////////////////////////////////////
     //not working currently
     // open file for writing
-    settings = SPIFFS.open("/settings.txt", "w");
+    settings = LittleFS.open("/settings.txt", "w");
     if (!settings) {
       //Serial.println("settings file open failed");
     }
@@ -537,7 +542,7 @@ void webServerSetupLogic(String router, String pass) {
 
       //test: use address field for patternChooser:
       //make another field here for this, has it's own eeprom address and everything!
-      //ok can't use html because of slave poi not working with this. Use other method. Just a test delete this!
+      //ok can't use html because of auxillary poi not working with this. Use other method. Just a test delete this!
       //      patternChooser = onAddress.toInt();
       //      //error check:
       //      if(patternChooser > 3){
@@ -629,7 +634,7 @@ void webServerSetupLogic(String router, String pass) {
     ////////////////////////////////////////////////////end change Pattern Chooser setting in EEPROM////////////////////////////////////////////////////////////////////////////////
 
     server.send(statusCode, "application/json", content);
-    delay(50);
+    // delay(50);
     //    ESP.restart(); //not using this right now but see https://github.com/esp8266/Arduino/issues/1722#issuecomment-192829825
 
   });
