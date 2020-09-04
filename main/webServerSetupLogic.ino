@@ -95,7 +95,7 @@ void handleFileUpload() {
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Black;
       // Wait a little bit before we loop around and do it again
-      // delay(10); //who has time to wait?
+       delay(10); //who has time to wait?
     }
 
     //////////////////////////////////////////////////////Reload after saving:///////////////////////////////////////////////////////////////////////
