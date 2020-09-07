@@ -55,8 +55,8 @@ ESP8266WiFiMulti WiFiMulti;
 #define NUM_PX 72
 
 int newBrightness = 1; //setting 220 for battery and so white is not too much! //20 for testing ok
-#define DATA_PIN D2    //D2 for D1Mini, 2 for ESP-01
-#define CLOCK_PIN D1   //D1 for D1Mini, 0 for ESP-01
+#define DATA_PIN 2    //D2 for D1Mini, 2 for ESP-01
+#define CLOCK_PIN 0   //D1 for D1Mini, 0 for ESP-01
 
 boolean auxillary = false; //true for second (auxillary) poi
 
@@ -257,6 +257,8 @@ volatile int packetSize;
 volatile int len;
 
 void loop() {
+  // String size = String(lfs_fs_size);
+  Serial.println(size);
   //this only works once:
   if (start == false) {
     if(routerOption){
