@@ -326,5 +326,5 @@ void loadPatternChooser() {
     loadSpiffsImage2(imgToShow20, message5Data, 5);
   }
   */
-    picToShow = 1; //back to first pic, to sync poi
+    imageToUse = 1; //back to first pic, to sync poi
 }

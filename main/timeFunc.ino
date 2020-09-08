@@ -28,23 +28,23 @@ void ChangePatternPeriodically()
 //  Serial.println(frei);
     //if( secondHand == 1)   { SetupVariablePalette(CRGB::Red, CRGB::Gray, CRGB::Blue, CRGB::Black); }
     if ( secondHand == 5)  {
-      picToShow = 1;
+      imageToUse = 1;
     }
     //if( secondHand == 20)  { SetupVariablePalette(CRGB::Green, CRGB::Gray, CRGB::Pink, CRGB::Black); }
     if ( secondHand == 15)  {
-     picToShow = 2;
+     imageToUse = 2;
     }
     //if( secondHand == 30)  { SetupVariablePalette(CRGB::Orange, CRGB::Gray, CRGB::Cyan, CRGB::Black); }
     if ( secondHand == 25)  {
-      picToShow = 3;
+      imageToUse = 3;
     }
     //if( secondHand == 40)  { SetupVariablePalette(CRGB::Magenta, CRGB::Gray, CRGB::Yellow, CRGB::Black); }
     if ( secondHand == 35)  {
-      picToShow = 4;
+      imageToUse = 4;
     }
     //if( secondHand == 50)  { SetupVariablePalette(CRGB::Blue, CRGB::Gray, CRGB::Green, CRGB::Black); }
     if ( secondHand == 45)  {
-      picToShow = 5;
+      imageToUse = 5;
     }
   }
 }
