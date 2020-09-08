@@ -220,5 +220,5 @@ void loadPatternChooser() {
     }
   }
   
-    picToShow = 1; //back to first pic, to sync poi
+    imageToUse = 1; //back to first pic, to sync poi
 }
