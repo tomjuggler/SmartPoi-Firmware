@@ -101,7 +101,7 @@ void handleFileUpload() {
 
     //////////////////////////////////////////////////////Reload after saving:///////////////////////////////////////////////////////////////////////
     // reload all images: this takes a long time!!!
-     loadPatternChooser();
+    //  loadPatternChooser();
     //    String imgToShow1 = "/f.txt";
     //    String imgToShow2 = "/g.txt";
     //    String imgToShow3 = "/h.txt";
