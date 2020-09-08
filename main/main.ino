@@ -149,6 +149,7 @@ unsigned long previousMillis = 0; // will store last time LED was updated
 unsigned long previousMillis2 = 0;
 unsigned long previousMillis3 = 0;
 const long interval = 5000; // after this interval switch over to internal
+//above also used as interval for change of image. Todo: Need new updateable variable
 boolean checkit = false;
 boolean channelChange = false;
 boolean savingToSpiffs = false;
@@ -242,7 +243,7 @@ void setup() {
 
   Udp.begin(localPort);
 
-  loadPatternChooser(); //in redoLoadSpiffs tab
+  // loadPatternChooser(); //in redoLoadSpiffs tab
 }
 
 volatile byte X;
@@ -258,7 +259,7 @@ volatile int len;
 
 void loop() {
   // String size = String(lfs_fs_size);
-  Serial.println(size);
+  // Serial.println(size);
   //this only works once:
   if (start == false) {
     if(routerOption){
