@@ -7,6 +7,9 @@
 //lwIP variant v1.4 Higher Bandwidth
 //builtin led 1
 
+//todo: add another 40 images! we have the space
+//maybe have some 10 pre-defined ones which can't be deleted (one option)
+
 
 //todo: change if else main/auxillary code to #ifdef syntax, to save on program space (applied at compile time)
 //works with postTXTtoPoi processing sketch
@@ -28,7 +31,6 @@
 File fsUploadFile;
 
 ///////////////////////////////////End FSBrowser2////////////////////////////////////////////
-int newINT = 0;
 
 #include <ESP8266WiFi.h>
 #include <DNSServer.h>
@@ -66,36 +68,19 @@ CRGB leds[NUM_LEDS];
 
 
 File f;
-File w;
-File g;
 File a;
-//File html; //removed to save space...
 
 //settings init:
 File settings;
 
 
-const int maxPX = 10368; //8640 for 72px poi, 72x120
+const int maxPX = 10368; //8640 for 72px poi, 72x120 - now 72x144
 //lets try using a maximum number of pixels so very large array to hold any number:
 uint8_t message1Data[maxPX]; //this is much larger than our image - max image 36 down, 120 across
-//uint8_t message2Data[8640]; //this is much larger than our image - max image 36 down, 120 across
-//uint8_t message3Data[4320]; //this is much larger than our image - max image 36 down, 120 across
-//uint8_t message4Data[4320]; //this is much larger than our image - max image 36 down, 120 across
-//uint8_t message5Data[4320]; //this is much larger than our image - max image 36 down, 120 across
-
-
-int picToShow = 1;
-const int maxPicsToShow = 5;
-
-int counter = 0;
 
 int pxDown = 72;
 int pxAcross = 72; //this will change with the image
-int pxAcrossArray[10]; //array for saving different px across
-int pxDownCounter = 0;
-int pxAcrossCounter = 0;
-volatile int message1DataCounter = 0;
-volatile int message2DataCounter = 0;
+
 
 ////////////////////////////////////////////////////Mostly networking stuff: ////////////////////////////////////////////
 const byte DNS_PORT = 53;
@@ -148,7 +133,7 @@ int statusCode;
 unsigned long previousMillis = 0; // will store last time LED was updated
 unsigned long previousMillis2 = 0;
 unsigned long previousMillis3 = 0;
-const long interval = 5000; // after this interval switch over to internal
+long interval = 5000; // after this interval switch over to internal
 //above also used as interval for change of image. Todo: Need new updateable variable
 boolean checkit = false;
 boolean channelChange = false;
@@ -194,9 +179,13 @@ IPAddress tmpIP(192, 168, 8, 77);
 String Field;
 
 int imageToUse = 0;
-String image = "f.txt";
-String bin = "a.txt";
-boolean reload = true; //for converting all .txt to .bin - for testing really.
+int maxImages = 9; //how many can we have? 
+//below is a hack! need a better address system
+String images = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; //only 26? how to get more? CAPS? NUMBERS?
+String image = "a.txt"; //todo: safe delete this, not needed
+// char bin[] = "a.bin";
+String bin = "a.bin"; //one more than chars
+boolean reload = true; //for converting all .txt to .bin - for testing really. todo: save delete
 
 int uploadCounter = 1;
 
@@ -205,12 +194,39 @@ boolean start = false;
 
 boolean routerOption = false;
 
+//list directory function for testing: 
+void listDir(const char * dirname) {
+  Serial.printf("Listing directory: %s\n", dirname);
+
+  Dir root = LittleFS.openDir(dirname);
+
+  long sizeOnDisk = 0;
+
+  while (root.next()) {
+    File file = root.openFile("r");
+    Serial.print("  FILE: ");
+    Serial.print(root.fileName());
+    Serial.print("  SIZE: ");
+    Serial.print(file.size());
+    sizeOnDisk = sizeOnDisk + file.size();
+    time_t cr = file.getCreationTime();
+    time_t lw = file.getLastWrite();
+    file.close();
+    struct tm * tmstruct = localtime(&cr);
+    Serial.printf("    CREATION: %d-%02d-%02d %02d:%02d:%02d\n", (tmstruct->tm_year) + 1900, (tmstruct->tm_mon) + 1, tmstruct->tm_mday, tmstruct->tm_hour, tmstruct->tm_min, tmstruct->tm_sec);
+    tmstruct = localtime(&lw);
+    Serial.printf("  LAST WRITE: %d-%02d-%02d %02d:%02d:%02d\n", (tmstruct->tm_year) + 1900, (tmstruct->tm_mon) + 1, tmstruct->tm_mday, tmstruct->tm_hour, tmstruct->tm_min, tmstruct->tm_sec);
+    Serial.print("sizeOnDisk: ");
+    Serial.println(sizeOnDisk);
+  }
+}
+
 void setup() {
   //  WiFi.onEvent(WiFiEvent,WIFI_EVENT_ANY); //is this thing causing problems? not sure what it's doing here!
   fastLEDInit(); //try get led's responding quicker here!
   //Initialize serial and wait for port to open:
-//  Serial.begin(115200);
-//  Serial.println(""); //new line for readability
+  Serial.begin(115200);
+  Serial.println(""); //new line for readability
 
   //////////////////////////////////////////////read eeprom settings://////////////////////////////////////////////////////////////////
   EEPROM.begin(512);
@@ -232,7 +248,8 @@ void setup() {
   bool result = LittleFS.begin();
   String router;
 
-  spiffsLoadSettings();
+//the following is related to router settings (using AP mode currently)
+   spiffsLoadSettings(); //where did this go???
   // 2 functions below have to be inside spiffsLoadSettings or else: ERROR: router_array was not declared in this scope
   //  wifiChooser(router_array, pwd_array);
   //  webServerSetupLogic(router_array, pwd_array);
@@ -242,8 +259,9 @@ void setup() {
   //  dnsServer.start(DNS_PORT, "*", apIP); //AP mode only, surely?? Moved to wifiChooser()
 
   Udp.begin(localPort);
+   listDir("/"); //remove this test!
 
-  // loadPatternChooser(); //in redoLoadSpiffs tab
+  // loadPatternChooser(); 
 }
 
 volatile byte X;
@@ -258,6 +276,7 @@ volatile int packetSize;
 volatile int len;
 
 void loop() {
+  // listDir("/"); //remove this test!
   // String size = String(lfs_fs_size);
   // Serial.println(size);
   //this only works once:
@@ -484,55 +503,44 @@ void loop() {
     case 5:
     { //cases 2, 3, 4 and 5 the same just with different pre-loaded pics! 
     //todo: add some more patterns, pattern 0...
-      switch (imageToUse)
-      {
-      case 0:
-        bin = "/a.bin";
-        break;
-      case 1:
-        bin = "/b.bin";
-        break;
-      case 2:
-        bin = "/c.bin";
-        break;
-      case 3:
-        bin = "/d.bin";
-        break;
-      case 4:
-        bin = "/e.bin";
-        break;
-      case 5:
-        bin = "/f.bin";
-        break;
-      case 6:
-        bin = "/g.bin";
-        break;
-      case 7:
-        bin = "/h.bin";
-        break;
-      case 8:
-        bin = "i.bin";
-        break;
-      case 9:
-        bin = "j.bin";
-        break;
+    bin.setCharAt(0, images.charAt(imageToUse));
+      // bin[0] = images[imageToUse]; //abcde...
+      // switch (imageToUse)
+      // {
+      // case 0:
+      //   bin = "/a.bin";
+      //   break;
+      // case 1:
+      //   bin = "/b.bin";
+      //   break;
+      // case 2:
+      //   bin = "/c.bin";
+      //   break;
+      // case 3:
+      //   bin = "/d.bin";
+      //   break;
+      // case 4:
+      //   bin = "/e.bin";
+      //   break;
+      // case 5:
+      //   bin = "/f.bin";
+      //   break;
+      // case 6:
+      //   bin = "/g.bin";
+      //   break;
+      // case 7:
+      //   bin = "/h.bin";
+      //   break;
+      // case 8:
+      //   bin = "i.bin";
+      //   break;
+      // case 9:
+      //   bin = "j.bin";
+      //   break;
       
-      }
+      // }
 
-      showLittleFSImage();
-
-      //  tempSwitch = !tempSwitch;
-      /*
-            if(tempSwitch){
-            pxAcross = pxAcrossArray[1]; //do this only on change?
-            showSpiffsImage2(message1Data);
-            }
-            else{
-            pxAcross = pxAcrossArray[2];//do this only on 1st change??
-            showSpiffsImage2(message2Data);
-            }
-          */
-      
+      showLittleFSImage();      
       break;
     }
     }

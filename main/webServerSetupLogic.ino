@@ -422,8 +422,8 @@ void webServerSetupLogic(String router, String pass) {
       EEPROM.commit(); //save for next time?
       //Serial.println("10, patternChooser saved");
       //black, this could take a while, so save power? Also an indicator...
-      FastLED.showColor(CRGB::Black);
-      loadPatternChooser();
+      // FastLED.showColor(CRGB::Black);
+      // loadPatternChooser();
       content = "{\"Success\":\" your pattern is set \"}";
       statusCode = 200;
     } else {
@@ -629,8 +629,8 @@ void webServerSetupLogic(String router, String pass) {
       EEPROM.commit(); //save for next time?
       //Serial.println("10, patternChooser saved");
       //black, this could take a while, so save power? Also an indicator...
-      FastLED.showColor(CRGB::Black);
-      loadPatternChooser();
+      // FastLED.showColor(CRGB::Black);
+      // loadPatternChooser();
     } else {    }   //nothing
     ////////////////////////////////////////////////////end change Pattern Chooser setting in EEPROM////////////////////////////////////////////////////////////////////////////////
 

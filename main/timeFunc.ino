@@ -12,40 +12,13 @@ void ChangePatternPeriodically()
   { //should not ever be true if udp is sending at correct speed!
     imageToUse++;
     previousMillis3 = currentMillis3;
-    if (imageToUse > 9)
+    if (imageToUse > maxImages)
     {
       imageToUse = 0;
     }
     // Serial.println(imageToUse);
   }
 
-  //old function:
-  secondHand = (millis() / 1000) % 20;
   
-  if ( lastSecond != secondHand) {
-    lastSecond = secondHand;
-//  frei = system_get_free_heap_size(); //debug code
-//  Serial.println(frei);               //debug code
-    //if( secondHand == 1)   { SetupVariablePalette(CRGB::Red, CRGB::Gray, CRGB::Blue, CRGB::Black); }
-    if ( secondHand == 5)  {
-      imageToUse = 1;
-    }
-    //if( secondHand == 20)  { SetupVariablePalette(CRGB::Green, CRGB::Gray, CRGB::Pink, CRGB::Black); }
-    if ( secondHand == 15)  {
-     imageToUse = 2;
-    }
-//    //if( secondHand == 30)  { SetupVariablePalette(CRGB::Orange, CRGB::Gray, CRGB::Cyan, CRGB::Black); }
-//    if ( secondHand == 25)  {
-//      picToShow = 3;
-//    }
-//    //if( secondHand == 40)  { SetupVariablePalette(CRGB::Magenta, CRGB::Gray, CRGB::Yellow, CRGB::Black); }
-//    if ( secondHand == 35)  {
-//      picToShow = 4;
-//    }
-//    //if( secondHand == 50)  { SetupVariablePalette(CRGB::Blue, CRGB::Gray, CRGB::Green, CRGB::Black); }
-//    if ( secondHand == 45)  {
-//      picToShow = 5;
-//    }
-  }
 }
 
