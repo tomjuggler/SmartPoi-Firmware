@@ -6,7 +6,9 @@ void showLittleFSImage()
 
   if (!a)
   {
-    FastLED.showColor(CRGB::Blue);
+//go to next message and return
+    imageToUse++;
+    // FastLED.showColor(CRGB::Blue);
     // Serial.println("Code Blue - no file found!");
   }
   else

@@ -179,9 +179,11 @@ IPAddress tmpIP(192, 168, 8, 77);
 String Field;
 
 int imageToUse = 0;
-int maxImages = 9; //how many can we have? 
+//max and min images need to be saved in spiffs (settings.txt? EEProm?) and updateable via the app
+int maxImages = 52; //how many can we have? 50 is enough for big poi, memory wise
+int minImages = 0; //start of block - change according to pattern!
 //below is a hack! need a better address system
-String images = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; //only 26? how to get more? CAPS? NUMBERS?
+String images = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; //need MORE for small poi
 String image = "a.txt"; //todo: safe delete this, not needed
 // char bin[] = "a.bin";
 String bin = "a.bin"; //one more than chars
@@ -498,51 +500,38 @@ void loop() {
     }
     //more options for patterns and spiffs loading here
     case 2:
-    case 3:
-    case 4:
-    case 5:
-    { //cases 2, 3, 4 and 5 the same just with different pre-loaded pics! 
-    //todo: add some more patterns, pattern 0...
-    bin.setCharAt(0, images.charAt(imageToUse));
-      // bin[0] = images[imageToUse]; //abcde...
-      // switch (imageToUse)
-      // {
-      // case 0:
-      //   bin = "/a.bin";
-      //   break;
-      // case 1:
-      //   bin = "/b.bin";
-      //   break;
-      // case 2:
-      //   bin = "/c.bin";
-      //   break;
-      // case 3:
-      //   bin = "/d.bin";
-      //   break;
-      // case 4:
-      //   bin = "/e.bin";
-      //   break;
-      // case 5:
-      //   bin = "/f.bin";
-      //   break;
-      // case 6:
-      //   bin = "/g.bin";
-      //   break;
-      // case 7:
-      //   bin = "/h.bin";
-      //   break;
-      // case 8:
-      //   bin = "i.bin";
-      //   break;
-      // case 9:
-      //   bin = "j.bin";
-      //   break;
-      
-      // }
-
+    { 
+      minImages = 0; //start of block 
+      maxImages = 2; //end of block
+      bin.setCharAt(0, images.charAt(imageToUse));    //setCharAt Arduino function is it slow? todo: try c char[0] = char[imageToUse]  
       showLittleFSImage();      
       break;
     }
+    case 3:
+    { 
+      minImages = 3; //start of block 
+      maxImages = 5; //end of block
+      bin.setCharAt(0, images.charAt(imageToUse));    //setCharAt Arduino function is it slow? todo: try c char[0] = char[imageToUse]  
+      showLittleFSImage();      
+      break;
+    }
+    case 4:
+    { 
+      minImages = 6; //start of block 
+      maxImages = 10; //end of block
+      bin.setCharAt(0, images.charAt(imageToUse));    //setCharAt Arduino function is it slow? todo: try c char[0] = char[imageToUse]  
+      showLittleFSImage();      
+      break;
+    }
+    case 5:
+    { 
+      minImages = 0; //start of block 
+      maxImages = 52; //end of block
+      bin.setCharAt(0, images.charAt(imageToUse));    //setCharAt Arduino function is it slow? todo: try c char[0] = char[imageToUse]  
+      showLittleFSImage();      
+      break;
+    }
+    //todo: add some more patterns, pattern 0...
     }
   }
   else {

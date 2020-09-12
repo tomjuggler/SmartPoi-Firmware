@@ -14,7 +14,7 @@ void ChangePatternPeriodically()
     previousMillis3 = currentMillis3;
     if (imageToUse > maxImages)
     {
-      imageToUse = 0;
+      imageToUse = minImages;
     }
     // Serial.println(imageToUse);
   }
