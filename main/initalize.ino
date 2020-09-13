@@ -114,7 +114,7 @@ if (patternChooser == 1) {
   //  patternChooser = 1; //for testing only
   ////Serial.println("patternChooser is: ");
   ////Serial.println(patternChooser);
-// pattern = 1; //test remove this
+ 
   //////////////////////////////////////////////////////////end Pattern Chooser///////////////////////////////////////////
 }
 

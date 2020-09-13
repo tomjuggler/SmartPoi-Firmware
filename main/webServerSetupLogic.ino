@@ -65,11 +65,11 @@ void handleFileUpload() {
   HTTPUpload& upload = server.upload();
   if (upload.status == UPLOAD_FILE_START) {
     //indicator led's here: //ok this totally doesn't work, put indicator on Upload program maybe?
-    FastLED.showColor(CRGB::Black);
-    for (int i = 0; i < uploadCounter; i++) {
-      leds[i] = CRGB::Magenta;
-    }
-    FastLED.show(); //
+    // FastLED.showColor(CRGB::Black);
+    // for (int i = 0; i < uploadCounter; i++) {
+    //   leds[i] = CRGB::Magenta;
+    // }
+    // FastLED.show(); //
     //Serial.println("uploadCounter is: "); //Serial.println(uploadCounter);
     uploadCounter++;
     String filename = upload.filename;
@@ -87,20 +87,20 @@ void handleFileUpload() {
       fsUploadFile.close();
     //Serial.print("handleFileUpload Size: "); //Serial.println(upload.totalSize);
     ////////////////////////////////////indicate upload success:////////////////////////////////////
-    for (int i = 0; i < NUM_LEDS; i++) {
-      // Set the i'th led to whatever
-      leds[i] = CRGB::Magenta;
-      // Show the leds
-      FastLED.show();
-      // now that we've shown the leds, reset the i'th led to black
-      leds[i] = CRGB::Black;
-      // Wait a little bit before we loop around and do it again
-       delay(10); //who has time to wait?
-    }
+    // for (int i = 0; i < NUM_LEDS; i++) {
+    //   // Set the i'th led to whatever
+    //   leds[i] = CRGB::Magenta;
+    //   // Show the leds
+    //   FastLED.show();
+    //   // now that we've shown the leds, reset the i'th led to black
+    //   leds[i] = CRGB::Black;
+    //   // Wait a little bit before we loop around and do it again
+    //   FastLED.delay(10);
+    // }
 
     //////////////////////////////////////////////////////Reload after saving:///////////////////////////////////////////////////////////////////////
     // reload all images: this takes a long time!!!
-    loadPatternChooser();
+    //  loadPatternChooser();
     //    String imgToShow1 = "/f.txt";
     //    String imgToShow2 = "/g.txt";
     //    String imgToShow3 = "/h.txt";
@@ -419,8 +419,8 @@ void webServerSetupLogic(String router, String pass) {
       EEPROM.commit(); //save for next time?
       //Serial.println("10, patternChooser saved");
       //black, this could take a while, so save power? Also an indicator...
-      FastLED.showColor(CRGB::Black);
-      loadPatternChooser();
+      // FastLED.showColor(CRGB::Black);
+      // loadPatternChooser();
       content = "{\"Success\":\" your pattern is set \"}";
       statusCode = 200;
     } else {
@@ -626,8 +626,8 @@ void webServerSetupLogic(String router, String pass) {
       EEPROM.commit(); //save for next time?
       //Serial.println("10, patternChooser saved");
       //black, this could take a while, so save power? Also an indicator...
-      FastLED.showColor(CRGB::Black);
-      loadPatternChooser();
+      // FastLED.showColor(CRGB::Black);
+      // loadPatternChooser();
     } else {    }   //nothing
     ////////////////////////////////////////////////////end change Pattern Chooser setting in EEPROM////////////////////////////////////////////////////////////////////////////////
 
