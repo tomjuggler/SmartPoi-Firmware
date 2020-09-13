@@ -50,21 +50,13 @@ ESP8266WiFiMulti WiFiMulti;
 //////////////////////////////////////////FastLED code:////////////
 #include <FastLED.h>
 // How many leds in your strip?
-//#define NUM_LEDS 37
-#define NUM_LEDS 73
 
-//#define NUM_PX 36
-#define NUM_PX 72
 
 int newBrightness = 1; //setting 220 for battery and so white is not too much! //20 for testing ok
 #define DATA_PIN D2    //D2 for D1Mini, 2 for ESP-01
 #define CLOCK_PIN D1   //D1 for D1Mini, 0 for ESP-01
 
-boolean auxillary = false; //true for second (auxillary) poi
 
-// Define the array of leds
-CRGB leds[NUM_LEDS];
-///////////////////////////////////////////end FastLED code//////////////////
 
 
 File f;
@@ -73,14 +65,36 @@ File a;
 //settings init:
 File settings;
 
+/////////////////////////////MAIN OR AUXILLARY POI? //////////////////////////////////////
+boolean auxillary = false; //true for second (auxillary) poi
+/////////////////////////////////////////////////////////////////////////////////////
 
-const int maxPX = 10368; //8640 for 72px poi, 72x120 - now 72x144
+
+////////////////////////////HOW MANY PIXELS? 36 OR 72 - 4 variables -  //////////////////
+
+// #define NUM_LEDS 37
+#define NUM_LEDS 73
+
+// Define the array of leds
+CRGB leds[NUM_LEDS];
+
+// #define NUM_PX 36
+#define NUM_PX 72
+
+// const int maxPX = 5184; // 36x144
+// const int maxPX = 10368; //8640 for 72px poi, 72x120 - now 72x144
+//trying a really large array, since we have space now for it:
+const int maxPX = 20736; //enough for 72x288 or 36x576
+
 //lets try using a maximum number of pixels so very large array to hold any number:
-uint8_t message1Data[maxPX]; //this is much larger than our image - max image 36 down, 120 across
+uint8_t message1Data[maxPX]; //this is much larger than our image 
 
-int pxDown = 72;
-int pxAcross = 72; //this will change with the image
+int pxDown = NUM_PX;
+// int pxDown = 36;
+// int pxDown = 72;
 
+int pxAcross = pxDown; //this will change with the image
+//////////////////////////////END HOW MANY PIXELS///////////////////////
 
 ////////////////////////////////////////////////////Mostly networking stuff: ////////////////////////////////////////////
 const byte DNS_PORT = 53;

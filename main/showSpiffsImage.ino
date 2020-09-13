@@ -14,15 +14,21 @@ void showLittleFSImage()
   else
   {
     size_t size = a.size();
-    a.read(message1Data, size);
-    // Serial.print("size is: ");
-    // Serial.println(size);
-    cnti++;
-    if (cnti >= pxDown)
-    {
-      cnti = 0;
+    if(size > maxPX){
+      //nope
+      FastLED.showColor( CRGB::Blue); //error
+      imageToUse++;
+    } else{
+      a.read(message1Data, size);
+      // Serial.print("size is: ");
+      // Serial.println(size);
+      cnti++;
+      if (cnti >= pxDown)
+      {
+        cnti = 0;
+      }
+      a.close();
     }
-    a.close();
   }
 
   int counter = 0;
@@ -42,8 +48,12 @@ void showLittleFSImage()
       //            Serial.print(R1); Serial.print(", "); Serial.print(G1); Serial.print(", "); Serial.println(M1);
     }
     FastLED.show();
-    //Todo: check delay(1) effect on 72px poi
-    // FastLED.delay(1); // for 160mhz
+    //Todo: check delay(1) effect on 72px poi - definitely needed for 36px
+    if(NUM_LEDS < 72){
+     FastLED.delay(1); // for 160mhz
+    } else{
+      // no delay
+    }
 
   }
 }
