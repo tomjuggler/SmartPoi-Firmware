@@ -160,6 +160,7 @@ void readAnotherPatternEEProm(){
 
 }
 
+//Todo: add interval load, save and update here
 void eepromReadChannelAndAddress(int addr1, int addr2, int addr3, int addr4, int addr5) {
   ////////////////////////////////////////////////////////////////EEPROM READ CHANNEL AND ADDRESS://////////////////////////////////////////////////////////////////
   int readAPEeprom = int(EEPROM.read(addr1)); //read channel info (from EEPROM13) and change from ascii
