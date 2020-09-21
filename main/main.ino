@@ -90,8 +90,6 @@ const int maxPX = 20736; //enough for 72x288 or 36x576
 uint8_t message1Data[maxPX]; //this is much larger than our image 
 
 int pxDown = NUM_PX;
-// int pxDown = 36;
-// int pxDown = 72;
 
 int pxAcross = pxDown; //this will change with the image
 //////////////////////////////END HOW MANY PIXELS///////////////////////
@@ -516,23 +514,23 @@ void loop() {
     case 2:
     { 
       minImages = 0; //start of block 
-      maxImages = 2; //end of block
+      maxImages = 4; //end of block
       bin.setCharAt(0, images.charAt(imageToUse));    //setCharAt Arduino function is it slow? todo: try c char[0] = char[imageToUse]  
       showLittleFSImage();      
       break;
     }
     case 3:
     { 
-      minImages = 3; //start of block 
-      maxImages = 5; //end of block
+      minImages = 5; //start of block 
+      maxImages = 10; //end of block
       bin.setCharAt(0, images.charAt(imageToUse));    //setCharAt Arduino function is it slow? todo: try c char[0] = char[imageToUse]  
       showLittleFSImage();      
       break;
     }
     case 4:
     { 
-      minImages = 6; //start of block 
-      maxImages = 10; //end of block
+      minImages = 11; //start of block 
+      maxImages = 20; //end of block
       bin.setCharAt(0, images.charAt(imageToUse));    //setCharAt Arduino function is it slow? todo: try c char[0] = char[imageToUse]  
       showLittleFSImage();      
       break;

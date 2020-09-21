@@ -430,9 +430,35 @@ void webServerSetupLogic(String router, String pass) {
       content = "{\"Error\":\"404 not found\"}";
       statusCode = 404;
     }   //nothing
-    ////////////////////////////////////////////////////end change Pattern Chooser setting in EEPROM////////////////////////////////////////////////////////////////////////////////
-
   });
+      ////////////////////////////////////////////////////end change Pattern Chooser setting in EEPROM////////////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////interval changer://///////////////////////////////////////////////////////////////////////////////
+  server.on("/intervalChange", []() {
+    String newInterval = server.arg("interval"); 
+    if (newInterval.length() > 0 ) {
+      //Todo: save and change this in EEPROM?
+      // EEPROM.write(10, 1); //clearing... Is this necessary? make it some sort of default then in case of errors..?
+      // EEPROM.commit();
+      //change address:
+      int tmp = newInterval.toInt();
+      if(tmp < 1){
+        interval = 500; //change every half second - shortest interval available
+      } else if(tmp > 1800){ //30 minutes maximum
+        interval = 1800*1000;
+      }
+      else{
+        interval = tmp*1000; //how many seconds
+      }
+      content = "{\"Success\":\" your interval is set \"}";
+      statusCode = 200;
+    } else {
+      content = "{\"Error\":\"404 not found\"}";
+      statusCode = 404;
+    }   //nothing
+  });
+  ////////////////////////////////////////////////////end change interval changer////////////////////////////////////////////////////////////////////////////////
+
   ////////////////////////////////////////////////////////settings form://////////////////////////////////////////////////////////////////////////////////////////
   server.on("/setting", []() {
     /*  //test:
