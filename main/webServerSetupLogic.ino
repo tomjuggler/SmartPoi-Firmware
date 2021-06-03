@@ -70,7 +70,7 @@ void handleFileUpload() {
     // for (int i = 0; i < uploadCounter; i++) {
     //   leds[i] = CRGB::Magenta;
     // }
-    // FastLED.show(); //
+    // FastLED.show(); SendToProcessing(); //
     //Serial.println("uploadCounter is: "); //Serial.println(uploadCounter);
     uploadCounter++;
     String filename = upload.filename;

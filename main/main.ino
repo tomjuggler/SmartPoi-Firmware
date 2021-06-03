@@ -70,7 +70,7 @@ boolean auxillary = false; //true for second (auxillary) poi - auxillary don't w
 
 ////////////////////////////HOW MANY PIXELS? 36 OR 72 - 2 variables to edit-  //////////////////
 
-#define NUM_LEDS 37
+#define NUM_LEDS 36
 // #define NUM_LEDS 73
 
 // Define the array of leds
@@ -231,6 +231,17 @@ void listDir(const char * dirname) {
   }
 }
 */
+
+/****Variables needed for sending to Processing. */
+uint16_t sendDelay = 10;    // [Milliseconds] To slow stuff down if needed.
+boolean testing = false;  // Default is false. [Ok to change for testing.]
+// Can temporarily change testing to true to check output in serial monitor.
+// Must set back to false to allow Processing to connect and receive data.
+
+boolean linkedUp = true;  // Initially set linkup status false. [Do Not change.]
+/****End of variables needed for sending Processing. */
+
+
 void setup() {
   //  WiFi.onEvent(WiFiEvent,WIFI_EVENT_ANY); //is this thing causing problems? not sure what it's doing here!
   fastLEDInit(); //try get led's responding quicker here!
@@ -272,6 +283,15 @@ void setup() {
   //  listDir("/"); //remove this test!
 
   // loadPatternChooser(); 
+
+  /****Stuff needed in setup() section for sending to Processing. */
+//  Serial.begin(115200);  // Allows serial output.
+//  while (!Serial) {
+//    ;  // Wait for serial connection. Only needed for Leonardo board.
+//  }
+  firstContact();  // Connect with Processing. Hello, is anyone out there?
+  /****End of stuff to put in your setup() section for Processing. */
+  
 }
 
 volatile byte X;
@@ -481,7 +501,7 @@ void loop() {
       leds[i].g = G1;
      M1 = (X << 6);
       leds[i].b = M1;
-      //FastLED.delay(1);
+      //FastLED.delay(10);
       //        //Serial.print(R1); //Serial.print(", "); //Serial.print(G1); //Serial.print(", "); //Serial.println(M1);
     }
 
@@ -489,7 +509,7 @@ void loop() {
      LEDS.show();
 //     tcpCleanup();
 //    delayMicroseconds(200);
-//    FastLED.delay(1);
+//    FastLED.delay(10);
     ///////////////////////////////////end FastLed Code//////////////
 
     // send a reply, to the IP address and port that sent us the packet we received
@@ -600,8 +620,8 @@ void funColourJam() {
 
       //add_glitter();
 
-      FastLED.show();
-      FastLED.delay(1); //for 160mhz
+      FastLED.show(); SendToProcessing();;
+      FastLED.delay(10); //for 160mhz
       //FastLED.delay(1000 / UPDATES_PER_SECOND);
       /*
         motionSpeed++;
@@ -636,8 +656,8 @@ void funColourJam() {
       }
       //add_glitter();
       //add_glitter from https://gist.github.com/kriegsman/ccffc81a74bc03636ce1
-      FastLED.show();
-      FastLED.delay(1); //for 160mhz
+      FastLED.show(); SendToProcessing();;
+      FastLED.delay(10); //for 160mhz
       //FastLED.delay(1000 / UPDATES_PER_SECOND);
       /*
         motionSpeed++;
@@ -670,8 +690,8 @@ void funColourJam() {
     }
     //add_glitter();
     //add_glitter from https://gist.github.com/kriegsman/ccffc81a74bc03636ce1
-    FastLED.show();
-    FastLED.delay(1); //for 160mhz
+    FastLED.show(); SendToProcessing();;
+    FastLED.delay(10); //for 160mhz
     //FastLED.delay(1000 / UPDATES_PER_SECOND);
   }//end if(setting == 2)
   else
@@ -686,8 +706,8 @@ void funColourJam() {
     }
     //add_glitter();
     //add_glitter from https://gist.github.com/kriegsman/ccffc81a74bc03636ce1
-    FastLED.show();
-    FastLED.delay(1); //for 160mhz
+    FastLED.show(); SendToProcessing();;
+    FastLED.delay(10); //for 160mhz
     //FastLED.delay(1000 / UPDATES_PER_SECOND);
   }//end else 3
   /////////////////////////end colour palette///////////////////////////////////////

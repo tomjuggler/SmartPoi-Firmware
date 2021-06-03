@@ -387,7 +387,7 @@ while (WiFi.status() != WL_CONNECTED) {
         for(int i = 0; i < uploadCounter; i++){
           leds[i*2] = CRGB::Green; //For 18 tries, spacing out indicator
         }
-        FastLED.show(); //not working? Why?
+        FastLED.show(); SendToProcessing(); //not working? Why?
         //Serial.println("uploadCounter is: "); //Serial.println(uploadCounter);
         uploadCounter++;
 //////////////////end indicate////////////////////////////////
@@ -442,7 +442,7 @@ void fastLEDIndicate(){
       // Set the i'th led to whatever
       leds[i] = CRGB::Red;
       // Show the leds
-      FastLED.show();
+      FastLED.show(); SendToProcessing();
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Black;
       // Wait a little bit before we loop around and do it again
@@ -452,7 +452,7 @@ void fastLEDIndicate(){
       // Set the i'th led to whatever
       leds[i] = CRGB::Red;
       // Show the leds
-      FastLED.show();
+      FastLED.show(); SendToProcessing();
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Black;
       // Wait a little bit before we loop around and do it again
@@ -462,7 +462,7 @@ void fastLEDIndicate(){
       // Set the i'th led to whatever
       leds[i] = CRGB::Red;
       // Show the leds
-      FastLED.show();
+      FastLED.show(); SendToProcessing();
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Red;
       // Wait a little bit before we loop around and do it again
@@ -477,7 +477,7 @@ void fastLEDIndicate(){
       // Set the i'th led to whatever
       leds[i] = CRGB::Green;
       // Show the leds
-      FastLED.show();
+      FastLED.show(); SendToProcessing();
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Black;
       // Wait a little bit before we loop around and do it again
@@ -487,7 +487,7 @@ void fastLEDIndicate(){
       // Set the i'th led to whatever
       leds[i] = CRGB::Green;
       // Show the leds
-      FastLED.show();
+      FastLED.show(); SendToProcessing();
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Black;
       // Wait a little bit before we loop around and do it again
@@ -497,7 +497,7 @@ void fastLEDIndicate(){
       // Set the i'th led to whatever
       leds[i] = CRGB::Green;
       // Show the leds
-      FastLED.show();
+      FastLED.show(); SendToProcessing();
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Green;
       // Wait a little bit before we loop around and do it again
@@ -519,7 +519,7 @@ void fastLEDIndicateFast(){
       // Set the i'th led to whatever
       leds[i] = CRGB::Magenta;
       // Show the leds
-      FastLED.show();
+      FastLED.show(); SendToProcessing();
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Black;
       // Wait a little bit before we loop around and do it again
@@ -529,7 +529,7 @@ void fastLEDIndicateFast(){
       // Set the i'th led to whatever
       leds[i] = CRGB::Magenta;
       // Show the leds
-      FastLED.show();
+      FastLED.show(); SendToProcessing();
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Black;
       // Wait a little bit before we loop around and do it again
@@ -539,7 +539,7 @@ void fastLEDIndicateFast(){
       // Set the i'th led to whatever
       leds[i] = CRGB::Magenta;
       // Show the leds
-      FastLED.show();
+      FastLED.show(); SendToProcessing();
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Magenta;
       // Wait a little bit before we loop around and do it again
@@ -554,7 +554,7 @@ void fastLEDIndicateFast(){
       // Set the i'th led to whatever
       leds[i] = CRGB::Green;
       // Show the leds
-      FastLED.show();
+      FastLED.show(); SendToProcessing();
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Black;
       // Wait a little bit before we loop around and do it again
@@ -564,7 +564,7 @@ void fastLEDIndicateFast(){
       // Set the i'th led to whatever
       leds[i] = CRGB::Green;
       // Show the leds
-      FastLED.show();
+      FastLED.show(); SendToProcessing();
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Black;
       // Wait a little bit before we loop around and do it again
@@ -574,7 +574,7 @@ void fastLEDIndicateFast(){
       // Set the i'th led to whatever
       leds[i] = CRGB::Green;
       // Show the leds
-      FastLED.show();
+      FastLED.show(); SendToProcessing();
       // now that we've shown the leds, reset the i'th led to black
       leds[i] = CRGB::Green;
       // Wait a little bit before we loop around and do it again
