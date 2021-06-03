@@ -50,7 +50,7 @@ bool handleFileRead(String path) {
   return false;
 }
 
-//note for the next function:
+//todo: note for the next function:
 /*
    need error handling
    size too big
@@ -86,41 +86,7 @@ void handleFileUpload() {
     uploadCounter = 1;
     if (fsUploadFile)
       fsUploadFile.close();
-    //Serial.print("handleFileUpload Size: "); //Serial.println(upload.totalSize);
-    ////////////////////////////////////indicate upload success:////////////////////////////////////
-    // for (int i = 0; i < NUM_LEDS; i++) {
-    //   // Set the i'th led to whatever
-    //   leds[i] = CRGB::Magenta;
-    //   // Show the leds
-    //   FastLED.show();
-    //   // now that we've shown the leds, reset the i'th led to black
-    //   leds[i] = CRGB::Black;
-    //   // Wait a little bit before we loop around and do it again
-    //   FastLED.delay(10);
-    // }
-
-    //////////////////////////////////////////////////////Reload after saving:///////////////////////////////////////////////////////////////////////
-    // reload all images: this takes a long time!!!
-    //  loadPatternChooser();
-    //    String imgToShow1 = "/f.txt";
-    //    String imgToShow2 = "/g.txt";
-    //    String imgToShow3 = "/h.txt";
-    //    String imgToShow4 = "/i.txt";
-    //    String imgToShow5 = "/j.txt";
-    //    preloaded = false;
-    //    loadSpiffsImage2(imgToShow1, message1Data, 1);
-    //    preloaded = false;
-    //    loadSpiffsImage2(imgToShow2, message2Data, 2);
-    //    preloaded = false;
-    //    loadSpiffsImage2(imgToShow3, message3Data, 3);
-    //    preloaded = false;
-    //    loadSpiffsImage2(imgToShow4, message4Data, 4);
-    //    preloaded = false;
-    //    loadSpiffsImage2(imgToShow5, message5Data, 5);
-    ///////////////////////////////////////////////////////////////////////end reload //////////////////////////////////////////////////////////////////////
-    //    redoLoadSpiffs();
-    //        ESP.restart(); //not using this right now but see https://github.com/esp8266/Arduino/issues/1722#issuecomment-192829825
-  }
+    }
 }
 
 void handleFileDelete() {

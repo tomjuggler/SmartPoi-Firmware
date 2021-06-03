@@ -1,4 +1,4 @@
-int cnti = 0; 
+int cnti = 0;
 
 void showLittleFSImage()
 {
@@ -6,7 +6,7 @@ void showLittleFSImage()
 
   if (!a)
   {
-//go to next message and return
+    //go to next message and return
     imageToUse++;
     // FastLED.showColor(CRGB::Blue);
     // Serial.println("Code Blue - no file found!");
@@ -14,11 +14,14 @@ void showLittleFSImage()
   else
   {
     size_t size = a.size();
-    if(size > maxPX){
+    if (size > maxPX)
+    {
       //nope
-      FastLED.showColor( CRGB::Blue); //error
+      FastLED.showColor(CRGB::Blue); //error
       imageToUse++;
-    } else{
+    }
+    else
+    {
       a.read(message1Data, size);
       // Serial.print("size is: ");
       // Serial.println(size);
@@ -49,13 +52,13 @@ void showLittleFSImage()
     }
     FastLED.show();
     //Todo: check delay(1) effect on 72px poi - definitely needed for 36px
-    if(NUM_LEDS < 72){
-     FastLED.delay(1); // for 160mhz
-    } else{
+    if (NUM_LEDS < 72)
+    {
+      FastLED.delay(1); // for 160mhz
+    }
+    else
+    {
       // no delay
     }
-
   }
 }
-
-

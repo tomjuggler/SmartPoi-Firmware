@@ -305,7 +305,7 @@ void wifiChooser(char router_array[], char pwd_array[]) {
   ////////////////////////////////////////////////////Wifi Chooser: /////////////////////////////////////////////////////////////////////////////////////
 
   if (wifiModeChooser == 1) { //main AP mode, with auxillary connected to main.
-    //this may be all that is needed to put main and auxillary in one! That would save time...
+    //this may is all that is needed to put main and auxillary poi on one code base: 
     if (auxillary) {
       //Serial.println("auxillary POI");
       WiFi.mode(WIFI_STA); 
@@ -320,7 +320,7 @@ void wifiChooser(char router_array[], char pwd_array[]) {
 //      while (WiFiMulti.run() != WL_CONNECTED) {
 while (WiFi.status() != WL_CONNECTED) {
                 //Serial.print(".");
-        delay(50); //was set to 500, why? todo: try FastLED.delay()
+        FastLED.delay(50); //was set to 500, why? todo: does FastLED.delay() work better?
       }
     } else {
       //Serial.println("main POI");
@@ -394,7 +394,7 @@ while (WiFi.status() != WL_CONNECTED) {
         
         //definitely shouldn't block forever here...
         //Serial.print(".");
-        delay(500); //delay??? hmm
+        delay(500); //delay??? todo: try FastLED.delay() here, also 50ms instead of 500...
         wifiConnectAttemptCount++;
         if(wifiConnectAttemptCount > maxWifiConnectAttemptCount){
           ESP.restart(); //don't forget this won't work the first time, needs manual restart!!!!!!!!

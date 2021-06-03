@@ -7,14 +7,12 @@
 //lwIP variant v1.4 Higher Bandwidth
 //builtin led 1
 
-//todo: add another 40 images! we have the space
-//maybe have some 10 pre-defined ones which can't be deleted (one option)
+//maybe have some 10 pre-defined images which can't be deleted? (one option)
 
 
 //todo: change if else main/auxillary code to #ifdef syntax, to save on program space (applied at compile time)
 //works with postTXTtoPoi processing sketch
 
-//#define SPIFFS_CACHE true //enable ram cache for pics - not necessary I think
 #include "user_interface.h" //for testing
 //#include "lwip/tcp_impl.h" //more testing
 //void tcpCleanup()
@@ -52,7 +50,7 @@ ESP8266WiFiMulti WiFiMulti;
 // How many leds in your strip?
 
 
-int newBrightness = 1; //setting 220 for battery and so white is not too much! //20 for testing ok
+int newBrightness = 22; //setting 220 for battery and so white is not too much! //20 for testing ok
 #define DATA_PIN D2    //D2 for D1Mini, 2 for ESP-01
 #define CLOCK_PIN D1   //D1 for D1Mini, 0 for ESP-01
 
@@ -66,20 +64,20 @@ File a;
 File settings;
 
 /////////////////////////////MAIN OR AUXILLARY POI? //////////////////////////////////////
-boolean auxillary = false; //true for second (auxillary) poi
+boolean auxillary = false; //true for second (auxillary) poi - auxillary don't work alone!!!
 /////////////////////////////////////////////////////////////////////////////////////
 
 
-////////////////////////////HOW MANY PIXELS? 36 OR 72 - 4 variables -  //////////////////
+////////////////////////////HOW MANY PIXELS? 36 OR 72 - 2 variables to edit-  //////////////////
 
-// #define NUM_LEDS 37
-#define NUM_LEDS 73
+#define NUM_LEDS 37
+// #define NUM_LEDS 73
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
 
-// #define NUM_PX 36
-#define NUM_PX 72
+#define NUM_PX 36
+// #define NUM_PX 72
 
 // const int maxPX = 5184; // 36x144
 // const int maxPX = 10368; //8640 for 72px poi, 72x120 - now 72x144
@@ -104,7 +102,7 @@ ESP8266WebServer server(80);
 int status = WL_IDLE_STATUS;
 //char ssid[] = "RouterName"; //  your network SSID (name) - now read from SPIFFS, no need for hard coding
 //char pass[] = "RouterPassword";    // your network password (use for WPA, or use as key for WEP)
-char apName[] = "Smart_Poi_3"; //"Smart_Poi_2";
+char apName[] = "Smart_Poi_2"; //"Smart_Poi_2";
 char apPass[] = "SmartOne"; //"password";
 int apChannel = 1;
 int keyIndex = 0;            // your network key Index number (needed only for WEP)
@@ -196,10 +194,7 @@ int maxImages = 52; //how many can we have? 50 is enough for big poi, memory wis
 int minImages = 0; //start of block - change according to pattern!
 //below is a hack! need a better address system
 String images = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; //need MORE for small poi
-String image = "a.txt"; //todo: safe delete this, not needed
-// char bin[] = "a.bin";
 String bin = "a.bin"; //one more than chars
-boolean reload = true; //for converting all .txt to .bin - for testing really. todo: save delete
 
 int uploadCounter = 1;
 
@@ -208,6 +203,7 @@ boolean start = false;
 
 boolean routerOption = false;
 
+/*
 //list directory function for testing: 
 void listDir(const char * dirname) {
   Serial.printf("Listing directory: %s\n", dirname);
@@ -234,14 +230,14 @@ void listDir(const char * dirname) {
     Serial.println(sizeOnDisk);
   }
 }
-
+*/
 void setup() {
   //  WiFi.onEvent(WiFiEvent,WIFI_EVENT_ANY); //is this thing causing problems? not sure what it's doing here!
   fastLEDInit(); //try get led's responding quicker here!
   //Initialize serial and wait for port to open:
   Serial.begin(115200);
   Serial.println(""); //new line for readability
-
+  Serial.println("Started");
   //////////////////////////////////////////////read eeprom settings://////////////////////////////////////////////////////////////////
   EEPROM.begin(512);
   //EEPROM storage:
@@ -273,7 +269,7 @@ void setup() {
   //  dnsServer.start(DNS_PORT, "*", apIP); //AP mode only, surely?? Moved to wifiChooser()
 
   Udp.begin(localPort);
-   listDir("/"); //remove this test!
+  //  listDir("/"); //remove this test!
 
   // loadPatternChooser(); 
 }
@@ -290,9 +286,10 @@ volatile int packetSize;
 volatile int len;
 
 void loop() {
-  // listDir("/"); //remove this test!
-  // String size = String(lfs_fs_size);
-  // Serial.println(size);
+  Serial.println(previousMillis);
+//   listDir("/"); //remove this test!
+//   String size = String(lfs_fs_size);
+//   Serial.println(size);
   //this only works once:
   if (start == false) {
     if(routerOption){
