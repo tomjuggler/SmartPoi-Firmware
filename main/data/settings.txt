@@ -1,2 +1,2 @@
-HUAWEI-B315-WRONG
+HUAWEI-B315-WRONG This is from settings.txt, saved in LittleFS file system
 T0LTE0WRONG

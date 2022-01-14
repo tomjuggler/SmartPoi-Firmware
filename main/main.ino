@@ -29,7 +29,7 @@
 #ifdef USE_LittleFS
 //  #define LittleFS LITTLEFS
 //  #include <LITTLEFS.h> //this one for older version of ESP32 <v2.0
-#include <LittleFS.h> //this for newer version of ESP32 >v2.0
+  #include <LittleFS.h> //this for newer version of ESP32 >v2.0
 #else
   #define LittleFS SPIFFS
   #include <SPIFFS.h>
@@ -86,13 +86,13 @@ boolean auxillary = false; //true for second (auxillary) poi - auxillary don't w
 // Define the array of leds
 CRGB leds[NUM_LEDS];
 
-//#define NUM_PX 36
- #define NUM_PX 72
+#define NUM_PX 36
+// #define NUM_PX 72
 
-// const int maxPX = 5184; // 36x144
+ const int maxPX = 5184; // 36x144
 // const int maxPX = 10368; //8640 for 72px poi, 72x120 - now 72x144
 //trying a really large array, since we have space now for it:
-const int maxPX = 20736; //enough for 72x288 or 36x576
+//const int maxPX = 20736; //enough for 72x288 or 36x576
 
 //lets try using a maximum number of pixels so very large array to hold any number:
 uint8_t message1Data[maxPX]; //this is much larger than our image 

@@ -227,7 +227,7 @@ void spiffsLoadSettings() {
   //load spiffs into char arrays for router setup:
   // Define
   Field = settings.readStringUntil('\n');
-
+  Serial.println(Field);
   // Length (with one extra character for the null terminator)
   //int router_len = router.length() + 1;
   // Prepare the character array (the buffer)
