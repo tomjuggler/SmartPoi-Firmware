@@ -125,26 +125,28 @@ void handleFileList() {
     server.send(500, "text/plain", "BAD ARGS");
     return;
   }
+//todo: Dir not declared in this scope..
 
-  String path = server.arg("dir");
-  //Serial.println("handleFileList: " + path);
-  Dir dir = LittleFS.openDir(path);
-  path = String();
-
-  String output = "[";
-  while (dir.next()) {
-    File entry = dir.openFile("r");
-    if (output != "[") output += ',';
-    bool isDir = false;
-    output += "{\"type\":\"";
-    output += (isDir) ? "dir" : "file";
-    output += "\",\"name\":\"";
-    output += String(entry.name()).substring(1);
-    output += "\"}";
-    entry.close();
-  }
-
-  output += "]";
+//  String path = server.arg("dir");
+//  //Serial.println("handleFileList: " + path);
+//  Dir dir = LittleFS.openDir(path);
+//  path = String();
+//
+//  String output = "[";
+//  while (dir.next()) {
+//    File entry = dir.openFile("r");
+//    if (output != "[") output += ',';
+//    bool isDir = false;
+//    output += "{\"type\":\"";
+//    output += (isDir) ? "dir" : "file";
+//    output += "\",\"name\":\"";
+//    output += String(entry.name()).substring(1);
+//    output += "\"}";
+//    entry.close();
+//  }
+//
+//  output += "]";
+String output = "Not implemented yet, need a Dir";
   server.send(200, "text/json", output);
 }
 

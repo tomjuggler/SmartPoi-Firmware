@@ -13,7 +13,7 @@
 //todo: change if else main/auxillary code to #ifdef syntax, to save on program space (applied at compile time)
 //works with postTXTtoPoi processing sketch
 
-#include "user_interface.h" //for testing
+//#include "user_interface.h" //for testing
 //#include "lwip/tcp_impl.h" //more testing
 //void tcpCleanup()
 //{
@@ -23,20 +23,33 @@
 //  }
 //}
 /////////////////////////////////////FSBrowser2/////////////////////////////////////////////////
-// #include "FS.h"
-#include "LittleFS.h" //SPIFFS DEPRECIATED! using LittleFS now. Faster
+ #include <FS.h>
+//#define USE_LittleFS
+//#include "LittleFS.h" //SPIFFS DEPRECIATED! using LittleFS now. Faster
+//#include <LITTLEFS.h>
+//#define LittleFS LITTLEFS
+
+//#include <FS.h>
+#ifdef USE_LittleFS
+  #define LittleFS LITTLEFS
+  #include <LITTLEFS.h> 
+#else
+  #define LittleFS SPIFFS
+  #include <SPIFFS.h>
+#endif 
 
 File fsUploadFile;
 
 ///////////////////////////////////End FSBrowser2////////////////////////////////////////////
+int newINT = 0;
 
-#include <ESP8266WiFi.h>
+#include <WiFi.h>
 #include <DNSServer.h>
-#include <ESP8266WebServer.h>
+#include <WebServer.h>
 #include <EEPROM.h>
-#include <ESP8266WiFiMulti.h>
+#include <WiFiMulti.h>
 
-ESP8266WiFiMulti WiFiMulti;
+WiFiMulti WiFiMulti;
 //#include <ESP8266WiFi.h>
 //#include <SPI.h>true
 //#include <WiFi.h>
@@ -50,9 +63,9 @@ ESP8266WiFiMulti WiFiMulti;
 // How many leds in your strip?
 
 
-int newBrightness = 22; //setting 220 for battery and so white is not too much! //20 for testing ok
-#define DATA_PIN D2    //D2 for D1Mini, 2 for ESP-01
-#define CLOCK_PIN D1   //D1 for D1Mini, 0 for ESP-01
+int newBrightness = 20; //setting 220 for battery and so white is not too much! //20 for testing ok
+#define DATA_PIN 2    //D2 for D1Mini, 2 for ESP-01
+#define CLOCK_PIN 13   //D1 for D1Mini, 0 for ESP-01
 
 
 
@@ -70,14 +83,14 @@ boolean auxillary = false; //true for second (auxillary) poi - auxillary don't w
 
 ////////////////////////////HOW MANY PIXELS? 36 OR 72 - 2 variables to edit-  //////////////////
 
-#define NUM_LEDS 37
-// #define NUM_LEDS 73
+//#define NUM_LEDS 37
+ #define NUM_LEDS 73
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
 
-#define NUM_PX 36
-// #define NUM_PX 72
+//#define NUM_PX 36
+ #define NUM_PX 72
 
 // const int maxPX = 5184; // 36x144
 // const int maxPX = 10368; //8640 for 72px poi, 72x120 - now 72x144
@@ -97,7 +110,7 @@ const byte DNS_PORT = 53;
 IPAddress apIP(192, 168, 1, 1);
 IPAddress apIPauxillary(192, 168, 1, 78);
 DNSServer dnsServer;
-ESP8266WebServer server(80);
+WebServer server(80);
 
 int status = WL_IDLE_STATUS;
 //char ssid[] = "RouterName"; //  your network SSID (name) - now read from SPIFFS, no need for hard coding
@@ -150,7 +163,7 @@ boolean channelChange = false;
 boolean savingToSpiffs = false;
 
 unsigned long previousFlashy = 0;        // will store last time LED was updated
-const long intervalBetweenFlashy = 5;           // after this interval switch over to internal
+const long intervalBetweenFlashy = 5;    // after this interval switch over to internal
 boolean black = true;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -203,34 +216,23 @@ boolean start = false;
 
 boolean routerOption = false;
 
-/*
-//list directory function for testing: 
-void listDir(const char * dirname) {
-  Serial.printf("Listing directory: %s\n", dirname);
+//missing? 
+int message1DataCounter = 0;
+int pxAcrossArray[36];
 
-  Dir root = LittleFS.openDir(dirname);
+// function declarations:
+void fastLEDInit();
+void eepromBrightnessChooser();
+void eepromBrightnessChooser(int); 
+void eepromRouterOptionChooser(int); 
+void eepromWifiModeChooser(int); 
+void eepromPatternChooser(int); 
+void  eepromReadChannelAndAddress(int, int, int, int, int);
+void spiffsLoadSettings();
+void fastLEDIndicate();
+void ChangePatternPeriodically();
+void funColourJam();
 
-  long sizeOnDisk = 0;
-
-  while (root.next()) {
-    File file = root.openFile("r");
-    Serial.print("  FILE: ");
-    Serial.print(root.fileName());
-    Serial.print("  SIZE: ");
-    Serial.print(file.size());
-    sizeOnDisk = sizeOnDisk + file.size();
-    time_t cr = file.getCreationTime();
-    time_t lw = file.getLastWrite();
-    file.close();
-    struct tm * tmstruct = localtime(&cr);
-    Serial.printf("    CREATION: %d-%02d-%02d %02d:%02d:%02d\n", (tmstruct->tm_year) + 1900, (tmstruct->tm_mon) + 1, tmstruct->tm_mday, tmstruct->tm_hour, tmstruct->tm_min, tmstruct->tm_sec);
-    tmstruct = localtime(&lw);
-    Serial.printf("  LAST WRITE: %d-%02d-%02d %02d:%02d:%02d\n", (tmstruct->tm_year) + 1900, (tmstruct->tm_mon) + 1, tmstruct->tm_mday, tmstruct->tm_hour, tmstruct->tm_min, tmstruct->tm_sec);
-    Serial.print("sizeOnDisk: ");
-    Serial.println(sizeOnDisk);
-  }
-}
-*/
 void setup() {
   //  WiFi.onEvent(WiFiEvent,WIFI_EVENT_ANY); //is this thing causing problems? not sure what it's doing here!
   fastLEDInit(); //try get led's responding quicker here!
@@ -274,6 +276,34 @@ void setup() {
   // loadPatternChooser(); 
 }
 
+
+//list directory function for testing: 
+//void listDir(const char * dirname) {
+//  Serial.printf("Listing directory: %s\n", dirname);
+//
+//  Dir root = LittleFS.openDir(dirname);
+//
+//  long sizeOnDisk = 0;
+//
+//  while (root.next()) {
+//    File file = root.openFile("r");
+//    Serial.print("  FILE: ");
+//    Serial.print(root.fileName());
+//    Serial.print("  SIZE: ");
+//    Serial.print(file.size());
+//    sizeOnDisk = sizeOnDisk + file.size();
+//    time_t cr = file.getCreationTime();
+//    time_t lw = file.getLastWrite();
+//    file.close();
+//    struct tm * tmstruct = localtime(&cr);
+//    Serial.printf("    CREATION: %d-%02d-%02d %02d:%02d:%02d\n", (tmstruct->tm_year) + 1900, (tmstruct->tm_mon) + 1, tmstruct->tm_mday, tmstruct->tm_hour, tmstruct->tm_min, tmstruct->tm_sec);
+//    tmstruct = localtime(&lw);
+//    Serial.printf("  LAST WRITE: %d-%02d-%02d %02d:%02d:%02d\n", (tmstruct->tm_year) + 1900, (tmstruct->tm_mon) + 1, tmstruct->tm_mday, tmstruct->tm_hour, tmstruct->tm_min, tmstruct->tm_sec);
+//    Serial.print("sizeOnDisk: ");
+//    Serial.println(sizeOnDisk);
+//  }
+//}
+
 volatile byte X;
 volatile byte Y;
 volatile byte R1;
@@ -286,7 +316,7 @@ volatile int packetSize;
 volatile int len;
 
 void loop() {
-  Serial.println(previousMillis);
+//  Serial.println(previousMillis);
 //   listDir("/"); //remove this test!
 //   String size = String(lfs_fs_size);
 //   Serial.println(size);

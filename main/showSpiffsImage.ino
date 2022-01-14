@@ -8,8 +8,9 @@ void showLittleFSImage()
   {
     //go to next message and return
     imageToUse++;
-    // FastLED.showColor(CRGB::Blue);
-    // Serial.println("Code Blue - no file found!");
+     FastLED.showColor(CRGB::Blue);
+     Serial.println("Code Blue - no file found!");
+     Serial.print(bin);
   }
   else
   {
@@ -23,8 +24,8 @@ void showLittleFSImage()
     else
     {
       a.read(message1Data, size);
-      // Serial.print("size is: ");
-      // Serial.println(size);
+       Serial.print("size is: ");
+       Serial.println(size);
       cnti++;
       if (cnti >= pxDown)
       {
