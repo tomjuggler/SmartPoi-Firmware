@@ -24,12 +24,8 @@
 //}
 /////////////////////////////////////FSBrowser2/////////////////////////////////////////////////
  #include <FS.h>
-//#define USE_LittleFS
-//#include "LittleFS.h" //SPIFFS DEPRECIATED! using LittleFS now. Faster
-//#include <LITTLEFS.h>
-//#define LittleFS LITTLEFS
+#define USE_LittleFS //comment this line to try using SPIFFS - neither are working at the moment for ESP32 though
 
-//#include <FS.h>
 #ifdef USE_LittleFS
   #define LittleFS LITTLEFS
   #include <LITTLEFS.h> 
