@@ -138,7 +138,7 @@ uint8_t addrNumD = 78;
 const unsigned int localPort = 2390;      // local port to listen on
 
 byte packetBuffer[NUM_PX]; //buffer to hold incoming packet
-//char  ReplyBuffer[] = "acknowledged";       // a string to send back
+char  ReplyBuffer[] = "acknowledged";       // a string to send back
 
 WiFiUDP Udp;
 
@@ -234,7 +234,7 @@ void funColourJam();
 void readfile(fs::FS, const char *);
 
 void setup() {
-  //  WiFi.onEvent(WiFiEvent,WIFI_EVENT_ANY); //is this thing causing problems? not sure what it's doing here!
+  //
   fastLEDInit(); //try get led's responding quicker here!
   //Initialize serial and wait for port to open:
   Serial.begin(115200);
@@ -261,7 +261,7 @@ void setup() {
   String router;
 
 //the following is related to router settings (using AP mode currently)
-   spiffsLoadSettings(); //where did this go???
+   spiffsLoadSettings(); //in showSpiffs 
    //list directory test:
    listDir(LittleFS, "/", 3);
   // 2 functions below have to be inside spiffsLoadSettings or else: ERROR: router_array was not declared in this scope
@@ -292,11 +292,10 @@ volatile unsigned long currentMillis2 = millis();
 volatile int packetSize;
 volatile int len;
 
+
+
 void loop() {
-//  Serial.println(previousMillis);
-//   listDir("/"); //remove this test!
-//   String size = String(lfs_fs_size);
-//   Serial.println(size);
+
   //this only works once:
   if (start == false) {
     if(routerOption){
@@ -309,59 +308,23 @@ void loop() {
       }
       }
   }
-  //  if(wifiEventDetect){
-  //    Serial.println("detected!!!!!!!!!!!!!!!!!!!!!!");
-  //  }
-  ////Serial.println(checkit); //
+  
   dnsServer.processNextRequest();
   server.handleClient();
-  //printWifiStatus();
-  //////////////////////////////////////////////////////////// check if there is no signal ////////////////////////////////////////////////
  currentMillis = millis();
  currentMillis2 = millis();
-  //  //Serial.print("STATE IS: ");
-  //  //Serial.print(state);
-  //  //Serial.println(" one for no signal, zero for signal");
+  
   //if(millis() > firstRunMillis){ //do only on first run???
   //if(wifiEventDetect && !auxillary){ //main poi
   ChangePatternPeriodically(); //trying a new way
   
   if (start) {
-//  
     if (currentMillis - previousMillis >= interval) {   //should not ever be true if udp is sending at correct speed!
-      //    Serial.println(millis());
       // save the last time you checked the time
       previousMillis = currentMillis;
       state = 1; //udp no signal state
-//      tempSwitch = !tempSwitch; //for switching picture at interval test
-//      //first run sync
-//      picToShow++;
-//      //      Serial.print("first run millis: ");
-//      //      Serial.println(millis());
-//      if (picToShow > maxPicsToShow) {
-//        picToShow = 1;
-//      }
-      ////Serial.println("state changed to 1");
     }
   }
-  //else{ //auxillary poi
-  //  if (currentMillis - previousMillis >= interval) {   //should not ever be true if udp is sending at correct speed!
-  ////    Serial.println(millis());
-  //    // save the last time you checked the time
-  //    previousMillis = currentMillis;
-  //    state = 1; //udp no signal state
-  //    tempSwitch = !tempSwitch; //for switching picture at interval test
-  //     //first run sync
-  //      picToShow++;
-  ////      Serial.print("first run millis: ");
-  ////      Serial.println(millis());
-  //    if (picToShow > maxPicsToShow) {
-  //      picToShow = 1;
-  //    }
-  //    ////Serial.println("state changed to 1");
-  //  }
-  //}
-  //}
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // if there's data available, read a packet
   packetSize = Udp.parsePacket();
@@ -370,7 +333,6 @@ void loop() {
     if (currentMillis2 - previousMillis2 > interval * 2) { //message received after long wait, may be config message? check it
       // save the last time you checked the time
       previousMillis2 = currentMillis2;
-      ////Serial.println("long wait hey!");
       //check the UDP packet for correct config message values later:
       checkit = true;
     }
@@ -458,13 +420,6 @@ void loop() {
               ////Serial.println(newBrightness);
               FastLED.showColor(CRGB::Blue); //visual indicator
               checkit = false; //Finished settings, exit
-
-              //            if (Y == 3) {
-              //              //Serial.println("checked 3, signal received");
-              //            }
-              //            else{
-              //             checkit = false; //not on track, try again next time
-              //            }
             }
             break;
           default:
@@ -488,30 +443,22 @@ void loop() {
       leds[i].g = G1;
      M1 = (X << 6);
       leds[i].b = M1;
-      //FastLED.delay(1);
-      //        //Serial.print(R1); //Serial.print(", "); //Serial.print(G1); //Serial.print(", "); //Serial.println(M1);
     }
-
     //FastLED.delay(2); //not just for emulator!
      LEDS.show();
-//     tcpCleanup();
-//    delayMicroseconds(200);
-//    FastLED.delay(1);
     ///////////////////////////////////end FastLed Code//////////////
 
-    // send a reply, to the IP address and port that sent us the packet we received
-    //    Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-    //    Udp.write(ReplyBuffer);
-    //    Udp.endPacket();
-  }
-  else if (!packetSize && state == 1)
+    // test: send a reply, to the IP address and port that sent us the packet we received - does this help Android?
+       Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+       Udp.write(8);
+       Udp.endPacket();
+  }  else if (!packetSize && state == 1)
   { // this is backup, if udp not received ie: connection dropped for > interval millisecs
     switch (pattern)
     {
     case 1:
     {
       funColourJam();
-      //sendTestMessage(); //test send message for now...
       break;
     }
     //more options for patterns and spiffs loading here
@@ -549,10 +496,8 @@ void loop() {
     }
     //todo: add some more patterns, pattern 0...
     }
-  }
-  else {
+  } else {
     //    //Serial.println("/");
-    //nothing for <interval> seconds wait for signal
   }
 }
 
