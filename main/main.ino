@@ -80,8 +80,8 @@ boolean auxillary = false; //true for second (auxillary) poi - auxillary don't w
 
 ////////////////////////////HOW MANY PIXELS? 36 OR 72 - 2 variables to edit-  //////////////////
 
-//#define NUM_LEDS 37
- #define NUM_LEDS 73
+#define NUM_LEDS 37
+//  #define NUM_LEDS 73
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
@@ -279,32 +279,7 @@ void setup() {
 }
 
 
-//list directory function for testing: 
-//void listDir(const char * dirname) {
-//  Serial.printf("Listing directory: %s\n", dirname);
-//
-//  Dir root = LittleFS.openDir(dirname);
-//
-//  long sizeOnDisk = 0;
-//
-//  while (root.next()) {
-//    File file = root.openFile("r");
-//    Serial.print("  FILE: ");
-//    Serial.print(root.fileName());
-//    Serial.print("  SIZE: ");
-//    Serial.print(file.size());
-//    sizeOnDisk = sizeOnDisk + file.size();
-//    time_t cr = file.getCreationTime();
-//    time_t lw = file.getLastWrite();
-//    file.close();
-//    struct tm * tmstruct = localtime(&cr);
-//    Serial.printf("    CREATION: %d-%02d-%02d %02d:%02d:%02d\n", (tmstruct->tm_year) + 1900, (tmstruct->tm_mon) + 1, tmstruct->tm_mday, tmstruct->tm_hour, tmstruct->tm_min, tmstruct->tm_sec);
-//    tmstruct = localtime(&lw);
-//    Serial.printf("  LAST WRITE: %d-%02d-%02d %02d:%02d:%02d\n", (tmstruct->tm_year) + 1900, (tmstruct->tm_mon) + 1, tmstruct->tm_mday, tmstruct->tm_hour, tmstruct->tm_min, tmstruct->tm_sec);
-//    Serial.print("sizeOnDisk: ");
-//    Serial.println(sizeOnDisk);
-//  }
-//}
+
 
 volatile byte X;
 volatile byte Y;
@@ -401,14 +376,14 @@ void loop() {
     }
     previousMillis = currentMillis;
     state = 0; //udp good signal state - need to work out optimum timing for this millis
-    //    //Serial.println("0");
-    //    //Serial.print("Received packet of size ");
-    //    //Serial.println(packetSize);
-    //    //Serial.print("From ");
-    //      IPAddress remoteIp = Udp.remoteIP();
-    //    //Serial.print(remoteIp);
-    //    //Serial.print(", port ");
-    //    //Serial.println(Udp.remotePort());
+//        Serial.println("0");
+//        Serial.print("Received packet of size ");
+//        Serial.println(packetSize);
+//        Serial.print("From ");
+//          IPAddress remoteIp = Udp.remoteIP();
+//        Serial.print(remoteIp);
+//        Serial.print(", port ");
+//        Serial.println(Udp.remotePort());
 
     // read the packet into packetBufffer
     len = Udp.read(packetBuffer, NUM_PX);
