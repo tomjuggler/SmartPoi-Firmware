@@ -204,7 +204,7 @@ int maxImages = 52; //how many can we have? 50 is enough for big poi, memory wis
 int minImages = 0; //start of block - change according to pattern!
 //below is a hack! need a better address system
 String images = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; //need MORE for small poi
-String bin = "a.bin"; //one more than chars
+String bin = "/a.bin"; //one more than chars
 
 int uploadCounter = 1;
 
@@ -229,6 +229,9 @@ void spiffsLoadSettings();
 void fastLEDIndicate();
 void ChangePatternPeriodically();
 void funColourJam();
+
+//test functions: 
+void readfile(fs::FS, const char *);
 
 void setup() {
   //  WiFi.onEvent(WiFiEvent,WIFI_EVENT_ANY); //is this thing causing problems? not sure what it's doing here!
@@ -259,6 +262,8 @@ void setup() {
 
 //the following is related to router settings (using AP mode currently)
    spiffsLoadSettings(); //where did this go???
+   //list directory test:
+   listDir(LittleFS, "/", 3);
   // 2 functions below have to be inside spiffsLoadSettings or else: ERROR: router_array was not declared in this scope
   //  wifiChooser(router_array, pwd_array);
   //  webServerSetupLogic(router_array, pwd_array);
@@ -539,7 +544,7 @@ void loop() {
     { 
       minImages = 0; //start of block 
       maxImages = 4; //end of block
-      bin.setCharAt(0, images.charAt(imageToUse));    //setCharAt Arduino function is it slow? todo: try c char[0] = char[imageToUse]  
+      bin.setCharAt(1, images.charAt(imageToUse));    //setCharAt Arduino function is it slow? todo: try c char[0] = char[imageToUse]  
       showLittleFSImage();      
       break;
     }
@@ -547,7 +552,7 @@ void loop() {
     { 
       minImages = 5; //start of block 
       maxImages = 10; //end of block
-      bin.setCharAt(0, images.charAt(imageToUse));    //setCharAt Arduino function is it slow? todo: try c char[0] = char[imageToUse]  
+      bin.setCharAt(1, images.charAt(imageToUse));    //setCharAt Arduino function is it slow? todo: try c char[0] = char[imageToUse]  
       showLittleFSImage();      
       break;
     }
@@ -555,7 +560,7 @@ void loop() {
     { 
       minImages = 11; //start of block 
       maxImages = 20; //end of block
-      bin.setCharAt(0, images.charAt(imageToUse));    //setCharAt Arduino function is it slow? todo: try c char[0] = char[imageToUse]  
+      bin.setCharAt(1, images.charAt(imageToUse));    //setCharAt Arduino function is it slow? todo: try c char[0] = char[imageToUse]  
       showLittleFSImage();      
       break;
     }
@@ -563,7 +568,7 @@ void loop() {
     { 
       minImages = 0; //start of block 
       maxImages = 52; //end of block
-      bin.setCharAt(0, images.charAt(imageToUse));    //setCharAt Arduino function is it slow? todo: try c char[0] = char[imageToUse]  
+      bin.setCharAt(1, images.charAt(imageToUse));    //setCharAt Arduino function is it slow? todo: try c char[0] = char[imageToUse]  
       showLittleFSImage();      
       break;
     }
@@ -720,6 +725,37 @@ void funColourJam() {
   /////////////////////////end colour palette///////////////////////////////////////
 }
 
+//test list directory: 
+void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
+    Serial.printf("Listing directory: %s\r\n", dirname);
+
+    File root = fs.open(dirname);
+    if(!root){
+        Serial.println("- failed to open directory");
+        return;
+    }
+    if(!root.isDirectory()){
+        Serial.println(" - not a directory");
+        return;
+    }
+
+    File file = root.openNextFile();
+    while(file){
+        if(file.isDirectory()){
+            Serial.print("  DIR : ");
+            Serial.println(file.name());
+            if(levels){
+                listDir(fs, file.name(), levels -1);
+            }
+        } else {
+            Serial.print("  FILE: ");
+            Serial.print(file.name());
+            Serial.print("\tSIZE: ");
+            Serial.println(file.size());
+        }
+        file = root.openNextFile();
+    }
+}
 //more colour palette code:
 
 /*

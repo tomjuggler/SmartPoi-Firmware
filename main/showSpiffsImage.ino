@@ -2,6 +2,9 @@ int cnti = 0;
 
 void showLittleFSImage()
 {
+  //test read file://////////////////////////////////////////////////////////////////////////////////
+  //readFile(LittleFS, "");
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
   a = LittleFS.open(bin, "r"); //open every time?
 
   if (!a)
@@ -24,8 +27,8 @@ void showLittleFSImage()
     else
     {
       a.read(message1Data, size);
-       Serial.print("size is: ");
-       Serial.println(size);
+//       Serial.print("size is: ");
+//       Serial.println(size);
       cnti++;
       if (cnti >= pxDown)
       {
@@ -62,4 +65,21 @@ void showLittleFSImage()
       // no delay
     }
   }
+}
+
+//for test:
+void readFile(fs::FS &fs, const char * path){
+    Serial.printf("Reading file: %s\r\n", path);
+
+    File file = fs.open(path);
+    if(!file || file.isDirectory()){
+        Serial.println("- failed to open file for reading");
+        return;
+    }
+
+    Serial.println("- read from file:");
+    while(file.available()){
+        Serial.write(file.read());
+    }
+    file.close();
 }
