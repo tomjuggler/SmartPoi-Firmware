@@ -1,11 +1,5 @@
 
-//ESP-01 Arduino 1.8.5 settings for this to work: 
-//80mhz flash, 160mhz clock, 26mhz crystal
-//Flash mode: DOUT (for the chips with the numbers on, V3 printed on back)
-//upload speed: 115200 for D1 and ESP-01
-//size 1m 512 SPIFFS
-//lwIP variant v1.4 Higher Bandwidth
-//builtin led 1
+//ESP32 version
 
 //maybe have some 10 pre-defined images which can't be deleted? (one option)
 
@@ -137,7 +131,7 @@ uint8_t addrNumD = 78;
 
 const unsigned int localPort = 2390;      // local port to listen on
 
-byte packetBuffer[NUM_PX]; //buffer to hold incoming packet
+byte packetBuffer[255]; //buffer to hold incoming packet
 char  ReplyBuffer[] = "acknowledged";       // a string to send back
 
 WiFiUDP Udp;
@@ -348,7 +342,7 @@ void loop() {
 //        Serial.println(Udp.remotePort());
 
     // read the packet into packetBufffer
-    len = Udp.read(packetBuffer, NUM_PX);
+    len = Udp.read(packetBuffer, 255);
     if (len > 0) packetBuffer[len] = 0;
     //    //Serial.println("Contents:");
     //    //Serial.println(packetBuffer);
