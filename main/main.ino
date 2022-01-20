@@ -55,8 +55,8 @@ WiFiMulti WiFiMulti;
 
 
 int newBrightness = 20; //setting 220 for battery and so white is not too much! //20 for testing ok
-#define DATA_PIN 2    //D2 for D1Mini, 2 for ESP-01
-#define CLOCK_PIN 13   //D1 for D1Mini, 0 for ESP-01
+#define DATA_PIN 4    //D2 for D1Mini, 2 for ESP-01
+#define CLOCK_PIN 2   //D1 for D1Mini, 0 for ESP-01
 
 
 
