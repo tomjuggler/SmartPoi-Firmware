@@ -22,6 +22,7 @@ void showLittleFSImage()
     }
     else
     {
+      pxAcross = int(size/pxDown); //should be an int
       a.read(message1Data, size);
       // Serial.print("size is: ");
       // Serial.println(size);
