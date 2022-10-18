@@ -57,6 +57,7 @@ int newBrightness = 22; //setting 220 for battery and so white is not too much! 
 
 
 
+
 File f;
 File a;
 
@@ -64,7 +65,7 @@ File a;
 File settings;
 
 /////////////////////////////MAIN OR AUXILLARY POI? //////////////////////////////////////
-boolean auxillary = false; //true for second (auxillary) poi - auxillary don't work alone!!!
+boolean auxillary = true; //true for second (auxillary) poi - auxillary don't work alone!!!
 /////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -102,7 +103,7 @@ ESP8266WebServer server(80);
 int status = WL_IDLE_STATUS;
 //char ssid[] = "RouterName"; //  your network SSID (name) - now read from SPIFFS, no need for hard coding
 //char pass[] = "RouterPassword";    // your network password (use for WPA, or use as key for WEP)
-char apName[] = "Smart_Poi_2"; //"Smart_Poi_2";
+char apName[] = "Smart_Poi_3"; //"Smart_Poi_2";
 char apPass[] = "SmartOne"; //"password";
 int apChannel = 1;
 int keyIndex = 0;            // your network key Index number (needed only for WEP)
@@ -232,12 +233,17 @@ void listDir(const char * dirname) {
 }
 */
 void setup() {
+  pinMode(LED_BUILTIN, OUTPUT); //todo: delete this test! 
+  digitalWrite(LED_BUILTIN, HIGH); //todo: delete this test - turning off blue LED
+  digitalWrite(CLOCK_PIN, LOW);
+  digitalWrite(DATA_PIN, LOW);
   //  WiFi.onEvent(WiFiEvent,WIFI_EVENT_ANY); //is this thing causing problems? not sure what it's doing here!
   fastLEDInit(); //try get led's responding quicker here!
+  fastLEDIndicateFast();
   //Initialize serial and wait for port to open:
-  Serial.begin(115200);
-  Serial.println(""); //new line for readability
-  Serial.println("Started");
+  // Serial.begin(115200);
+  // Serial.println(""); //new line for readability
+  // Serial.println("Started");
   //////////////////////////////////////////////read eeprom settings://////////////////////////////////////////////////////////////////
   EEPROM.begin(512);
   //EEPROM storage:
@@ -286,7 +292,7 @@ volatile int packetSize;
 volatile int len;
 
 void loop() {
-  Serial.println(previousMillis);
+  // Serial.println(previousMillis);
 //   listDir("/"); //remove this test!
 //   String size = String(lfs_fs_size);
 //   Serial.println(size);
@@ -297,7 +303,7 @@ void loop() {
         start = true;
       }
     } else{
-        if (millis() > interval) { //wait for less time...
+        if (millis() > interval * 2) { //wait for less time...
         start = true;
       }
       }

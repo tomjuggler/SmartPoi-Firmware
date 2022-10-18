@@ -305,7 +305,7 @@ void wifiChooser(char router_array[], char pwd_array[]) {
   ////////////////////////////////////////////////////Wifi Chooser: /////////////////////////////////////////////////////////////////////////////////////
 
   if (wifiModeChooser == 1) { //main AP mode, with auxillary connected to main.
-    //this may is all that is needed to put main and auxillary poi on one code base: 
+    //this is all that is needed to put main and auxillary poi on one code base: 
     if (auxillary) {
       //Serial.println("auxillary POI");
       WiFi.mode(WIFI_STA); 
@@ -318,17 +318,28 @@ void wifiChooser(char router_array[], char pwd_array[]) {
       //Serial.print("Connecting to AP, IP should be: ");
       //Serial.println(apIPauxillary);
 //      while (WiFiMulti.run() != WL_CONNECTED) {
-while (WiFi.status() != WL_CONNECTED) {
+      while (WiFi.status() != WL_CONNECTED) {
                 //Serial.print(".");
         FastLED.delay(50); //was set to 500, why? todo: does FastLED.delay() work better?
       }
-    } else {
+      //LED on test: 
+      digitalWrite(LED_BUILTIN, LOW);
+
+    } else { // main poi here
       //Serial.println("main POI");
       WiFi.mode(WIFI_AP);
       //WiFi.softAPConfig(IPAddress(192, 168, 1, addrNumD), IPAddress(192, 168, 1, addrNumD), IPAddress(255, 255, 255, 0));
       WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
       WiFi.softAP(apName, apPass, apChannel); //use pre-set values here
       dnsServer.start(DNS_PORT, "*", apIP); //AP mode only, surely??
+
+      //wait for station: 
+      while (WiFi.softAPgetStationNum() == 0){
+        FastLED.delay(50);
+      }
+      //LED on test: 
+      digitalWrite(LED_BUILTIN, LOW);
+
     }
   } else { //both main and auxillary the same, connected to pre-defined Router
     //Serial.println("ROUTER");
