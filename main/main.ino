@@ -50,9 +50,9 @@ ESP8266WiFiMulti WiFiMulti;
 // How many leds in your strip?
 
 
-int newBrightness = 22; //setting 220 for battery and so white is not too much! //20 for testing ok
-#define DATA_PIN D2    //D2 for D1Mini, 2 for ESP-01
-#define CLOCK_PIN D1   //D1 for D1Mini, 0 for ESP-01
+int newBrightness = 20; //setting 20 for battery and so white is not too much! 
+#define DATA_PIN 2    //D2 for D1Mini, 2 for ESP-01
+#define CLOCK_PIN 0   //D1 for D1Mini, 0 for ESP-01
 
 
 
@@ -65,7 +65,7 @@ File a;
 File settings;
 
 /////////////////////////////MAIN OR AUXILLARY POI? //////////////////////////////////////
-boolean auxillary = true; //true for second (auxillary) poi - auxillary don't work alone!!!
+boolean auxillary = false; //true for second (auxillary) poi - auxillary don't work alone!!!
 /////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -200,7 +200,7 @@ String bin = "a.bin"; //one more than chars
 int uploadCounter = 1;
 
 boolean wifiEventDetect = false;
-boolean start = false;
+boolean start = true;
 
 boolean routerOption = false;
 
@@ -233,8 +233,8 @@ void listDir(const char * dirname) {
 }
 */
 void setup() {
-  pinMode(LED_BUILTIN, OUTPUT); //todo: delete this test! 
-  digitalWrite(LED_BUILTIN, HIGH); //todo: delete this test - turning off blue LED
+  // pinMode(LED_BUILTIN, OUTPUT); //todo: delete this test! 
+  // digitalWrite(LED_BUILTIN, HIGH); //todo: delete this test - turning off blue LED
   digitalWrite(CLOCK_PIN, LOW);
   digitalWrite(DATA_PIN, LOW);
   //  WiFi.onEvent(WiFiEvent,WIFI_EVENT_ANY); //is this thing causing problems? not sure what it's doing here!
