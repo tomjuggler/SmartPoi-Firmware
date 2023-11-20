@@ -103,7 +103,7 @@ ESP8266WebServer server(80);
 int status = WL_IDLE_STATUS;
 //char ssid[] = "RouterName"; //  your network SSID (name) - now read from SPIFFS, no need for hard coding
 //char pass[] = "RouterPassword";    // your network password (use for WPA, or use as key for WEP)
-char apName[] = "Smart_Poi_3"; //"Smart_Poi_2";
+char apName[] = "Smart_Poi_2"; //"Smart_Poi_2";
 char apPass[] = "SmartOne"; //"password";
 int apChannel = 1;
 int keyIndex = 0;            // your network key Index number (needed only for WEP)
@@ -233,8 +233,6 @@ void listDir(const char * dirname) {
 }
 */
 void setup() {
-  // pinMode(LED_BUILTIN, OUTPUT); //todo: delete this test! 
-  // digitalWrite(LED_BUILTIN, HIGH); //todo: delete this test - turning off blue LED
   digitalWrite(CLOCK_PIN, LOW);
   digitalWrite(DATA_PIN, LOW);
   //  WiFi.onEvent(WiFiEvent,WIFI_EVENT_ANY); //is this thing causing problems? not sure what it's doing here!
@@ -285,7 +283,7 @@ volatile byte Y;
 volatile byte R1;
 volatile byte G1;
 volatile byte M1;
-//Todo: check if the below is already assigned:
+
 volatile unsigned long currentMillis = millis();
 volatile unsigned long currentMillis2 = millis();
 volatile int packetSize;

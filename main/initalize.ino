@@ -36,9 +36,10 @@ void eepromRouterOptionChooser(int addr){
 
 void eepromWifiModeChooser(int addr) {
   ///////////////////////////////////////wifiModeChooser/////////////////////////////////////////////////////////////////////////////
-  if(routerOption){
+  // NOTE: wifiModeChooser used in wifiChooser()
+  if(routerOption){ //ok this is set to toggle between two modes - I guess to make sure I don't get stuck? 
     wifiModeChooser = int(EEPROM.read(addr));
-    wifiModeChooser++;
+    wifiModeChooser++; // take this out and it stays on router?
     if (wifiModeChooser == 2) { 
       EEPROM.write(5, 2); //save
     }

@@ -2,6 +2,11 @@ int cnti = 0;
 
 void showLittleFSImage()
 {
+
+  //todo: add in converter from "bin" (a,b,c,d etc) to filename from listDir()
+  // or just use imageToUse (int 0-52) to access number of image
+  // try to get this working at the same time as the old version? 
+
   a = LittleFS.open(bin, "r"); //open every time?
 
   if (!a)
