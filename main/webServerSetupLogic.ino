@@ -93,6 +93,9 @@ void handleFileUpload()
   HTTPUpload &upload = server.upload();
   if (upload.status == UPLOAD_FILE_START)
   {
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.sendHeader("Access-Control-Allow-Methods", "POST");
+        
     // indicator led's here: //ok this totally doesn't work, put indicator on Upload program maybe?
     //  FastLED.showColor(CRGB::Black);
     //  for (int i = 0; i < uploadCounter; i++) {
@@ -102,8 +105,9 @@ void handleFileUpload()
     // Serial.println("uploadCounter is: "); //Serial.println(uploadCounter);
     uploadCounter++;
     String filename = upload.filename;
-    if (!filename.startsWith("/"))
+    if (!filename.startsWith("/")){
       filename = "/" + filename;
+    }
     // Serial.print("handleFileUpload Name: "); //Serial.println(filename);
     fsUploadFile = LittleFS.open(filename, "w");
     filename = String();
@@ -111,14 +115,19 @@ void handleFileUpload()
   else if (upload.status == UPLOAD_FILE_WRITE)
   {
     ////Serial.print("handleFileUpload Data: "); //Serial.println(upload.currentSize);
-    if (fsUploadFile)
+    if (fsUploadFile){
       fsUploadFile.write(upload.buf, upload.currentSize);
+      } 
   }
   else if (upload.status == UPLOAD_FILE_END)
   {
     uploadCounter = 1;
-    if (fsUploadFile)
+    if (fsUploadFile){
       fsUploadFile.close();
+    }
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.sendHeader("Access-Control-Allow-Methods", "POST");
+    server.send(200, "text/plain", "");
   }
 }
 
@@ -303,7 +312,8 @@ void webServerSetupLogic(String router, String pass)
   // load editor
   server.on("/edit", HTTP_GET, []()
             {
-    if (!handleFileRead("/edit.htm")) server.send(404, "text/plain", "FileNotFound"); });
+    if (!handleFileRead("/edit.htm")) server.send(404, "text/plain", "FileNotFound"); 
+    });
   // create file
   server.on("/edit", HTTP_PUT, handleFileCreate);
   // delete file
@@ -313,6 +323,9 @@ void webServerSetupLogic(String router, String pass)
   server.on(
       "/edit", HTTP_POST, []()
       {
+        // Set CORS headers
+        server.sendHeader("Access-Control-Allow-Origin", "*");
+        server.sendHeader("Access-Control-Allow-Methods", "POST");
         server.send(200, "text/plain", "");
         ///    //Serial.println(pass);
       },
@@ -404,11 +417,23 @@ void webServerSetupLogic(String router, String pass)
                 EEPROM.write(100, newRouter);
                 content = "{\"Success\":\" your pattern is set \"}";
                 statusCode = 200;
+                // Set CORS headers before sending the response
+                server.sendHeader("Access-Control-Allow-Origin", "*");
+                server.sendHeader("Access-Control-Allow-Methods", "POST");
+
+                // Send the response based on the logic above
+                server.send(statusCode, "application/json", content);
               }
               else
               {
                 content = "{\"Error\":\"404 not found\"}";
                 statusCode = 404;
+                // Set CORS headers before sending the error response
+                server.sendHeader("Access-Control-Allow-Origin", "*");
+                server.sendHeader("Access-Control-Allow-Methods", "POST");
+
+                // Send the error response
+                server.send(statusCode, "application/json", content);
               }
               EEPROM.commit(); // save for next time?
               // Serial.println("10, patternChooser saved");
@@ -449,11 +474,23 @@ void webServerSetupLogic(String router, String pass)
                 //  loadPatternChooser();
                 content = "{\"Success\":\" your pattern is set \"}";
                 statusCode = 200;
+                // Set CORS headers before sending the error response
+                server.sendHeader("Access-Control-Allow-Origin", "*");
+                server.sendHeader("Access-Control-Allow-Methods", "POST");
+
+                // Send the response
+                server.send(statusCode, "application/json", content);
               }
               else
               {
+                
                 content = "{\"Error\":\"404 not found\"}";
                 statusCode = 404;
+                server.sendHeader("Access-Control-Allow-Origin", "*");
+                server.sendHeader("Access-Control-Allow-Methods", "POST");
+
+                // Send the error response
+                server.send(statusCode, "application/json", content);
               } // nothing
             });
   ////////////////////////////////////////////////////end change Pattern Chooser setting in EEPROM////////////////////////////////////////////////////////////////////////////////
@@ -483,11 +520,21 @@ void webServerSetupLogic(String router, String pass)
                 }
                 content = "{\"Success\":\" your interval is set \"}";
                 statusCode = 200;
+                server.sendHeader("Access-Control-Allow-Origin", "*");
+                server.sendHeader("Access-Control-Allow-Methods", "POST");
+
+                // Send the response
+                server.send(statusCode, "application/json", content);
               }
               else
               {
                 content = "{\"Error\":\"404 not found\"}";
                 statusCode = 404;
+                server.sendHeader("Access-Control-Allow-Origin", "*");
+                server.sendHeader("Access-Control-Allow-Methods", "POST");
+
+                // Send the error response
+                server.send(statusCode, "application/json", content);
               } // nothing
             });
   ////////////////////////////////////////////////////end change interval changer////////////////////////////////////////////////////////////////////////////////
@@ -712,6 +759,11 @@ void webServerSetupLogic(String router, String pass)
               } // nothing
               ////////////////////////////////////////////////////end change Pattern Chooser setting in EEPROM////////////////////////////////////////////////////////////////////////////////
 
+              // Set CORS headers before sending the error response
+              server.sendHeader("Access-Control-Allow-Origin", "*");
+              server.sendHeader("Access-Control-Allow-Methods", "POST");
+
+              // Send the status code response
               server.send(statusCode, "application/json", content);
               // delay(50);
               //    ESP.restart(); //not using this right now but see https://github.com/esp8266/Arduino/issues/1722#issuecomment-192829825
