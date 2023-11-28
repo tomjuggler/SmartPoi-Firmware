@@ -103,7 +103,7 @@ ESP8266WebServer server(80);
 int status = WL_IDLE_STATUS;
 //char ssid[] = "RouterName"; //  your network SSID (name) - now read from SPIFFS, no need for hard coding
 //char pass[] = "RouterPassword";    // your network password (use for WPA, or use as key for WEP)
-char apName[] = "Smart_Poi_2"; //"Smart_Poi_2";
+char apName[] = "Smart_Poi_4"; //"Smart_Poi_2";
 char apPass[] = "SmartOne"; //"password";
 int apChannel = 1;
 int keyIndex = 0;            // your network key Index number (needed only for WEP)

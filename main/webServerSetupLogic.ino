@@ -125,8 +125,8 @@ void handleFileUpload()
     if (fsUploadFile){
       fsUploadFile.close();
     }
-    server.sendHeader("Access-Control-Allow-Origin", "*");
-    server.sendHeader("Access-Control-Allow-Methods", "POST");
+    // server.sendHeader("Access-Control-Allow-Origin", "*");
+    // server.sendHeader("Access-Control-Allow-Methods", "POST");
     server.send(200, "text/plain", "");
   }
 }
@@ -237,28 +237,29 @@ void webServerSetupLogic(String router, String pass)
 
   // html taking up too much room? moved to spiffs!
   responseHTML = "";
-  //  html = LittleFS.open("/site.htm", "r");
-  //  if (!html) {
-  //    //Serial.println("no html");
-  //  } else {
-  //    while (html.available()) {
-  //      responseHTML += html.readStringUntil('\n');
-  //    }
-  //    html.close();
-  //  }
+   File html = LittleFS.open("/site.htm", "r");
+   if (!html) {
+     Serial.println("no html");
+   } else {
+     while (html.available()) {
+       responseHTML += html.readStringUntil('\n');
+     }
+     html.close();
+     Serial.println("finished building html");
+   }
   /////////////////////////////////////////////////////////build html///////////////////////////////////////////////////////////////////////////////
 
   // form:
-  responseHTML += "</p><form method='get' action='setting'>";
-  responseHTML += "<label>Router Name: </label><br><input name='ssid' value='";
-  responseHTML += router; // how to get these variables into html on spiffs?
-  responseHTML += "'length=32>";
-  responseHTML += "<br><label>Router Password: </label><br><input name='pwd' value='";
-  responseHTML += pass;
-  responseHTML += "'length=32>";
-  responseHTML += "<br><label>channel: </label><br><input type='number' name='channel' value='";
-  responseHTML += newChannel;
-  responseHTML += "' min=1 max=13><br>"; // max = 11 for US
+  // responseHTML += "</p><form method='get' action='setting'>";
+  // responseHTML += "<label>Router Name: </label><br><input name='ssid' value='";
+  // responseHTML += router; // how to get these variables into html on spiffs?
+  // responseHTML += "'length=32>";
+  // responseHTML += "<br><label>Router Password: </label><br><input name='pwd' value='";
+  // responseHTML += pass;
+  // responseHTML += "'length=32>";
+  // responseHTML += "<br><label>channel: </label><br><input type='number' name='channel' value='";
+  // responseHTML += newChannel;
+  // responseHTML += "' min=1 max=13><br>"; // max = 11 for US
 
   //  responseHTML +=               "<label>addressA: </label><br><input type='number' name='addressA' value='";
   //  responseHTML +=               addrNumA;
@@ -277,31 +278,31 @@ void webServerSetupLogic(String router, String pass)
   //  responseHTML +=               "' min=2 max=255><br>"; //not 1(router is 1 usually) also had problems with 100... not 100?
 
   // REMOVED LINE BREAKS AND LABELS:
-  responseHTML += "<br><label>IP ADDRESS: </label><input type='number' name='addressA' value='";
-  responseHTML += addrNumA;
-  responseHTML += "' min=0 max=255>"; // should be 192 here...
+  // responseHTML += "<br><label>IP ADDRESS: </label><input type='number' name='addressA' value='";
+  // responseHTML += addrNumA;
+  // responseHTML += "' min=0 max=255>"; // should be 192 here...
 
-  responseHTML += "<input type='number' name='addressB' value='";
-  responseHTML += addrNumB;
-  responseHTML += "' min=0 max=255>"; // should be 168 here...
+  // responseHTML += "<input type='number' name='addressB' value='";
+  // responseHTML += addrNumB;
+  // responseHTML += "' min=0 max=255>"; // should be 168 here...
 
-  responseHTML += "<input type='number' name='addressC' value='";
-  responseHTML += addrNumC;
-  responseHTML += "' min=0 max=255>"; // should be 8 here, at least for Huawei Router...
+  // responseHTML += "<input type='number' name='addressC' value='";
+  // responseHTML += addrNumC;
+  // responseHTML += "' min=0 max=255>"; // should be 8 here, at least for Huawei Router...
 
-  responseHTML += "<input type='number' name='address' value='";
-  responseHTML += addrNumD;
-  responseHTML += "' min=2 max=255><br>"; // not 1(router is 1 usually) also had problems with 100... not 100?
+  // responseHTML += "<input type='number' name='address' value='";
+  // responseHTML += addrNumD;
+  // responseHTML += "' min=2 max=255><br>"; // not 1(router is 1 usually) also had problems with 100... not 100?
 
-  // pattern chooser:
-  responseHTML += "<br><label>PATTERN: </label><br><input type='number' name='patternChooserChange' value='";
-  responseHTML += patternChooser;
-  responseHTML += "' min=1 max=255><br>";
+  // // pattern chooser:
+  // responseHTML += "<br><label>PATTERN: </label><br><input type='number' name='patternChooserChange' value='";
+  // responseHTML += patternChooser;
+  // responseHTML += "' min=1 max=255><br>";
 
-  //*****************************************submit:**********************************************
-  responseHTML += "<br><br><input type='submit'>";
-  responseHTML += "</form>";
-  responseHTML += "</body></html>";
+  // //*****************************************submit:**********************************************
+  // responseHTML += "<br><br><input type='submit'>";
+  // responseHTML += "</form>";
+  // responseHTML += "</body></html>";
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -538,6 +539,48 @@ void webServerSetupLogic(String router, String pass)
               } // nothing
             });
   ////////////////////////////////////////////////////end change interval changer////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////quick change Brighness://////////////////////////////////////////////////////////////////////////////////
+  server.on("/brightness", []()
+            {
+              //////////////////////////////////////////////////////change PatternChooser setting in EEPROM://///////////////////////////////////////////////////////////////////////////////
+              String onNewBRT = server.arg("brt"); // need to handle errors what if it's too big
+              if (onNewBRT.length() > 0)
+              {
+                // EEPROM.write(15, 20); //set back to default dim brightness first?
+                // newBrightness = 20;
+                int newBRT; // temp variable - not needed, use same one as previously:
+                newBRT = onNewBRT.toInt();
+                newBrightness = newBRT; // change on poi as well as saving
+                FastLED.setBrightness(  newBrightness ); //should I be removing this becos https://github.com/FastLED/FastLED/wiki/FastLED-Temporal-Dithering
+                FastLED.showColor( CRGB::Black );
+
+                EEPROM.write(15, newBRT);                
+                EEPROM.commit(); // save for next time
+                
+                content = "{\"Success\":\" your brightness is set \"}";
+                statusCode = 200;
+                // Set CORS headers before sending the error response
+                server.sendHeader("Access-Control-Allow-Origin", "*");
+                server.sendHeader("Access-Control-Allow-Methods", "POST");
+
+                // Send the response
+                server.send(statusCode, "application/json", content);
+              }
+              else
+              {
+                
+                content = "{\"Error\":\"404 not found\"}";
+                statusCode = 404;
+                server.sendHeader("Access-Control-Allow-Origin", "*");
+                server.sendHeader("Access-Control-Allow-Methods", "POST");
+
+                // Send the error response
+                server.send(statusCode, "application/json", content);
+              } // nothing
+            });
+  ////////////////////////////////////////////////////end change Pattern Chooser setting in EEPROM////////////////////////////////////////////////////////////////////////////////
+
 
   ////////////////////////////////////////////////////////settings form://////////////////////////////////////////////////////////////////////////////////////////
   server.on("/setting", []()
