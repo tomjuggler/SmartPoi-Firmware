@@ -236,17 +236,23 @@ void webServerSetupLogic(String router, String pass)
   ///////////////////////////////////////////end EEPROM checkup///////////////////////////////////////////
 
   // html taking up too much room? moved to spiffs!
+  File html = LittleFS.open("/site.htm", "r");
   responseHTML = "";
-   File html = LittleFS.open("/site.htm", "r");
-   if (!html) {
-     Serial.println("no html");
-   } else {
-     while (html.available()) {
-       responseHTML += html.readStringUntil('\n');
-     }
-     html.close();
-     Serial.println("finished building html");
-   }
+
+  if (!html) {
+      Serial.println("Failed to open file for reading");
+  } else {
+      size_t fileSize = html.size(); // Get the size of the file
+      responseHTML.reserve(fileSize); // Reserve memory to store the file content
+
+      // Read the entire file into responseHTML
+      while (html.available()) {
+          responseHTML += (char)html.read(); // Read one character at a time and append it to the string
+      }
+
+      html.close();
+      Serial.println("Finished building html");
+  }
   /////////////////////////////////////////////////////////build html///////////////////////////////////////////////////////////////////////////////
 
   // form:
