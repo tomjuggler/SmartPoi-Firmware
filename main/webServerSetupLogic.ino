@@ -544,18 +544,21 @@ void webServerSetupLogic(String router, String pass)
   server.on("/brightness", []()
             {
               //////////////////////////////////////////////////////change PatternChooser setting in EEPROM://///////////////////////////////////////////////////////////////////////////////
-              String onNewBRT = server.arg("brt"); // need to handle errors what if it's too big
+              String onNewBRT = server.arg("brt"); 
               if (onNewBRT.length() > 0)
-              {
-                // EEPROM.write(15, 20); //set back to default dim brightness first?
-                // newBrightness = 20;
-                int newBRT; // temp variable - not needed, use same one as previously:
-                newBRT = onNewBRT.toInt();
-                newBrightness = newBRT; // change on poi as well as saving
+              {                
+                newBrightness = onNewBRT.toInt();
+                if(newBrightness > 254){
+                  newBrightness = 255;
+                }
+                if(newBrightness < 20){
+                  newBrightness = 20;
+                }
+                
                 FastLED.setBrightness(  newBrightness ); //should I be removing this becos https://github.com/FastLED/FastLED/wiki/FastLED-Temporal-Dithering
                 FastLED.showColor( CRGB::Black );
 
-                EEPROM.write(15, newBRT);                
+                EEPROM.write(15, newBrightness);                
                 EEPROM.commit(); // save for next time
                 
                 content = "{\"Success\":\" your brightness is set \"}";
