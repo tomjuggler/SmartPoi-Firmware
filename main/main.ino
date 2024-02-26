@@ -1,27 +1,19 @@
 
-//ESP-01 Arduino 1.8.5 settings for this to work: 
-//80mhz flash, 160mhz clock, 26mhz crystal
-//Flash mode: DOUT (for the chips with the numbers on, V3 printed on back)
-//upload speed: 115200 for D1 and ESP-01
-//size 1m 512 SPIFFS
-//lwIP variant v1.4 Higher Bandwidth
-//builtin led 1
+// ESP-01 Arduino 1.8.5 settings for this to work: 
+// 80mhz flash, 160mhz clock, 26mhz crystal
+// Flash mode: DOUT (for the chips with the numbers on, V3 printed on back)
+// upload speed: 115200 for D1 and ESP-01
+// size 1m 512 SPIFFS
+// lwIP variant v1.4 Higher Bandwidth v2.0 works fine also
+// builtin led 1
 
-//maybe have some 10 pre-defined images which can't be deleted? (one option)
+//todo: maybe have some 10 pre-defined images which can't be deleted? (one option)
 
 
-//todo: change if else main/auxillary code to #ifdef syntax, to save on program space (applied at compile time)
-//works with postTXTtoPoi processing sketch
+// todo: change if else main/auxillary code to #ifdef syntax, to save on program space (applied at compile time)
 
 #include "user_interface.h" //for testing
-//#include "lwip/tcp_impl.h" //more testing
-//void tcpCleanup()
-//{
-//  while(tcp_tw_pcbs!=NULL)
-//  {
-//    tcp_abort(tcp_tw_pcbs);
-//  }
-//}
+
 /////////////////////////////////////FSBrowser2/////////////////////////////////////////////////
 // #include "FS.h"
 #include "LittleFS.h" //SPIFFS DEPRECIATED! using LittleFS now. Faster
@@ -37,17 +29,11 @@ File fsUploadFile;
 #include <ESP8266WiFiMulti.h>
 
 ESP8266WiFiMulti WiFiMulti;
-//#include <ESP8266WiFi.h>
-//#include <SPI.h>true
-//#include <WiFi.h>
 #include <WiFiUdp.h>
 
-
-
-//#include <user_interface.h> //for frequency update - from: https://github.com/esp8266/Arduino/issues/579
 //////////////////////////////////////////FastLED code:////////////
 #include <FastLED.h>
-// How many leds in your strip?
+
 
 
 int newBrightness = 20; //setting 20 for battery and so white is not too much! 
@@ -71,18 +57,15 @@ boolean auxillary = false; //true for second (auxillary) poi - auxillary don't w
 
 ////////////////////////////HOW MANY PIXELS? 36 OR 72 - 2 variables to edit-  //////////////////
 
-#define NUM_LEDS 37
-// #define NUM_LEDS 73
+//#define NUM_LEDS 37
+ #define NUM_LEDS 73
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
 
-#define NUM_PX 36
-// #define NUM_PX 72
+//#define NUM_PX 36
+ #define NUM_PX 72
 
-// const int maxPX = 5184; // 36x144
-// const int maxPX = 10368; //8640 for 72px poi, 72x120 - now 72x144
-//trying a really large array, since we have space now for it:
 const int maxPX = 20736; //enough for 72x288 or 36x576
 
 //lets try using a maximum number of pixels so very large array to hold any number:
@@ -122,13 +105,9 @@ uint8_t addrNumB = 168;
 uint8_t addrNumC = 8;
 uint8_t addrNumD = 78;
 
-//IPAddress ipMulti(224,0,0,1);
-//unsigned int portBroad = 5656;
-//unsigned int portMulti = 6000;      // local port to listen on
-
 const unsigned int localPort = 2390;      // local port to listen on
 
-byte packetBuffer[NUM_PX]; //buffer to hold incoming packet
+byte packetBuffer[NUM_PX]; // buffer to hold incoming packet
 //char  ReplyBuffer[] = "acknowledged";       // a string to send back
 
 WiFiUDP Udp;
@@ -204,78 +183,38 @@ boolean start = true;
 
 boolean routerOption = false;
 
-/*
-//list directory function for testing: 
-void listDir(const char * dirname) {
-  Serial.printf("Listing directory: %s\n", dirname);
 
-  Dir root = LittleFS.openDir(dirname);
-
-  long sizeOnDisk = 0;
-
-  while (root.next()) {
-    File file = root.openFile("r");
-    Serial.print("  FILE: ");
-    Serial.print(root.fileName());
-    Serial.print("  SIZE: ");
-    Serial.print(file.size());
-    sizeOnDisk = sizeOnDisk + file.size();
-    time_t cr = file.getCreationTime();
-    time_t lw = file.getLastWrite();
-    file.close();
-    struct tm * tmstruct = localtime(&cr);
-    Serial.printf("    CREATION: %d-%02d-%02d %02d:%02d:%02d\n", (tmstruct->tm_year) + 1900, (tmstruct->tm_mon) + 1, tmstruct->tm_mday, tmstruct->tm_hour, tmstruct->tm_min, tmstruct->tm_sec);
-    tmstruct = localtime(&lw);
-    Serial.printf("  LAST WRITE: %d-%02d-%02d %02d:%02d:%02d\n", (tmstruct->tm_year) + 1900, (tmstruct->tm_mon) + 1, tmstruct->tm_mday, tmstruct->tm_hour, tmstruct->tm_min, tmstruct->tm_sec);
-    Serial.print("sizeOnDisk: ");
-    Serial.println(sizeOnDisk);
-  }
-}
-*/
 void setup() {
   digitalWrite(CLOCK_PIN, LOW);
   digitalWrite(DATA_PIN, LOW);
-  //  WiFi.onEvent(WiFiEvent,WIFI_EVENT_ANY); //is this thing causing problems? not sure what it's doing here!
-  fastLEDInit(); //try get led's responding quicker here!
+  fastLEDInit(); 
   fastLEDIndicateFast();
-  //Initialize serial and wait for port to open:
+  //Initialize serial and wait for port to open: - for tests only
   // Serial.begin(115200);
   // Serial.println(""); //new line for readability
   // Serial.println("Started");
   //////////////////////////////////////////////read eeprom settings://////////////////////////////////////////////////////////////////
   EEPROM.begin(512);
+  
   //EEPROM storage:
   //Brightness 15, wifiMode 5, PatternChooser 10, pattern 11, apChannel 13, addrNumD 14, addrNumA 16, addrNumB 17, addrNumC 18
-  ///////////////////////////test init addrNum A-C:
-  //EEPROM.write(15, 20); //BRT back to low to fix mistake
-  //EEPROM.write(16, 192); //addrNumA
-  //EEPROM.write(17, 168); //addrNumB
-  //EEPROM.write(18, 8); //addrNumC
+  
   eepromBrightnessChooser(15); //up to 220 max
   eepromRouterOptionChooser(100); //do we try to connect to router or not? default is no. 
   eepromWifiModeChooser(5); //AP or STA mode
-  eepromPatternChooser(10); //3 settings
+  eepromPatternChooser(10); //5 settings
   eepromReadChannelAndAddress(13, 14, 16, 17, 18);
   EEPROM.commit(); //save any changes made above
-  ///////////////////////////////////////////////////////SPIFFS: /////////////////////////////////////////////////////////
+
+  ///////////////////////////////////////////////////////LittleFS: /////////////////////////////////////////////////////////
   // always use this to "mount" the filesystem
   bool result = LittleFS.begin();
   String router;
 
 //the following is related to router settings (using AP mode currently)
-   spiffsLoadSettings(); //where did this go???
-  // 2 functions below have to be inside spiffsLoadSettings or else: ERROR: router_array was not declared in this scope
-  //  wifiChooser(router_array, pwd_array);
-  //  webServerSetupLogic(router_array, pwd_array);
-
+  spiffsLoadSettings(); 
   fastLEDIndicate(); //indicates AP (red) or router (green)
-
-  //  dnsServer.start(DNS_PORT, "*", apIP); //AP mode only, surely?? Moved to wifiChooser()
-
   Udp.begin(localPort);
-  //  listDir("/"); //remove this test!
-
-  // loadPatternChooser(); 
 }
 
 volatile byte X;
@@ -290,10 +229,6 @@ volatile int packetSize;
 volatile int len;
 
 void loop() {
-  // Serial.println(previousMillis);
-//   listDir("/"); //remove this test!
-//   String size = String(lfs_fs_size);
-//   Serial.println(size);
   //this only works once:
   if (start == false) {
     if(routerOption){
@@ -306,22 +241,13 @@ void loop() {
       }
       }
   }
-  //  if(wifiEventDetect){
-  //    Serial.println("detected!!!!!!!!!!!!!!!!!!!!!!");
-  //  }
-  ////Serial.println(checkit); //
   dnsServer.processNextRequest();
   server.handleClient();
-  //printWifiStatus();
+
   //////////////////////////////////////////////////////////// check if there is no signal ////////////////////////////////////////////////
  currentMillis = millis();
  currentMillis2 = millis();
-  //  //Serial.print("STATE IS: ");
-  //  //Serial.print(state);
-  //  //Serial.println(" one for no signal, zero for signal");
-  //if(millis() > firstRunMillis){ //do only on first run???
-  //if(wifiEventDetect && !auxillary){ //main poi
-  ChangePatternPeriodically(); //trying a new way
+ ChangePatternPeriodically(); 
   
   if (start) {
 //  
@@ -330,35 +256,8 @@ void loop() {
       // save the last time you checked the time
       previousMillis = currentMillis;
       state = 1; //udp no signal state
-//      tempSwitch = !tempSwitch; //for switching picture at interval test
-//      //first run sync
-//      picToShow++;
-//      //      Serial.print("first run millis: ");
-//      //      Serial.println(millis());
-//      if (picToShow > maxPicsToShow) {
-//        picToShow = 1;
-//      }
-      ////Serial.println("state changed to 1");
     }
   }
-  //else{ //auxillary poi
-  //  if (currentMillis - previousMillis >= interval) {   //should not ever be true if udp is sending at correct speed!
-  ////    Serial.println(millis());
-  //    // save the last time you checked the time
-  //    previousMillis = currentMillis;
-  //    state = 1; //udp no signal state
-  //    tempSwitch = !tempSwitch; //for switching picture at interval test
-  //     //first run sync
-  //      picToShow++;
-  ////      Serial.print("first run millis: ");
-  ////      Serial.println(millis());
-  //    if (picToShow > maxPicsToShow) {
-  //      picToShow = 1;
-  //    }
-  //    ////Serial.println("state changed to 1");
-  //  }
-  //}
-  //}
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // if there's data available, read a packet
   packetSize = Udp.parsePacket();
@@ -367,26 +266,15 @@ void loop() {
     if (currentMillis2 - previousMillis2 > interval * 2) { //message received after long wait, may be config message? check it
       // save the last time you checked the time
       previousMillis2 = currentMillis2;
-      ////Serial.println("long wait hey!");
       //check the UDP packet for correct config message values later:
       checkit = true;
     }
     previousMillis = currentMillis;
-    state = 0; //udp good signal state - need to work out optimum timing for this millis
-    //    //Serial.println("0");
-    //    //Serial.print("Received packet of size ");
-    //    //Serial.println(packetSize);
-    //    //Serial.print("From ");
-    //      IPAddress remoteIp = Udp.remoteIP();
-    //    //Serial.print(remoteIp);
-    //    //Serial.print(", port ");
-    //    //Serial.println(Udp.remotePort());
+    state = 0; //udp good signal state 
 
     // read the packet into packetBufffer
     len = Udp.read(packetBuffer, NUM_PX);
     if (len > 0) packetBuffer[len] = 0;
-    //    //Serial.println("Contents:");
-    //    //Serial.println(packetBuffer);
     ////////////////////////////////////FastLED Code://///////////
     for (int i = 0; i < NUM_PX; i++)
     {
@@ -435,9 +323,9 @@ void loop() {
                 newChannel2 = int(Y);
                 EEPROM.write(13, newChannel2);
                 EEPROM.commit();
-                ////Serial.print("channel changed to :");
-                ////Serial.println(newChannel2);
-                //              ESP.restart(); //not using this right now but see https://github.com/esp8266/Arduino/issues/1722#issuecomment-192829825
+                // Serial.print("channel changed to :");
+                // Serial.println(newChannel2);
+                // ESP.restart(); //not using this right now but see https://github.com/esp8266/Arduino/issues/1722#issuecomment-192829825
                 FastLED.showColor(CRGB::Magenta); //visual indicator
                 channelChange = false;
                 checkit = false; //Finished settings, exit
@@ -455,18 +343,10 @@ void loop() {
               ////Serial.println(newBrightness);
               FastLED.showColor(CRGB::Blue); //visual indicator
               checkit = false; //Finished settings, exit
-
-              //            if (Y == 3) {
-              //              //Serial.println("checked 3, signal received");
-              //            }
-              //            else{
-              //             checkit = false; //not on track, try again next time
-              //            }
             }
             break;
           default:
-            ////Serial.println(Y);
-            //checkit = false;
+            
             break;
             //etc for 32, can write values according to signal received
 
@@ -485,13 +365,12 @@ void loop() {
       leds[i].g = G1;
      M1 = (X << 6);
       leds[i].b = M1;
-      //FastLED.delay(1);
-      //        //Serial.print(R1); //Serial.print(", "); //Serial.print(G1); //Serial.print(", "); //Serial.println(M1);
+      // FastLED.delay(1);
+      // Serial.print(R1); // Serial.print(", "); // Serial.print(G1); // Serial.print(", "); // Serial.println(M1);
     }
 
     //FastLED.delay(2); //not just for emulator!
      LEDS.show();
-//     tcpCleanup();
 //    delayMicroseconds(200);
 //    FastLED.delay(1);
     ///////////////////////////////////end FastLed Code//////////////
@@ -554,41 +433,16 @@ void loop() {
 }
 
 void funColourJam() {
-  //  unsigned long currentFlashy = millis();
-  //
-  //  if (currentFlashy - previousFlashy >= intervalBetweenFlashy) {   //should not ever be true if udp is sending at correct speed!
-  //    // save the last time you checked the time
-  //    previousFlashy = currentFlashy;
-  //    //this is nice but the 2 poi will not be synced... meh! simple patterns should be fine but what about pics etc???
-  //    //  //Serial.println("Black");
-  //    if (black) {
-  //      FastLED.showColor( CRGB::Black );
-  //      black = !black;
-  //    }
-  //    else {
-  //      int randomOne = random(60, 255);
-  //      //  //Serial.println(".......Red");
-  //      FastLED.showColor( CRGB(randomOne, 0, 255-randomOne) );
-  //      black = !black;
-  //    }
-  //  }
-
   //colour palette code://///////////////////////////
   if (setting == 1) {
 
     if (lines == false) { //toggled in ChangePalettePeriodically3()
-      //ChangePalettePeriodically2();
-      //ChangePaletteEveryTime();
-      ////Serial.println(paletteVar);
-      //PaletteSetup();
-      //SetupVariablePalette(CRGB::Red, CRGB::Gray, CRGB::Blue, CRGB::Black);
-      //SetupRandomVariablePalette(CRGB::Red, CRGB::Gray, CRGB::Blue, CRGB::Black);
       ChangePalettePeriodically3();
       static uint8_t startIndex = 0;
       if (upDown == true) {
         startIndex = startIndex + motionSpeed; /* motion speed */
         FillLEDsFromPaletteColors( startIndex);
-        ////Serial.println(startIndex);
+        //Serial.println(startIndex);
         if (startIndex == maxStartIndex) {
           upDown = false;
         }
@@ -596,45 +450,24 @@ void funColourJam() {
       else {
         startIndex = startIndex - motionSpeed; /* motion speed */
         FillLEDsFromPaletteColors( startIndex);
-        ////Serial.println(startIndex);
+        //Serial.println(startIndex);
         if (startIndex == minStartIndex) {
           upDown = true;
         }
       }
 
-      //add_glitter();
+      // add_glitter();
 
       FastLED.show();
       FastLED.delay(1); //for 160mhz
-      //FastLED.delay(1000 / UPDATES_PER_SECOND);
-      /*
-        motionSpeed++;
-        if(motionSpeed == 10){
-        motionSpeed = 1;
-        }
-
-        minStartIndex++;
-        if(minStartIndex == 20){
-        minStartIndex = 0;
-        }
-        maxStartIndex--;
-        if(maxStartIndex == 30){
-        maxStartIndex = 70;
-        }
-      */
+      
     }//end if(lines)
     else {
-      //ChangePalettePeriodically2();
-      //ChangePaletteEveryTime();
-      ////Serial.println(paletteVar);
-      //PaletteSetup();
-      //SetupVariablePalette(CRGB::Red, CRGB::Gray, CRGB::Blue, CRGB::Black);
-      //SetupRandomVariablePalette(CRGB::Red, CRGB::Gray, CRGB::Blue, CRGB::Black);
       ChangePalettePeriodically3();
       static uint8_t startIndex = 0;
       startIndex = startIndex + motionSpeed; /* motion speed */
       FillLEDsFromPaletteColors( startIndex);
-      ////Serial.println(startIndex);
+      // Serial.println(startIndex);
       if (startIndex == maxStartIndex) {
         startIndex = 0;
       }
@@ -643,21 +476,7 @@ void funColourJam() {
       FastLED.show();
       FastLED.delay(1); //for 160mhz
       //FastLED.delay(1000 / UPDATES_PER_SECOND);
-      /*
-        motionSpeed++;
-        if(motionSpeed == 10){
-        motionSpeed = 1;
-        }
 
-        minStartIndex++;
-        if(minStartIndex == 20){
-        minStartIndex = 0;
-        }
-        maxStartIndex--;
-        if(maxStartIndex == 30){
-        maxStartIndex = 70;
-        }
-      */
 
     }//end else(lines)
   }//end if(setting ==1)
@@ -697,26 +516,7 @@ void funColourJam() {
   /////////////////////////end colour palette///////////////////////////////////////
 }
 
-//more colour palette code:
 
-/*
-  void printWifiStatus() {
-  // print the SSID of the network you're attached to:
-  //Serial.print("SSID: ");
-  //Serial.println(WiFi.SSID());
-
-  // print your WiFi shield's IP address:
-  IPAddress ip = WiFi.localIP();
-  //Serial.print("IP Address: ");
-  //Serial.println(ip);
-
-  // print the received signal strength:
-  long rssi = WiFi.RSSI();
-  //Serial.print("signal strength (RSSI):");
-  //Serial.print(rssi);
-  //Serial.println(" dBm");
-  }
-*/
 /*
   void sendTestMessage(){
     // send a reply, to the IP address and port that sent us the packet we received

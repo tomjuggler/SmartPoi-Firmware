@@ -1,5 +1,5 @@
-uint8_t secondHand; 
-static uint8_t lastSecond = 99;
+// uint8_t secondHand; 
+// static uint8_t lastSecond = 99;
 
 //uint32_t frei; //debug code
 
@@ -17,8 +17,6 @@ void ChangePatternPeriodically()
       imageToUse = minImages;
     }
     // Serial.println(imageToUse);
-  }
-
-  
+  }  
 }
 

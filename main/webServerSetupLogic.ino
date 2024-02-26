@@ -75,19 +75,16 @@ bool handleFileRead(String path)
   return false;
 }
 
-// todo: note for the next function:
+// todo: note for the handleFileUpload function:
 /*
    need error handling
    size too big
    wrong file name
-   only upload abcdefghij no more!
-   spiffs must not exeed bounds
-
-   also: maybe don't reload until restart? Might make the poi more responsive (http upload while spinning?) or maybe not just a thought
+   only upload abcdefghij... no more!
+   LittleFS must not exeed bounds
  * */
 void handleFileUpload()
 {
-  // removed indicator and reload code!
   if (server.uri() != "/edit")
     return;
   HTTPUpload &upload = server.upload();
@@ -95,13 +92,6 @@ void handleFileUpload()
   {
     server.sendHeader("Access-Control-Allow-Origin", "*");
     server.sendHeader("Access-Control-Allow-Methods", "POST");
-        
-    // indicator led's here: //ok this totally doesn't work, put indicator on Upload program maybe?
-    //  FastLED.showColor(CRGB::Black);
-    //  for (int i = 0; i < uploadCounter; i++) {
-    //    leds[i] = CRGB::Magenta;
-    //  }
-    //  FastLED.show(); //
     // Serial.println("uploadCounter is: "); //Serial.println(uploadCounter);
     uploadCounter++;
     String filename = upload.filename;
@@ -125,8 +115,7 @@ void handleFileUpload()
     if (fsUploadFile){
       fsUploadFile.close();
     }
-    // server.sendHeader("Access-Control-Allow-Origin", "*");
-    // server.sendHeader("Access-Control-Allow-Methods", "POST");
+    
     server.send(200, "text/plain", "");
   }
 }
@@ -189,7 +178,6 @@ void handleFileList()
     output += (isDir) ? "dir" : "file";
     output += "\",\"name\":\"";
     output += String(entry.name());
-    // output += String(entry.name()).substring(1); //todo: this is only showing file extension (eg .bin)
     output += "\"}";
     entry.close();
   }
@@ -216,26 +204,7 @@ void webServerSetupLogic(String router, String pass)
   checkChannel = int(EEPROM.read(13)); // change from ascii
   int newChannel = checkChannel;
 
-  // check again? unnecessary!
-  //   int checkAddr4;
-  //   checkAddr4 = uint8_t(EEPROM.read(14)); //change from ascii
-  //   int newAddr4 = checkAddr4;
-
-  ///////////////////////////////////////////handy EEPROM checkup:////////////////////////////////////////
-  ////Serial.println(" ");
-  ////Serial.print("setup, newChannel converted from ascii is: ");
-  ////Serial.println(newChannel);
-  // String checkStip;
-  //       for (int i = 0; i < 14; ++i)
-  //       {
-  //         checkStip += char(EEPROM.read(i));
-  //       }
-  //       //Serial.println(" ");
-  //       //Serial.print("setup, checkStip is: ");
-  //       //Serial.println(checkStip);
-  ///////////////////////////////////////////end EEPROM checkup///////////////////////////////////////////
-
-  // html taking up too much room? moved to spiffs!
+  // html taking up too much room? moved to LittleFS!
   File html = LittleFS.open("/site.htm", "r");
   responseHTML = "";
 
@@ -253,65 +222,7 @@ void webServerSetupLogic(String router, String pass)
       html.close();
       Serial.println("Finished building html");
   }
-  /////////////////////////////////////////////////////////build html///////////////////////////////////////////////////////////////////////////////
-
-  // form:
-  // responseHTML += "</p><form method='get' action='setting'>";
-  // responseHTML += "<label>Router Name: </label><br><input name='ssid' value='";
-  // responseHTML += router; // how to get these variables into html on spiffs?
-  // responseHTML += "'length=32>";
-  // responseHTML += "<br><label>Router Password: </label><br><input name='pwd' value='";
-  // responseHTML += pass;
-  // responseHTML += "'length=32>";
-  // responseHTML += "<br><label>channel: </label><br><input type='number' name='channel' value='";
-  // responseHTML += newChannel;
-  // responseHTML += "' min=1 max=13><br>"; // max = 11 for US
-
-  //  responseHTML +=               "<label>addressA: </label><br><input type='number' name='addressA' value='";
-  //  responseHTML +=               addrNumA;
-  //  responseHTML +=               "' min=0 max=255><br>"; // should be 192 here...
-  //
-  //   responseHTML +=               "<label>addressB: </label><br><input type='number' name='addressB' value='";
-  //  responseHTML +=               addrNumB;
-  //  responseHTML +=               "' min=0 max=255><br>"; // should be 168 here...
-  //
-  //   responseHTML +=               "<label>addressC: </label><br><input type='number' name='addressC' value='";
-  //  responseHTML +=               addrNumC;
-  //  responseHTML +=               "' min=0 max=255><br>"; // should be 8 here, at least for Huawei Router...
-  //
-  //  responseHTML +=               "<label>address: </label><br><input type='number' name='address' value='";
-  //  responseHTML +=               addrNumD;
-  //  responseHTML +=               "' min=2 max=255><br>"; //not 1(router is 1 usually) also had problems with 100... not 100?
-
-  // REMOVED LINE BREAKS AND LABELS:
-  // responseHTML += "<br><label>IP ADDRESS: </label><input type='number' name='addressA' value='";
-  // responseHTML += addrNumA;
-  // responseHTML += "' min=0 max=255>"; // should be 192 here...
-
-  // responseHTML += "<input type='number' name='addressB' value='";
-  // responseHTML += addrNumB;
-  // responseHTML += "' min=0 max=255>"; // should be 168 here...
-
-  // responseHTML += "<input type='number' name='addressC' value='";
-  // responseHTML += addrNumC;
-  // responseHTML += "' min=0 max=255>"; // should be 8 here, at least for Huawei Router...
-
-  // responseHTML += "<input type='number' name='address' value='";
-  // responseHTML += addrNumD;
-  // responseHTML += "' min=2 max=255><br>"; // not 1(router is 1 usually) also had problems with 100... not 100?
-
-  // // pattern chooser:
-  // responseHTML += "<br><label>PATTERN: </label><br><input type='number' name='patternChooserChange' value='";
-  // responseHTML += patternChooser;
-  // responseHTML += "' min=1 max=255><br>";
-
-  // //*****************************************submit:**********************************************
-  // responseHTML += "<br><br><input type='submit'>";
-  // responseHTML += "</form>";
-  // responseHTML += "</body></html>";
-
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+  
   /////////////////////////////////////////////////FSBrowser2////////////////////////////////////////////////////////////////////////////////////
   // SERVER INIT
   // list directory
