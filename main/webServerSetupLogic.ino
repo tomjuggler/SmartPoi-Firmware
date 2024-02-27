@@ -49,30 +49,40 @@ String getContentType(String filename)
     return "application/x-zip";
   else if (filename.endsWith(".gz"))
     return "application/x-gzip";
+  else if (filename.endsWith(".bin"))
+    return "application/octet-stream";
   return "text/plain";
 }
 
-bool handleFileRead(String path)
+void handleFileRead()
 {
-
-  // Serial.print("handleFileRead: ");
-  // Serial.println(path);
-
-  // Serial.println("handleFileRead: " + path);
-  if (path.endsWith("/"))
-    path += "index.htm";
-  String contentType = getContentType(path);
-  String pathWithGz = path + ".gz";
-  if (LittleFS.exists(pathWithGz) || LittleFS.exists(path))
+  Serial.println("handleFileRead");
+server.sendHeader("Access-Control-Allow-Origin", "*");
+server.sendHeader("Access-Control-Allow-Methods", "POST");
+if (!server.hasArg("file"))
   {
-    if (LittleFS.exists(pathWithGz))
-      path += ".gz";
+    Serial.println("no args detected");
+    server.send(500, "text/plain", "BAD ARGS");
+    return;
+  }
+  Serial.print("handleFileRead: ");
+  String path = server.arg("file");
+  Serial.println("handleFileRead: " + path);
+  // if (path.endsWith("/"))
+  //   path += "index.htm";
+  String contentType = getContentType(path);
+  Serial.println("contentType: " + contentType);
+  // String pathWithGz = path + ".gz";
+  if (LittleFS.exists(path))
+  {
     File file = LittleFS.open(path, "r");
     size_t sent = server.streamFile(file, contentType);
     file.close();
-    return true;
+    Serial.println("Found File: " + path);
+    return;
   }
-  return false;
+  Serial.println("Couldn't find file " + path);
+  return;
 }
 
 // todo: note for the handleFileUpload function:
@@ -92,25 +102,29 @@ void handleFileUpload()
   {
     server.sendHeader("Access-Control-Allow-Origin", "*");
     server.sendHeader("Access-Control-Allow-Methods", "POST");
-    // Serial.println("uploadCounter is: "); //Serial.println(uploadCounter);
+    Serial.println("uploadCounter is: "); 
+    Serial.println(uploadCounter);
     uploadCounter++;
     String filename = upload.filename;
     if (!filename.startsWith("/")){
       filename = "/" + filename;
     }
-    // Serial.print("handleFileUpload Name: "); //Serial.println(filename);
+    Serial.print("handleFileUpload Name: "); 
+    Serial.println(filename);
     fsUploadFile = LittleFS.open(filename, "w");
     filename = String();
   }
   else if (upload.status == UPLOAD_FILE_WRITE)
   {
-    ////Serial.print("handleFileUpload Data: "); //Serial.println(upload.currentSize);
+    Serial.print("handleFileUpload Data: "); 
+    Serial.println(upload.currentSize);
     if (fsUploadFile){
       fsUploadFile.write(upload.buf, upload.currentSize);
       } 
   }
   else if (upload.status == UPLOAD_FILE_END)
   {
+    Serial.println("UPLOAD FINISHED");
     uploadCounter = 1;
     if (fsUploadFile){
       fsUploadFile.close();
@@ -228,10 +242,7 @@ void webServerSetupLogic(String router, String pass)
   // list directory
   server.on("/list", HTTP_GET, handleFileList);
   // load editor
-  server.on("/edit", HTTP_GET, []()
-            {
-    if (!handleFileRead("/edit.htm")) server.send(404, "text/plain", "FileNotFound"); 
-    });
+  server.on("/edit", HTTP_GET, handleFileRead);
   // create file
   server.on("/edit", HTTP_PUT, handleFileCreate);
   // delete file
