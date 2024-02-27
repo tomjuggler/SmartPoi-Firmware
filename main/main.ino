@@ -37,8 +37,8 @@ ESP8266WiFiMulti WiFiMulti;
 
 
 int newBrightness = 20; //setting 20 for battery and so white is not too much! 
-#define DATA_PIN 2    //D2 for D1Mini, 2 for ESP-01
-#define CLOCK_PIN 0   //D1 for D1Mini, 0 for ESP-01
+#define DATA_PIN D2    //D2 for D1Mini, 2 for ESP-01
+#define CLOCK_PIN D1  //D1 for D1Mini, 0 for ESP-01
 
 
 
@@ -66,7 +66,9 @@ CRGB leds[NUM_LEDS];
 //#define NUM_PX 36
  #define NUM_PX 72
 
-const int maxPX = 20736; //enough for 72x288 or 36x576
+// const int maxPX = 20736; //enough for 72x288 or 36x576
+// const int maxPX = 10368; //enough for 72x144 or 36x288
+const int maxPX = 14400; //enough for 72x200 or 36x400
 
 //lets try using a maximum number of pixels so very large array to hold any number:
 uint8_t message1Data[maxPX]; //this is much larger than our image 
@@ -190,9 +192,9 @@ void setup() {
   fastLEDInit(); 
   fastLEDIndicateFast();
   //Initialize serial and wait for port to open: - for tests only
-  // Serial.begin(115200);
-  // Serial.println(""); //new line for readability
-  // Serial.println("Started");
+  Serial.begin(115200);
+  Serial.println(""); //new line for readability
+  Serial.println("Started");
   //////////////////////////////////////////////read eeprom settings://////////////////////////////////////////////////////////////////
   EEPROM.begin(512);
   
