@@ -37,8 +37,8 @@ ESP8266WiFiMulti WiFiMulti;
 
 
 int newBrightness = 20; //setting 20 for battery and so white is not too much! 
-#define DATA_PIN D2    //D2 for D1Mini, 2 for ESP-01
-#define CLOCK_PIN D1  //D1 for D1Mini, 0 for ESP-01
+#define DATA_PIN 2    //D2 for D1Mini, 2 for ESP-01
+#define CLOCK_PIN 0  //D1 for D1Mini, 0 for ESP-01
 
 
 

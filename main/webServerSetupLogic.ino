@@ -57,8 +57,10 @@ String getContentType(String filename)
 void handleFileRead()
 {
   Serial.println("handleFileRead");
-server.sendHeader("Access-Control-Allow-Origin", "*");
-server.sendHeader("Access-Control-Allow-Methods", "POST");
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+
 if (!server.hasArg("file"))
   {
     Serial.println("no args detected");
@@ -101,7 +103,8 @@ void handleFileUpload()
   if (upload.status == UPLOAD_FILE_START)
   {
     server.sendHeader("Access-Control-Allow-Origin", "*");
-    server.sendHeader("Access-Control-Allow-Methods", "POST");
+    server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
     Serial.println("uploadCounter is: "); 
     Serial.println(uploadCounter);
     uploadCounter++;
@@ -136,6 +139,9 @@ void handleFileUpload()
 
 void handleFileDelete()
 {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
   if (server.args() == 0)
     return server.send(500, "text/plain", "BAD ARGS");
   String path = server.arg(0);
@@ -151,6 +157,9 @@ void handleFileDelete()
 
 void handleFileCreate()
 {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
   if (server.args() == 0)
     return server.send(500, "text/plain", "BAD ARGS");
   String path = server.arg(0);
@@ -170,6 +179,9 @@ void handleFileCreate()
 
 void handleFileList()
 {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
   if (!server.hasArg("dir"))
   {
     server.send(500, "text/plain", "BAD ARGS");
@@ -197,10 +209,6 @@ void handleFileList()
   }
 
   output += "]";
-
-  // Set CORS headers
-  server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.sendHeader("Access-Control-Allow-Methods", "GET");
   
   server.send(200, "text/json", output);
 }
@@ -252,11 +260,7 @@ void webServerSetupLogic(String router, String pass)
   server.on(
       "/edit", HTTP_POST, []()
       {
-        // Set CORS headers
-        server.sendHeader("Access-Control-Allow-Origin", "*");
-        server.sendHeader("Access-Control-Allow-Methods", "POST");
-        server.send(200, "text/plain", "");
-        ///    //Serial.println(pass);
+        
       },
       handleFileUpload);
 
@@ -264,6 +268,9 @@ void webServerSetupLogic(String router, String pass)
   // use it to load content from SPIFFS
   server.onNotFound([]()
                     {
+                      server.sendHeader("Access-Control-Allow-Origin", "*");
+                      server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+                      server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
                       server.send(200, "text/html", responseHTML); // my code here, should work for eeprom settings!
                       //     server.send(204, "text/html", responseHTML); //my code here, should work for eeprom settings!
                     });
@@ -274,6 +281,9 @@ void webServerSetupLogic(String router, String pass)
   // works with httpPostToPoiSettings processing app (in internet folder)
   server.on("/returnsettings", []()
             {
+              server.sendHeader("Access-Control-Allow-Origin", "*");
+              server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+              server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
               //    content = "huaweiRouter,password,more";
               statusCode = 200;
               /// //Serial.println(pass);
@@ -325,6 +335,9 @@ void webServerSetupLogic(String router, String pass)
 
   server.on("/router", []()
             {
+              server.sendHeader("Access-Control-Allow-Origin", "*");
+              server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+              server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
               //////////////////////////////////////////////////////change PatternChooser setting in EEPROM://///////////////////////////////////////////////////////////////////////////////
               String onRouter = server.arg("router"); // need to handle errors what if it's too big
               if (onRouter.length() > 0)
@@ -357,9 +370,7 @@ void webServerSetupLogic(String router, String pass)
               {
                 content = "{\"Error\":\"404 not found\"}";
                 statusCode = 404;
-                // Set CORS headers before sending the error response
-                server.sendHeader("Access-Control-Allow-Origin", "*");
-                server.sendHeader("Access-Control-Allow-Methods", "POST");
+                
 
                 // Send the error response
                 server.send(statusCode, "application/json", content);
@@ -374,6 +385,9 @@ void webServerSetupLogic(String router, String pass)
   /////////////////////////////////////////////////////////quick change Pattern://////////////////////////////////////////////////////////////////////////////////
   server.on("/pattern", []()
             {
+              server.sendHeader("Access-Control-Allow-Origin", "*");
+              server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+              server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
               //////////////////////////////////////////////////////change PatternChooser setting in EEPROM://///////////////////////////////////////////////////////////////////////////////
               String onAddress = server.arg("patternChooserChange"); // need to handle errors what if it's too big
               if (onAddress.length() > 0)
@@ -403,9 +417,7 @@ void webServerSetupLogic(String router, String pass)
                 //  loadPatternChooser();
                 content = "{\"Success\":\" your pattern is set \"}";
                 statusCode = 200;
-                // Set CORS headers before sending the error response
-                server.sendHeader("Access-Control-Allow-Origin", "*");
-                server.sendHeader("Access-Control-Allow-Methods", "POST");
+            
 
                 // Send the response
                 server.send(statusCode, "application/json", content);
@@ -415,8 +427,7 @@ void webServerSetupLogic(String router, String pass)
                 
                 content = "{\"Error\":\"404 not found\"}";
                 statusCode = 404;
-                server.sendHeader("Access-Control-Allow-Origin", "*");
-                server.sendHeader("Access-Control-Allow-Methods", "POST");
+                
 
                 // Send the error response
                 server.send(statusCode, "application/json", content);
@@ -427,6 +438,9 @@ void webServerSetupLogic(String router, String pass)
   //////////////////////////////////////////////////////interval changer://///////////////////////////////////////////////////////////////////////////////
   server.on("/intervalChange", []()
             {
+              server.sendHeader("Access-Control-Allow-Origin", "*");
+              server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+              server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
               String newInterval = server.arg("interval");
               if (newInterval.length() > 0)
               {
@@ -449,8 +463,6 @@ void webServerSetupLogic(String router, String pass)
                 }
                 content = "{\"Success\":\" your interval is set \"}";
                 statusCode = 200;
-                server.sendHeader("Access-Control-Allow-Origin", "*");
-                server.sendHeader("Access-Control-Allow-Methods", "POST");
 
                 // Send the response
                 server.send(statusCode, "application/json", content);
@@ -471,6 +483,9 @@ void webServerSetupLogic(String router, String pass)
 /////////////////////////////////////////////////////////quick change Brighness://////////////////////////////////////////////////////////////////////////////////
   server.on("/brightness", []()
             {
+              server.sendHeader("Access-Control-Allow-Origin", "*");
+              server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+              server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
               //////////////////////////////////////////////////////change PatternChooser setting in EEPROM://///////////////////////////////////////////////////////////////////////////////
               String onNewBRT = server.arg("brt"); 
               if (onNewBRT.length() > 0)
@@ -491,10 +506,7 @@ void webServerSetupLogic(String router, String pass)
                 
                 content = "{\"Success\":\" your brightness is set \"}";
                 statusCode = 200;
-                // Set CORS headers before sending the error response
-                server.sendHeader("Access-Control-Allow-Origin", "*");
-                server.sendHeader("Access-Control-Allow-Methods", "POST");
-
+                
                 // Send the response
                 server.send(statusCode, "application/json", content);
               }
@@ -503,8 +515,6 @@ void webServerSetupLogic(String router, String pass)
                 
                 content = "{\"Error\":\"404 not found\"}";
                 statusCode = 404;
-                server.sendHeader("Access-Control-Allow-Origin", "*");
-                server.sendHeader("Access-Control-Allow-Methods", "POST");
 
                 // Send the error response
                 server.send(statusCode, "application/json", content);
@@ -516,6 +526,9 @@ void webServerSetupLogic(String router, String pass)
   ////////////////////////////////////////////////////////settings form://////////////////////////////////////////////////////////////////////////////////////////
   server.on("/setting", []()
             {
+              server.sendHeader("Access-Control-Allow-Origin", "*");
+              server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+              server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
               /*  //test:
                 //    String stip = webServer.arg("ip");
                 //      if (stip.length() > 0 ) {
@@ -732,10 +745,6 @@ void webServerSetupLogic(String router, String pass)
               {
               } // nothing
               ////////////////////////////////////////////////////end change Pattern Chooser setting in EEPROM////////////////////////////////////////////////////////////////////////////////
-
-              // Set CORS headers before sending the error response
-              server.sendHeader("Access-Control-Allow-Origin", "*");
-              server.sendHeader("Access-Control-Allow-Methods", "POST");
 
               // Send the status code response
               server.send(statusCode, "application/json", content);
