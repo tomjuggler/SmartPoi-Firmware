@@ -54,12 +54,30 @@ String getContentType(String filename)
   return "text/plain";
 }
 
+// void handleRoot() {
+//   server.sendHeader("Access-Control-Allow-Origin", "*");
+//   server.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+//   server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+
+//   server.send(200, "text/html", "<html><body><h1>ESP8266 Web Server</h1></body></html>");
+// }
+
+void handleOptions() {
+  // This is needed to respond to CORS preflight (OPTIONS) requests
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  server.send(204); // No content response
+}
+
+
 void handleFileRead()
 {
   Serial.println("handleFileRead");
   server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
   server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+              server.sendHeader("Access-Control-Allow-Credentials", "true");
 
 if (!server.hasArg("file"))
   {
@@ -103,8 +121,9 @@ void handleFileUpload()
   if (upload.status == UPLOAD_FILE_START)
   {
     server.sendHeader("Access-Control-Allow-Origin", "*");
-    server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
     server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+              server.sendHeader("Access-Control-Allow-Credentials", "true");
     Serial.println("uploadCounter is: "); 
     Serial.println(uploadCounter);
     uploadCounter++;
@@ -140,8 +159,9 @@ void handleFileUpload()
 void handleFileDelete()
 {
   server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
   server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+              server.sendHeader("Access-Control-Allow-Credentials", "true");
   if (server.args() == 0)
     return server.send(500, "text/plain", "BAD ARGS");
   String path = server.arg(0);
@@ -158,8 +178,9 @@ void handleFileDelete()
 void handleFileCreate()
 {
   server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
   server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+              server.sendHeader("Access-Control-Allow-Credentials", "true");
   if (server.args() == 0)
     return server.send(500, "text/plain", "BAD ARGS");
   String path = server.arg(0);
@@ -180,8 +201,9 @@ void handleFileCreate()
 void handleFileList()
 {
   server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
   server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+              server.sendHeader("Access-Control-Allow-Credentials", "true");
   if (!server.hasArg("dir"))
   {
     server.send(500, "text/plain", "BAD ARGS");
@@ -247,6 +269,9 @@ void webServerSetupLogic(String router, String pass)
   
   /////////////////////////////////////////////////FSBrowser2////////////////////////////////////////////////////////////////////////////////////
   // SERVER INIT
+  // server.on("/", HTTP_GET, handleRoot);
+  server.on("/", HTTP_OPTIONS, handleOptions); // Handle CORS preflight request
+  
   // list directory
   server.on("/list", HTTP_GET, handleFileList);
   // load editor
@@ -269,8 +294,9 @@ void webServerSetupLogic(String router, String pass)
   server.onNotFound([]()
                     {
                       server.sendHeader("Access-Control-Allow-Origin", "*");
-                      server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+                      server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
                       server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+                      server.sendHeader("Access-Control-Allow-Credentials", "true");
                       server.send(200, "text/html", responseHTML); // my code here, should work for eeprom settings!
                       //     server.send(204, "text/html", responseHTML); //my code here, should work for eeprom settings!
                     });
@@ -282,8 +308,9 @@ void webServerSetupLogic(String router, String pass)
   server.on("/returnsettings", []()
             {
               server.sendHeader("Access-Control-Allow-Origin", "*");
-              server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+              server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
               server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+              server.sendHeader("Access-Control-Allow-Credentials", "true");
               //    content = "huaweiRouter,password,more";
               statusCode = 200;
               /// //Serial.println(pass);
@@ -336,8 +363,9 @@ void webServerSetupLogic(String router, String pass)
   server.on("/router", []()
             {
               server.sendHeader("Access-Control-Allow-Origin", "*");
-              server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+              server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
               server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+              server.sendHeader("Access-Control-Allow-Credentials", "true");
               //////////////////////////////////////////////////////change PatternChooser setting in EEPROM://///////////////////////////////////////////////////////////////////////////////
               String onRouter = server.arg("router"); // need to handle errors what if it's too big
               if (onRouter.length() > 0)
@@ -385,9 +413,11 @@ void webServerSetupLogic(String router, String pass)
   /////////////////////////////////////////////////////////quick change Pattern://////////////////////////////////////////////////////////////////////////////////
   server.on("/pattern", []()
             {
+              Serial.println("pattern change requested");
               server.sendHeader("Access-Control-Allow-Origin", "*");
-              server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+              server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
               server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+              server.sendHeader("Access-Control-Allow-Credentials", "true");
               //////////////////////////////////////////////////////change PatternChooser setting in EEPROM://///////////////////////////////////////////////////////////////////////////////
               String onAddress = server.arg("patternChooserChange"); // need to handle errors what if it's too big
               if (onAddress.length() > 0)
@@ -439,8 +469,9 @@ void webServerSetupLogic(String router, String pass)
   server.on("/intervalChange", []()
             {
               server.sendHeader("Access-Control-Allow-Origin", "*");
-              server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+              server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
               server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+              server.sendHeader("Access-Control-Allow-Credentials", "true");
               String newInterval = server.arg("interval");
               if (newInterval.length() > 0)
               {
@@ -484,8 +515,9 @@ void webServerSetupLogic(String router, String pass)
   server.on("/brightness", []()
             {
               server.sendHeader("Access-Control-Allow-Origin", "*");
-              server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+              server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
               server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+              server.sendHeader("Access-Control-Allow-Credentials", "true");
               //////////////////////////////////////////////////////change PatternChooser setting in EEPROM://///////////////////////////////////////////////////////////////////////////////
               String onNewBRT = server.arg("brt"); 
               if (onNewBRT.length() > 0)
@@ -527,9 +559,10 @@ void webServerSetupLogic(String router, String pass)
   server.on("/setting", []()
             {
               server.sendHeader("Access-Control-Allow-Origin", "*");
-              server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+              server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
               server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
-              /*  //test:
+              server.sendHeader("Access-Control-Allow-Credentials", "true");
+               //test:
                 //    String stip = webServer.arg("ip");
                 //      if (stip.length() > 0 ) {
                 //        for (int i = 0; i < 13; ++i) {
@@ -552,7 +585,7 @@ void webServerSetupLogic(String router, String pass)
                 //        //Serial.println("Sending 404");
                 //      //Serial.println("not found");
                 //      }
-              */
+             
               // change router settings in Spiffs://////////////////////////////////////////////////////////////////////////////////
               // not working currently
               //  open file for writing

@@ -321,7 +321,7 @@ void wifiChooser(char router_array[], char pwd_array[]) {
       //Serial.println(apIPauxillary);
 //      while (WiFiMulti.run() != WL_CONNECTED) {
       while (WiFi.status() != WL_CONNECTED) {
-        if(millis() > 60000){
+        if(millis() > 20000){
           //don't wait if > 1 minute! 
           break;
         }
@@ -341,7 +341,7 @@ void wifiChooser(char router_array[], char pwd_array[]) {
 
       //wait for station: 
       while (WiFi.softAPgetStationNum() == 0){
-        if(millis() > 60000){
+        if(millis() > 10000){
           //don't wait if > 1 minute! 
           break;
         }
@@ -388,7 +388,8 @@ void wifiChooser(char router_array[], char pwd_array[]) {
     //Serial.print("tmpGateway is: ");
     //Serial.println(tmpGateway);
 
-    WiFi.config(tmpIP, tmpGateway, ipSubnet, tmpGateway);
+    // WiFi.config(tmpIP, tmpGateway, ipSubnet, tmpGateway); //disabled for dynamic IP
+
 //    WiFi.config(tmpIP, ipGateway, ipSubnet, ipGateway);
     //    WiFi.config(ip, ipDns, ipGateway); //probably need to be able to change these as well
     //    int connectCount;
@@ -442,8 +443,9 @@ void wifiChooser(char router_array[], char pwd_array[]) {
 void fastLEDInit() {
   
   ////////////////////////////////////////////////Fast LED Setup: ////////////////////////////////////////////////////////////////////////////////////////////////
-  FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, BGR>(leds, NUM_LEDS); //DATA_RATE_MHZ(8)
+  // FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, BGR>(leds, NUM_LEDS); //DATA_RATE_MHZ(8)
   //  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
+  LEDS.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
   FastLED.setBrightness(  newBrightness ); //should be low figure here, for startup battery saving...
   
   FastLED.showColor( CRGB::Black );

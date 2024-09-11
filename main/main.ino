@@ -58,17 +58,20 @@ boolean auxillary = false; //true for second (auxillary) poi - auxillary don't w
 ////////////////////////////HOW MANY PIXELS? 36 OR 72 - 2 variables to edit-  //////////////////
 
 //#define NUM_LEDS 37
- #define NUM_LEDS 73
+//  #define NUM_LEDS 73
+ #define NUM_LEDS 121
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
 
 //#define NUM_PX 36
- #define NUM_PX 72
+//  #define NUM_PX 72
+#define NUM_PX 120
 
-// const int maxPX = 20736; //enough for 72x288 or 36x576
+// todo: try 24000 below, 120x200
+const int maxPX = 20736; //enough for 72x288 or 36x576
 // const int maxPX = 10368; //enough for 72x144 or 36x288
-const int maxPX = 14400; //enough for 72x200 or 36x400
+// const int maxPX = 14400; //enough for 72x200 or 36x400
 
 //lets try using a maximum number of pixels so very large array to hold any number:
 uint8_t message1Data[maxPX]; //this is much larger than our image 
@@ -88,7 +91,7 @@ ESP8266WebServer server(80);
 int status = WL_IDLE_STATUS;
 //char ssid[] = "RouterName"; //  your network SSID (name) - now read from SPIFFS, no need for hard coding
 //char pass[] = "RouterPassword";    // your network password (use for WPA, or use as key for WEP)
-char apName[] = "Smart_Poi_4"; //"Smart_Poi_2";
+char apName[] = "Smart_Poi_5"; //"Smart_Poi_2";
 char apPass[] = "SmartOne"; //"password";
 int apChannel = 1;
 int keyIndex = 0;            // your network key Index number (needed only for WEP)
@@ -461,7 +464,7 @@ void funColourJam() {
       // add_glitter();
 
       FastLED.show();
-      FastLED.delay(1); //for 160mhz
+      // FastLED.delay(1); //for 160mhz
       
     }//end if(lines)
     else {
@@ -476,7 +479,7 @@ void funColourJam() {
       //add_glitter();
       //add_glitter from https://gist.github.com/kriegsman/ccffc81a74bc03636ce1
       FastLED.show();
-      FastLED.delay(1); //for 160mhz
+      // FastLED.delay(1); //for 160mhz
       //FastLED.delay(1000 / UPDATES_PER_SECOND);
 
 
@@ -496,7 +499,7 @@ void funColourJam() {
     //add_glitter();
     //add_glitter from https://gist.github.com/kriegsman/ccffc81a74bc03636ce1
     FastLED.show();
-    FastLED.delay(1); //for 160mhz
+    // FastLED.delay(1); //for 160mhz
     //FastLED.delay(1000 / UPDATES_PER_SECOND);
   }//end if(setting == 2)
   else
@@ -512,7 +515,7 @@ void funColourJam() {
     //add_glitter();
     //add_glitter from https://gist.github.com/kriegsman/ccffc81a74bc03636ce1
     FastLED.show();
-    FastLED.delay(1); //for 160mhz
+    // FastLED.delay(1); //for 160mhz
     //FastLED.delay(1000 / UPDATES_PER_SECOND);
   }//end else 3
   /////////////////////////end colour palette///////////////////////////////////////

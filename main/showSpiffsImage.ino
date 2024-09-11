@@ -60,7 +60,7 @@ void showLittleFSImage()
     //Todo: check delay(1) effect on 72px poi - definitely needed for 36px
     if (NUM_LEDS < 72)
     {
-      FastLED.delay(1); // for 160mhz
+      // FastLED.delay(1); // for 160mhz
     }
     else
     {
