@@ -357,8 +357,8 @@ void webServerSetupLogic(String router, String pass)
   // don't forget main: http://192.168.1.1/router?router=1
   // nothing happens, but router is now switched on.
 
-  // to deactivate in browser: http://192.168.8.78/router?router=0
-  // don't forget main: http://192.168.8.79/router?router=0
+  // to deactivate in browser: http://192.168.8.78/router?router=0  *use actual ip address
+  // don't forget main: http://192.168.8.79/router?router=0 *use actual ip address
 
   server.on("/router", []()
             {
@@ -386,10 +386,7 @@ void webServerSetupLogic(String router, String pass)
 
                 EEPROM.write(100, newRouter);
                 content = "{\"Success\":\" your pattern is set \"}";
-                statusCode = 200;
-                // Set CORS headers before sending the response
-                server.sendHeader("Access-Control-Allow-Origin", "*");
-                server.sendHeader("Access-Control-Allow-Methods", "POST");
+                statusCode = 200;               
 
                 // Send the response based on the logic above
                 server.send(statusCode, "application/json", content);
@@ -502,9 +499,6 @@ void webServerSetupLogic(String router, String pass)
               {
                 content = "{\"Error\":\"404 not found\"}";
                 statusCode = 404;
-                server.sendHeader("Access-Control-Allow-Origin", "*");
-                server.sendHeader("Access-Control-Allow-Methods", "POST");
-
                 // Send the error response
                 server.send(statusCode, "application/json", content);
               } // nothing
@@ -609,6 +603,7 @@ void webServerSetupLogic(String router, String pass)
 
               // try string.trim() as well... //
               settings.print(server.arg("ssid"));
+              //todo: in order to change channel below we need to overwrite the router name and password? FIX!
               settings.print("\n"); // finally solved not loading problem
 
               // note: never use settings.println, use print("\n") instead
