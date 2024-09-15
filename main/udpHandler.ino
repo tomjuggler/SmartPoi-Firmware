@@ -1,3 +1,20 @@
+/**
+ * @brief Handles incoming UDP packets.
+ *
+ * This function processes UDP packets, checks for configuration messages,
+ * and updates the LED strip accordingly.
+ *
+ * @param None
+ * @return None
+ *
+ * @pre UDP connection is established and packets are being received.
+ * @post LED strip is updated with new colors and settings.
+ *
+ * @note This function is called repeatedly to handle incoming UDP packets.
+ * @note Uses global variables such as currentMillis2, previousMillis2, interval, checkit, and packetBuffer.
+ * @note Calls other functions such as Udp.read(), EEPROM.write(), and FastLED.showColor().
+ */
+
 void handleUDP(){
   if (currentMillis2 - previousMillis2 > interval * 2) { //message received after long wait, may be config message? check it
       // save the last time you checked the time
@@ -41,7 +58,7 @@ void handleUDP(){
               ////Serial.println("checked 2, Brightness change signal received");
             } else if (Y == 3) {
               ////Serial.println("checked 2, Channel change signal received");
-              channelChange = true;
+              channelChange = true; //todo: not needed - done with http server now
             } //add another option for pattern change here?
 
             else {
@@ -49,7 +66,7 @@ void handleUDP(){
             }
             break;
           case 3:
-            if (channelChange) {
+            if (channelChange) { //todo: not needed, done with http server now
               if ((int)Y > 11 || (int)Y < 1) {
                 //wrong channel information received - error checking
               } else {
@@ -66,7 +83,7 @@ void handleUDP(){
                 channelChange = false;
                 checkit = false; //Finished settings, exit
               }
-            } else {
+            } else { //todo: brightness change not needed here, done in http server now. 
               //set eeprom:
               ////Serial.print("received Y: ");
               ////Serial.println(Y);

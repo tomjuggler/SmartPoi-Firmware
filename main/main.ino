@@ -1,5 +1,5 @@
 
-// ESP-01 Arduino 1.8.5 settings for this to work: 
+// ESP-01 Arduino 1.8.5 settings for this to work:
 // 80mhz flash, 160mhz clock, 26mhz crystal
 // Flash mode: DOUT (for the chips with the numbers on, V3 printed on back)
 // upload speed: 115200 for D1 and ESP-01
@@ -7,8 +7,10 @@
 // lwIP variant v1.4 Higher Bandwidth v2.0 works fine also
 // builtin led 1
 
-//todo: maybe have some 10 pre-defined images which can't be deleted? (one option)
+// ESP-01 no longer supported, try D1 mini ESP8266 with 4MB+ flash and 80KB ram
+// Recommended D1 mini Arduino settings: 160mhz clock, LWIP: V2 Higher Bandwidth
 
+// todo: maybe have some 10 pre-defined images which can't be deleted? (one option)
 
 // todo: change if else main/auxillary code to #ifdef syntax, to save on program space (applied at compile time)
 
@@ -34,51 +36,45 @@ ESP8266WiFiMulti WiFiMulti;
 //////////////////////////////////////////FastLED code:////////////
 #include <FastLED.h>
 
-
-
-int newBrightness = 20; //setting 20 for battery and so white is not too much! 
-#define DATA_PIN D2    //D2 for D1Mini, 2 for ESP-01
-#define CLOCK_PIN D1  //D1 for D1Mini, 0 for ESP-01
-
-
-
-
+int newBrightness = 20; // setting 20 for battery and so white is not too much! This is re-set on startup, for safety and battery
+#define DATA_PIN D2     // D2 for D1Mini, 2 for ESP-01
+#define CLOCK_PIN D1    // D1 for D1Mini, 0 for ESP-01
 
 File f;
 File a;
 
-//settings init:
+// settings init:
 File settings;
 
 /////////////////////////////MAIN OR AUXILLARY POI? //////////////////////////////////////
-boolean auxillary = false; //true for second (auxillary) poi - auxillary don't work alone!!!
+boolean auxillary = false; // true for second (auxillary) poi - auxillary don't work alone!!!
 /////////////////////////////////////////////////////////////////////////////////////
-
 
 ////////////////////////////HOW MANY PIXELS? 36 OR 72 - 2 variables to edit-  //////////////////
 
-//#define NUM_LEDS 37
-//  #define NUM_LEDS 73
- #define NUM_LEDS 121
+// #define NUM_LEDS 37
+//   #define NUM_LEDS 73
+#define NUM_LEDS 121
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
 
-//#define NUM_PX 36
-//  #define NUM_PX 72
+// #define NUM_PX 36
+//   #define NUM_PX 72
 #define NUM_PX 120
 
 // todo: try 24000 below, 120x200
-const int maxPX = 20736; //enough for 72x288 or 36x576
+const int maxPX = 24000;
+// const int maxPX = 20736; //enough for 72x288 or 36x576
 // const int maxPX = 10368; //enough for 72x144 or 36x288
 // const int maxPX = 14400; //enough for 72x200 or 36x400
 
-//lets try using a maximum number of pixels so very large array to hold any number:
-uint8_t message1Data[maxPX]; //this is much larger than our image 
+// lets try using a maximum number of pixels so very large array to hold any number:
+uint8_t message1Data[maxPX]; // this is much larger than our image
 
 int pxDown = NUM_PX;
 
-int pxAcross = pxDown; //this will change with the image
+int pxAcross = pxDown; // this will change with the image
 //////////////////////////////END HOW MANY PIXELS///////////////////////
 
 ////////////////////////////////////////////////////Mostly networking stuff: ////////////////////////////////////////////
@@ -89,20 +85,20 @@ DNSServer dnsServer;
 ESP8266WebServer server(80);
 
 int status = WL_IDLE_STATUS;
-//char ssid[] = "RouterName"; //  your network SSID (name) - now read from SPIFFS, no need for hard coding
-//char pass[] = "RouterPassword";    // your network password (use for WPA, or use as key for WEP)
-char apName[] = "SmartPoi6"; //"Smart_Poi_2";
-char apPass[] = "SmartOne"; //"password";
+// char ssid[] = "RouterName"; //  your network SSID (name) - now read from SPIFFS, no need for hard coding
+// char pass[] = "RouterPassword";    // your network password (use for WPA, or use as key for WEP)
+char apName[] = "Smart_Poi6"; //"Smart_Poi_2";
+char apPass[] = "SmartOne";   //"password";
 int apChannel = 1;
-int keyIndex = 0;            // your network key Index number (needed only for WEP)
+int keyIndex = 0; // your network key Index number (needed only for WEP)
 
-//IPAddress ipBroadcast(255, 255, 255, 255);
-//IPAddress ipMulti(0, 0, 0, 0);
+// IPAddress ipBroadcast(255, 255, 255, 255);
+// IPAddress ipMulti(0, 0, 0, 0);
 
 IPAddress ipSubnet(255, 255, 255, 0);
 IPAddress ipGateway(192, 168, 8, 1);
 IPAddress ipGatewayauxillary(192, 168, 1, 1);
-//IPAddress ipDns(8, 8, 8, 8);
+// IPAddress ipDns(8, 8, 8, 8);
 IPAddress ip(192, 168, 8, 77);
 
 uint8_t addrNumA = 192;
@@ -110,10 +106,10 @@ uint8_t addrNumB = 168;
 uint8_t addrNumC = 8;
 uint8_t addrNumD = 78;
 
-const unsigned int localPort = 2390;      // local port to listen on
+const unsigned int localPort = 2390; // local port to listen on
 
 byte packetBuffer[NUM_PX]; // buffer to hold incoming packet
-//char  ReplyBuffer[] = "acknowledged";       // a string to send back
+// char  ReplyBuffer[] = "acknowledged";       // a string to send back
 
 WiFiUDP Udp;
 
@@ -129,26 +125,26 @@ unsigned long previousMillis = 0; // will store last time LED was updated
 unsigned long previousMillis2 = 0;
 unsigned long previousMillis3 = 0;
 long interval = 5000; // after this interval switch over to internal
-//above also used as interval for change of image. Todo: Need new updateable variable
+// above also used as interval for change of image. Todo: Need new updateable variable
 boolean checkit = false;
 boolean channelChange = false;
 boolean savingToSpiffs = false;
 
-unsigned long previousFlashy = 0;        // will store last time LED was updated
-const long intervalBetweenFlashy = 5;           // after this interval switch over to internal
+unsigned long previousFlashy = 0;     // will store last time LED was updated
+const long intervalBetweenFlashy = 5; // after this interval switch over to internal
 boolean black = true;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int state = 0;
 
-//colour palette code://////////////////////////
+// colour palette code://////////////////////////
 boolean upDown = true;
 boolean lines = true;
 
 #define UPDATES_PER_SECOND 30000
 CRGBPalette16 currentPalette;
-TBlendType    currentBlending = NOBLEND;
+TBlendType currentBlending = NOBLEND;
 
 int paletteVar = 1;
 
@@ -164,22 +160,22 @@ int imageChooser = 1;
 boolean preloaded = false;
 int byteCounter = 0;
 
-boolean tempSwitch = true; //testing 2 images toggle
+boolean tempSwitch = true; // testing 2 images toggle
 
-//tmp:
+// tmp:
 IPAddress tmpGateway(192, 168, 8, 1);
 IPAddress tmpIP(192, 168, 8, 77);
-//int testAddrNum = 77;
+// int testAddrNum = 77;
 
 String Field;
 
 int imageToUse = 0;
-//max and min images need to be saved in spiffs (settings.txt? EEProm?) and updateable via the app
-int maxImages = 52; //how many can we have? 50 is enough for big poi, memory wise
-int minImages = 0; //start of block - change according to pattern!
-//below is a hack! need a better address system
-String images = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; //need MORE for small poi
-String bin = "a.bin"; //one more than chars
+// max and min images need to be saved in spiffs (settings.txt? EEProm?) and updateable via the app
+int maxImages = 52; // how many can we have? 50 is enough for big poi, memory wise
+int minImages = 0;  // start of block - change according to pattern!
+// below is a hack! need a better address system
+String images = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; // need MORE for small poi
+String bin = "a.bin";                                                             // one more than chars
 
 int uploadCounter = 1;
 
@@ -188,38 +184,57 @@ boolean start = true;
 
 boolean routerOption = false;
 
-
-void setup() {
+/**
+ * @brief Setup function, called once at program start.
+ *
+ * Initializes digital pins, FastLED, serial communication, and EEPROM settings.
+ * Also mounts the LittleFS file system, loads router settings, and checks files.
+ *
+ * @param None
+ * @return None
+ *
+ * @pre None
+ * @post Digital pins, FastLED, serial, EEPROM, and LittleFS are initialized.
+ *       Router settings are loaded, and files are checked for corruption or size issues.
+ *
+ * @note This function is called automatically at program start.
+ * @note EEPROM settings are loaded from storage.
+ * @note LittleFS file system is mounted and files are checked.
+ */
+void setup()
+{
   digitalWrite(CLOCK_PIN, LOW);
   digitalWrite(DATA_PIN, LOW);
-  fastLEDInit(); 
+  fastLEDInit();
   fastLEDIndicateFast();
-  //Initialize serial and wait for port to open: - for tests only
+  // Initialize serial and wait for port to open: - for tests only
   Serial.begin(115200);
-  Serial.println(""); //new line for readability
+  Serial.println(""); // new line for readability
   Serial.println("Started");
   //////////////////////////////////////////////read eeprom settings://////////////////////////////////////////////////////////////////
   EEPROM.begin(512);
-  
-  //EEPROM storage:
-  //Brightness 15, wifiMode 5, PatternChooser 10, pattern 11, apChannel 13, addrNumD 14, addrNumA 16, addrNumB 17, addrNumC 18
-  
-  eepromBrightnessChooser(15); //up to 220 max
-  eepromRouterOptionChooser(100); //do we try to connect to router or not? default is no. 
-  eepromWifiModeChooser(5); //AP or STA mode
-  eepromPatternChooser(10); //5 settings
+
+  // EEPROM storage:
+  // Brightness 15, wifiMode 5, PatternChooser 10, pattern 11, apChannel 13, addrNumD 14, addrNumA 16, addrNumB 17, addrNumC 18
+
+  eepromBrightnessChooser(15);    // up to 220 max
+  eepromRouterOptionChooser(100); // do we try to connect to router or not? default is no.
+  eepromWifiModeChooser(5);       // AP or STA mode
+  eepromPatternChooser(10);       // 5 settings
   eepromReadChannelAndAddress(13, 14, 16, 17, 18);
-  EEPROM.commit(); //save any changes made above
+  EEPROM.commit(); // save any changes made above
 
   ///////////////////////////////////////////////////////LittleFS: /////////////////////////////////////////////////////////
   // always use this to "mount" the filesystem
   bool result = LittleFS.begin();
   String router;
 
-//the following is related to router settings (using AP mode currently)
-  spiffsLoadSettings(); 
-  fastLEDIndicate(); //indicates AP (red) or router (green)
+  // The following is related to router settings (using AP mode currently)
+  littleFSLoadSettings();
+  checkFilesInSetup();
+  fastLEDIndicate(); // indicates AP (Auxillary: Red, Main: Blue) or STA mode (Green)
   Udp.begin(localPort);
+  // Check files for corruption or size issues
 }
 
 volatile byte X;
@@ -233,188 +248,132 @@ volatile unsigned long currentMillis2 = millis();
 volatile int packetSize;
 volatile int len;
 
-void loop() {
-  //this only works once:
-  if (start == false) {
-    if(routerOption){
-      if (millis() > interval * 4) { //perhaps wait a little longer...?
+/**
+ * @brief Main loop function, called repeatedly after setup.
+ *
+ * Handles various tasks such as:
+ * - Waiting for a signal or connection
+ * - Processing DNS server requests
+ * - Handling UDP packets (optional)
+ * - Changing patterns periodically
+ * - Displaying patterns using FastLED
+ *
+ * @param None
+ * @return None
+ *
+ * @pre setup() function has been called
+ * @post Continuously runs, handling various tasks and events
+ *
+ * @note This function is called repeatedly after setup.
+ * @note Uses global variables such as start, routerOption, interval, and pattern.
+ * @note Calls other functions such as dnsServer.processNextRequest(), server.handleClient(), ChangePatternPeriodically(), and handleUdp().
+ */
+void loop()
+{
+  // this only works once:
+  if (start == false)
+  {
+    if (routerOption)
+    {
+      if (millis() > interval * 4)
+      { // perhaps wait a little longer...?
         start = true;
       }
-    } else{
-        if (millis() > interval * 2) { //wait for less time...
+    }
+    else
+    {
+      if (millis() > interval * 2)
+      { // wait for less time...
         start = true;
       }
-      }
+    }
   }
   dnsServer.processNextRequest();
   server.handleClient();
 
   //////////////////////////////////////////////////////////// check if there is no signal ////////////////////////////////////////////////
- currentMillis = millis();
- currentMillis2 = millis();
- ChangePatternPeriodically(); 
-  
-  if (start) {
-//  
-    if (currentMillis - previousMillis >= interval) {   //should not ever be true if udp is sending at correct speed!
+  currentMillis = millis();
+  currentMillis2 = millis();
+  ChangePatternPeriodically();
+
+  if (start)
+  {
+    //
+    if (currentMillis - previousMillis >= interval)
+    { // should not ever be true if udp is sending at correct speed!
       //    Serial.println(millis());
       // save the last time you checked the time
       previousMillis = currentMillis;
-      state = 1; //udp no signal state
+      state = 1; // udp no signal state
     }
   }
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  ///////////////////////////// OPTIONAL: UDP Packet handling (STREAMING from app option): /////////////////////////////////////////////////
   // if there's data available, read a packet
-//  packetSize = Udp.parsePacket();
-//  if (packetSize) // if udp packet is received:
-//  {
-//    handleUdp();
-//  }
-//  else if (!packetSize && state == 1)
-//  { // this is backup, if udp not received ie: connection dropped for > interval millisecs
-    switch (pattern)
-    {
-    case 1:
-    {
-      funColourJam();
-      //sendTestMessage(); //test send message for now...
-      break;
-    }
-    //more options for patterns and spiffs loading here
-    case 2:
-    { 
-      minImages = 0; //start of block 
-      maxImages = 4; //end of block
-      bin.setCharAt(0, images.charAt(imageToUse));    //setCharAt Arduino function is it slow? todo: try c char[0] = char[imageToUse]  
-      showLittleFSImage();      
-      break;
-    }
-    case 3:
-    { 
-      minImages = 5; //start of block 
-      maxImages = 10; //end of block
-      bin.setCharAt(0, images.charAt(imageToUse));    //setCharAt Arduino function is it slow? todo: try c char[0] = char[imageToUse]  
-      showLittleFSImage();      
-      break;
-    }
-    case 4:
-    { 
-      minImages = 11; //start of block 
-      maxImages = 20; //end of block
-      bin.setCharAt(0, images.charAt(imageToUse));    //setCharAt Arduino function is it slow? todo: try c char[0] = char[imageToUse]  
-      showLittleFSImage();      
-      break;
-    }
-    case 5:
-    { 
-      minImages = 0; //start of block 
-      maxImages = 52; //end of block
-      bin.setCharAt(0, images.charAt(imageToUse));    //setCharAt Arduino function is it slow? todo: try c char[0] = char[imageToUse]  
-      showLittleFSImage();      
-      break;
-    }
-    //todo: add some more patterns, pattern 0...
-    }
-//    yield(); // this is to give WiFi process control for tasks
-//  }
-//  else {
-//    //    //Serial.println("/");
-//    //nothing for <interval> seconds wait for signal
-//  }
+  //  packetSize = Udp.parsePacket();
+  //  if (packetSize) // if udp packet is received:
+  //  {
+  //    handleUdp();
+  //  }
+  //  else if (!packetSize && state == 1)
+  //  { // this is backup, if udp not received ie: connection dropped for > interval millisecs
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  switch (pattern)
+  {
+  case 1:
+  {
+    funColourJam();
+    // sendTestMessage(); //test send message for now...
+    break;
+  }
+  // more options for patterns and spiffs loading here
+  case 2:
+  {
+    minImages = 0; // start of block
+    maxImages = 4; // end of block
+    bin.setCharAt(0, images.charAt(imageToUse));
+    showLittleFSImage();
+    break;
+  }
+  case 3:
+  {
+    minImages = 5;  // start of block
+    maxImages = 10; // end of block
+    bin.setCharAt(0, images.charAt(imageToUse));
+    showLittleFSImage();
+    break;
+  }
+  case 4:
+  {
+    minImages = 11; // start of block
+    maxImages = 20; // end of block
+    bin.setCharAt(0, images.charAt(imageToUse));
+    showLittleFSImage();
+    break;
+  }
+  case 5:
+  {
+    minImages = 0;  // start of block
+    maxImages = 52; // end of block
+    bin.setCharAt(0, images.charAt(imageToUse));
+    showLittleFSImage();
+    break;
+  }
+    // todo: add some more patterns, pattern 0...
+  }
+
+  ///////////////////////////////////// Optional: UDP Parse packet (streaming) code: ///////////////////////////////////////////////////
+  //    yield(); // this is to give WiFi process control for tasks
+  //  }
+  //  else {
+  //    //    //Serial.println("/");
+  //    //nothing for <interval> seconds wait for signal
+  //  }
+  ///////////////////////////////////// End optional UDP code //////////////////////////////////////////////////////////////////////////
+
   yield(); // give WiFi and other processor processes time to work
 }
 
-void funColourJam() {
-  //colour palette code://///////////////////////////
-  if (setting == 1) {
-
-    if (lines == false) { //toggled in ChangePalettePeriodically3()
-      ChangePalettePeriodically3();
-      static uint8_t startIndex = 0;
-      if (upDown == true) {
-        startIndex = startIndex + motionSpeed; /* motion speed */
-        FillLEDsFromPaletteColors( startIndex);
-        //Serial.println(startIndex);
-        if (startIndex == maxStartIndex) {
-          upDown = false;
-        }
-      }
-      else {
-        startIndex = startIndex - motionSpeed; /* motion speed */
-        FillLEDsFromPaletteColors( startIndex);
-        //Serial.println(startIndex);
-        if (startIndex == minStartIndex) {
-          upDown = true;
-        }
-      }
-
-      // add_glitter();
-
-      FastLED.show();
-      // FastLED.delay(1); //for 160mhz
-      
-    }//end if(lines)
-    else {
-      ChangePalettePeriodically3();
-      static uint8_t startIndex = 0;
-      startIndex = startIndex + motionSpeed; /* motion speed */
-      FillLEDsFromPaletteColors( startIndex);
-      // Serial.println(startIndex);
-      if (startIndex == maxStartIndex) {
-        startIndex = 0;
-      }
-      //add_glitter();
-      //add_glitter from https://gist.github.com/kriegsman/ccffc81a74bc03636ce1
-      FastLED.show();
-      // FastLED.delay(1); //for 160mhz
-      //FastLED.delay(1000 / UPDATES_PER_SECOND);
 
 
-    }//end else(lines)
-  }//end if(setting ==1)
-
-  else if (setting == 2)
-  {
-    ChangeStripesPeriodically();
-    static uint8_t stripeIndex = 0;
-    stripeIndex = stripeIndex + 1;
-    FillStripesFromPaletteColors( stripeIndex);
-    ////Serial.println(startIndex);
-    if (stripeIndex > 15) {
-      stripeIndex = 0;
-    }
-    //add_glitter();
-    //add_glitter from https://gist.github.com/kriegsman/ccffc81a74bc03636ce1
-    FastLED.show();
-    // FastLED.delay(1); //for 160mhz
-    //FastLED.delay(1000 / UPDATES_PER_SECOND);
-  }//end if(setting == 2)
-  else
-  {
-    ChangeStripesPeriodically();
-    static uint8_t stripeIndex2 = 0;
-    stripeIndex2 = stripeIndex2 + 1;
-    FillPatternStripesFromPaletteColors( stripeIndex2, 4);
-    ////Serial.println(startIndex);
-    if (stripeIndex2 > 15) {
-      stripeIndex2 = 0;
-    }
-    //add_glitter();
-    //add_glitter from https://gist.github.com/kriegsman/ccffc81a74bc03636ce1
-    FastLED.show();
-    // FastLED.delay(1); //for 160mhz
-    //FastLED.delay(1000 / UPDATES_PER_SECOND);
-  }//end else 3
-  /////////////////////////end colour palette///////////////////////////////////////
-}
-
-
-/*
-  void sendTestMessage(){
-    // send a reply, to the IP address and port that sent us the packet we received
-   Udp.beginPacket(ip, localPort);
-   Udp.write(ReplyBuffer);
-   Udp.endPacket();
-  }
-
-*/

@@ -407,7 +407,102 @@ const TProgmemPalette16 myRedWhiteBluePalette_p PROGMEM =
   CRGB::Black
 };
 
+/**
+ * @brief Implements the "Colour Jam" pattern.
+ *
+ * This function generates a dynamic color pattern based on the current setting.
+ * It uses palettes and motion to create a visually appealing effect.
+ *
+ * @param None
+ * @return None
+ *
+ * @pre FastLED library is initialized and ready for use.
+ * @post Updates the LED strip with a new color pattern.
+ *
+ * @note This function is called repeatedly to update the pattern.
+ * @note Uses global variables such as setting, lines, upDown, motionSpeed, maxStartIndex, and minStartIndex.
+ * @note Calls other functions such as ChangePalettePeriodically3(), FillLEDsFromPaletteColors(), ChangeStripesPeriodically(), and FillStripesFromPaletteColors().
+ */
+void funColourJam()
+{
+  if (setting == 1)
+  {
 
+    if (lines == false)
+    { 
+      ChangePalettePeriodically3();
+      static uint8_t startIndex = 0;
+      if (upDown == true)
+      {
+        startIndex = startIndex + motionSpeed;
+        FillLEDsFromPaletteColors(startIndex);
+        if (startIndex == maxStartIndex)
+        {
+          upDown = false;
+        }
+      }
+      else
+      {
+        startIndex = startIndex - motionSpeed;
+        FillLEDsFromPaletteColors(startIndex);
+        if (startIndex == minStartIndex)
+        {
+          upDown = true;
+        }
+      }
+
+      // add_glitter();
+
+      FastLED.show();
+      // FastLED.delay(1); // for 160mhz APA102 px<72 only
+    }
+    else
+    {
+      ChangePalettePeriodically3();
+      static uint8_t startIndex = 0;
+      startIndex = startIndex + motionSpeed; /* motion speed */
+      FillLEDsFromPaletteColors(startIndex);
+      if (startIndex == maxStartIndex)
+      {
+        startIndex = 0;
+      }
+      // add_glitter();
+      FastLED.show();
+      // FastLED.delay(1); // for 160mhz APA102 px<72 only
+    } 
+  } 
+
+  else if (setting == 2)
+  {
+    ChangeStripesPeriodically();
+    static uint8_t stripeIndex = 0;
+    stripeIndex = stripeIndex + 1;
+    FillStripesFromPaletteColors(stripeIndex);
+    ////Serial.println(startIndex);
+    if (stripeIndex > 15)
+    {
+      stripeIndex = 0;
+    }
+    // add_glitter();
+    FastLED.show();
+    // FastLED.delay(1); // for 160mhz APA102 px<72 only
+  } 
+  else
+  {
+    ChangeStripesPeriodically();
+    static uint8_t stripeIndex2 = 0;
+    stripeIndex2 = stripeIndex2 + 1;
+    FillPatternStripesFromPaletteColors(stripeIndex2, 4);
+    if (stripeIndex2 > 15)
+    {
+      stripeIndex2 = 0;
+    }
+    // add_glitter();
+    FastLED.show();
+    // FastLED.delay(1); // for 160mhz APA102 px<72 only
+    
+  } 
+}
 
 // Additionl notes on FastLED compact palettes:
 //

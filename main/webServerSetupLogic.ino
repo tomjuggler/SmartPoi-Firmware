@@ -1,6 +1,56 @@
-////////////////////////////////////////////FSBrowser2 code:///////////////////////////////////////////////////
 
-// format bytes
+
+/**
+ * @brief Checks if a file size exceeds the maximum allowed size on LittleFS.
+ *
+ * Calculates the maximum allowed file size based on the total available space on LittleFS,
+ * reserving 24,000 bytes (maxPX) and some extra buffer (1024 bytes) to prevent running out of space.
+ *
+ * @param fileSize The size of the file to check.
+ *
+ * @return True if the file size is within the maximum allowed size, false otherwise.
+ *
+ * @note This function is used to prevent writing files that exceed the maximum allowed size on LittleFS.
+ * @note Prints an error message to the serial console if the file size exceeds the maximum allowed size.
+ * @example checkFileSpace(10000) returns true if the file size is within the maximum allowed size
+ * @example checkFileSpace(30000) returns false if the file size exceeds the maximum allowed size
+ */
+bool checkFileSpace(size_t fileSize)
+{
+  // Get total available space on LittleFS
+  FSInfo fs_info;
+  LittleFS.info(fs_info);
+  size_t totalSpace = fs_info.totalBytes;
+  size_t availableSpace = fs_info.usedBytes;
+
+  // Calculate maximum allowed file size
+  size_t maxAllowedSize = totalSpace - maxPX - 1024; // reserve 24,000 bytes and some extra buffer
+
+  // Check if file size exceeds the max allowed size
+  if (fileSize > maxAllowedSize)
+  {
+    Serial.println("Error: File size exceeds max allowed size");
+    return false;
+  }
+  return true;
+}
+
+/**
+ * @brief Formats a size in bytes into a human-readable string.
+ *
+ * Converts a size in bytes into a string with appropriate units (B, KB, MB, GB).
+ * The conversion is done by dividing the size by the appropriate power of 1024.
+ *
+ * @param bytes The size in bytes to format.
+ *
+ * @return A string representing the size with appropriate units.
+ *
+ * @note This function is used to convert a size in bytes into a human-readable string.
+ * @note The function uses floating-point division to ensure accurate results.
+ * @example formatBytes(1024) returns "1.00KB"
+ * @example formatBytes(1024 * 1024) returns "1.00MB"
+ * @example formatBytes(1024 * 1024 * 1024) returns "1.00GB"
+ */
 String formatBytes(size_t bytes)
 {
   if (bytes < 1024)
@@ -21,6 +71,23 @@ String formatBytes(size_t bytes)
   }
 }
 
+/**
+ * @brief Determines the MIME content type for a given file.
+ *
+ * Returns the MIME content type based on the file extension.
+ * Supports common file types such as HTML, CSS, JavaScript, images, and archives.
+ *
+ * @param filename The name of the file to determine the content type for.
+ *
+ * @return The MIME content type as a string.
+ *
+ * @note This function is used to determine the content type of files served by the web server.
+ * @note If the "download" argument is present, returns "application/octet-stream" to force download.
+ * @note Defaults to "text/plain" for unknown file types.
+ * @example getContentType("index.html") returns "text/html"
+ * @example getContentType("image.png") returns "image/png"
+ * @example getContentType("unknown.ext") returns "text/plain"
+ */
 String getContentType(String filename)
 {
   if (server.hasArg("download"))
@@ -54,15 +121,21 @@ String getContentType(String filename)
   return "text/plain";
 }
 
-// void handleRoot() {
-//   server.sendHeader("Access-Control-Allow-Origin", "*");
-//   server.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-//   server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
-
-//   server.send(200, "text/html", "<html><body><h1>ESP8266 Web Server</h1></body></html>");
-// }
-
-void handleOptions() {
+/**
+ * @brief Handles CORS preflight (OPTIONS) requests.
+ *
+ * Sends the necessary headers to respond to CORS preflight requests.
+ * This allows cross-origin requests from web applications.
+ *
+ * @note This function is used to handle CORS preflight requests.
+ * @note Sends the following headers:
+ *  - Access-Control-Allow-Origin: * (allows requests from all origins)
+ *  - Access-Control-Allow-Methods: GET, POST, OPTIONS (allows GET, POST, and OPTIONS methods)
+ *  - Access-Control-Allow-Headers: Content-Type (allows Content-Type header in requests)
+ * @note Returns a 204 No Content response to indicate successful preflight.
+ */
+void handleOptions()
+{
   // This is needed to respond to CORS preflight (OPTIONS) requests
   server.sendHeader("Access-Control-Allow-Origin", "*");
   server.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -70,16 +143,31 @@ void handleOptions() {
   server.send(204); // No content response
 }
 
-
+/**
+ * @brief Handles file read requests from the server.
+ *
+ * Sends the requested file to the client with the appropriate headers.
+ * Supports CORS requests and sends the necessary headers to allow cross-origin requests.
+ *
+ * @note This function is used to handle file read requests from the server.
+ * @note Sends the following headers:
+ *  - Access-Control-Allow-Origin: * (allows requests from all origins)
+ *  - Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, FETCH (allows multiple methods)
+ *  - Access-Control-Allow-Headers: Content-Type (allows Content-Type header in requests)
+ *  - Access-Control-Allow-Credentials: true (allows credentials in requests)
+ * @note Returns a 500 error if no file argument is provided.
+ * @note Returns a 404 error if the file is not found.
+ * @note Uses LittleFS to read the file from storage.
+ */
 void handleFileRead()
 {
   Serial.println("handleFileRead");
   server.sendHeader("Access-Control-Allow-Origin", "*");
   server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
   server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
-              server.sendHeader("Access-Control-Allow-Credentials", "true");
+  server.sendHeader("Access-Control-Allow-Credentials", "true");
 
-if (!server.hasArg("file"))
+  if (!server.hasArg("file"))
   {
     Serial.println("no args detected");
     server.send(500, "text/plain", "BAD ARGS");
@@ -108,60 +196,171 @@ if (!server.hasArg("file"))
 // todo: note for the handleFileUpload function:
 /*
    need error handling
-   size too big
-   wrong file name
-   only upload abcdefghij... no more!
-   LittleFS must not exeed bounds
+   size too big - Done
+   todo: LittleFS must not exeed bounds
+
+   wrong file name only upload abcdefghij... no more!- todo: did my solution to this work?
+
+
  * */
+/**
+ * @brief Handles file uploads to LittleFS File System.
+ *
+ * Manages the file upload process, including:
+ *  - Checking for valid filenames (single character present in images string)
+ *  - Tracking file size and checking against maximum allowed size (checkFileSpace())
+ *  - Writing data to the file (if within size limits)
+ *  - Handling upload completion, abortion, and errors
+ *
+ * @note This function is called by the ESP8266 server to handle file uploads.
+ * @note Supports CORS requests and sends the necessary headers to allow cross-origin requests.
+ * @note Uses LittleFS to read and write files.
+ */
 void handleFileUpload()
 {
   if (server.uri() != "/edit")
     return;
+
   HTTPUpload &upload = server.upload();
+
+  // Initialize file size tracking variable
+  static size_t fileSize = 0;
+
   if (upload.status == UPLOAD_FILE_START)
   {
     server.sendHeader("Access-Control-Allow-Origin", "*");
     server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
     server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
-              server.sendHeader("Access-Control-Allow-Credentials", "true");
-    Serial.println("uploadCounter is: "); 
+    server.sendHeader("Access-Control-Allow-Credentials", "true");
+
+    Serial.println("uploadCounter is: ");
     Serial.println(uploadCounter);
     uploadCounter++;
+
     String filename = upload.filename;
-    if (!filename.startsWith("/")){
+    if (!filename.startsWith("/"))
+    {
       filename = "/" + filename;
     }
-    Serial.print("handleFileUpload Name: "); 
+    Serial.print("handleFileUpload Name: ");
     Serial.println(filename);
+
+    // Check if filename is a single character present in images string
+    if (filename.length() != 2 || images.indexOf(filename[1]) == -1)
+    {
+      Serial.println("Error: Invalid filename");
+      server.send(400, "text/plain", "Invalid filename");
+      return;
+    }
+
+    // Reset file size tracking
+    fileSize = 0;
+
+    // Open file for writing
     fsUploadFile = LittleFS.open(filename, "w");
     filename = String();
   }
   else if (upload.status == UPLOAD_FILE_WRITE)
   {
-    Serial.print("handleFileUpload Data: "); 
-    Serial.println(upload.currentSize);
-    if (fsUploadFile){
+    // Track total size of the file being written
+    fileSize += upload.currentSize;
+    // Check if file size exceeds the max allowed size
+    if (!checkFileSpace(fileSize))
+    {
+      // Close the file and delete it
+      if (fsUploadFile)
+      {
+        fsUploadFile.close();
+        LittleFS.remove(upload.filename); // Remove the partially written file
+      }
+
+      // Send error response and return
+      server.send(500, "text/plain", "File size exceeds limit");
+      return;
+    }
+
+    // Check if file exceeds the maxPX size
+    if (fileSize > maxPX)
+    {
+      Serial.println("Error: File size exceeds maxPX limit");
+
+      // Close the file and delete it
+      if (fsUploadFile)
+      {
+        fsUploadFile.close();
+        LittleFS.remove(upload.filename); // Remove the partially written file
+      }
+
+      // Send error response and return
+      server.send(500, "text/plain", "File size exceeds limit");
+      return;
+    }
+
+    // Proceed with writing data if within the size limit
+    if (fsUploadFile)
+    {
       fsUploadFile.write(upload.buf, upload.currentSize);
-      } 
+    }
   }
   else if (upload.status == UPLOAD_FILE_END)
   {
     Serial.println("UPLOAD FINISHED");
-    uploadCounter = 1;
-    if (fsUploadFile){
+
+    if (fsUploadFile)
+    {
       fsUploadFile.close();
     }
-    
-    server.send(200, "text/plain", "");
+
+    // Reset upload counter and file size tracker
+    uploadCounter = 1;
+    fileSize = 0;
+
+    server.send(200, "text/plain", "Upload successful");
+  }
+  else if (upload.status == UPLOAD_FILE_ABORTED)
+  {
+    // Handle aborted uploads by closing and removing the partially written file
+    Serial.println("UPLOAD ABORTED");
+
+    if (fsUploadFile)
+    {
+      fsUploadFile.close();
+      LittleFS.remove(upload.filename); // Remove the incomplete file
+      Serial.println("Aborted file removed");
+    }
+
+    // Send an error response for aborted upload
+    server.send(500, "text/plain", "Upload aborted");
+
+    // Reset upload counter and file size tracker
+    uploadCounter = 1;
+    fileSize = 0;
   }
 }
 
+/**
+ * @brief Handles file deletion requests to the server.
+ *
+ * Manages the file deletion process, including:
+ *  - Checking for valid request arguments (at least one argument required)
+ *  - Verifying the file path is not the root directory ("/") to prevent accidental deletion
+ *  - Checking if the file exists before deletion using LittleFS
+ *  - Deleting the file using LittleFS.remove()
+ *  - Returning a 200 response on successful deletion
+ *  - Returning error responses for:
+ *    - Invalid requests (500, "BAD ARGS")
+ *    - Bad paths (500, "BAD PATH")
+ *    - File not found (404, "FileNotFound")
+ *
+ * @note This function is called by the server to handle file deletion requests.
+ * @note Supports CORS requests and sends the necessary headers to allow cross-origin requests.
+ */
 void handleFileDelete()
 {
   server.sendHeader("Access-Control-Allow-Origin", "*");
   server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
   server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
-              server.sendHeader("Access-Control-Allow-Credentials", "true");
+  server.sendHeader("Access-Control-Allow-Credentials", "true");
   if (server.args() == 0)
     return server.send(500, "text/plain", "BAD ARGS");
   String path = server.arg(0);
@@ -175,12 +374,32 @@ void handleFileDelete()
   path = String();
 }
 
+/**
+ * @brief Handles file creation requests to the server.
+ *
+ * Manages the file creation process, including:
+ *  - Checking for valid request arguments (at least one argument required)
+ *  - Verifying the file path is not the root directory ("/") to prevent accidental creation
+ *  - Checking if the file already exists using LittleFS.exists()
+ *  - Creating the file using LittleFS.open() in write mode ("w")
+ *  - Closing the file after creation
+ *  - Returning a 200 response on successful creation
+ *  - Returning error responses for:
+ *    - Invalid requests (500, "BAD ARGS")
+ *    - Bad paths (500, "BAD PATH")
+ *    - File existence (500, "FILE EXISTS")
+ *    - Creation failure (500, "CREATE FAILED")
+ *
+ * @note This function is not used at all in SmartPoi file uploading. todo: delete?
+ * @note This function is called by the server to handle file creation requests.
+ * @note Supports CORS requests and sends the necessary headers to allow cross-origin requests.
+ */
 void handleFileCreate()
 {
   server.sendHeader("Access-Control-Allow-Origin", "*");
   server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
   server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
-              server.sendHeader("Access-Control-Allow-Credentials", "true");
+  server.sendHeader("Access-Control-Allow-Credentials", "true");
   if (server.args() == 0)
     return server.send(500, "text/plain", "BAD ARGS");
   String path = server.arg(0);
@@ -198,12 +417,26 @@ void handleFileCreate()
   path = String();
 }
 
+/**
+ * @brief Handles file list requests to the server.
+ *
+ * Manages the file list process, including:
+ *  - Checking for valid request arguments (dir) and returning an error response if missing
+ *  - Opening the directory using LittleFS.openDir() and iterating through entries
+ *  - Constructing a JSON response with file information (type and name)
+ *  - Returning a 200 response with the JSON file list
+ *  - Supports CORS requests and sends the necessary headers to allow cross-origin requests
+ *  - Example JSON response: [{"type":"dir","name":"directory"},{"type":"file","name":"file.txt"}]
+ *
+ * @note This function is called by the server to handle file list requests.
+ * @example handleFileList() handles a file list request
+ */
 void handleFileList()
 {
   server.sendHeader("Access-Control-Allow-Origin", "*");
   server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
   server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
-              server.sendHeader("Access-Control-Allow-Credentials", "true");
+  server.sendHeader("Access-Control-Allow-Credentials", "true");
   if (!server.hasArg("dir"))
   {
     server.send(500, "text/plain", "BAD ARGS");
@@ -231,128 +464,108 @@ void handleFileList()
   }
 
   output += "]";
-  
+
   server.send(200, "text/json", output);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////END FSBrowser2////////////////////////////////////////////////////////////
-
+/**
+ * @brief Sets up the web server with routes for handling file operations, settings, and LED control.
+ *
+ * Initializes the web server with routes for:
+ *  - Handling file operations:
+ *    - Listing files (GET /list)
+ *    - Reading files (GET /edit)
+ *    - Creating files (PUT /edit)
+ *    - Deleting files (DELETE /edit)
+ *  - Managing settings:
+ *    - Router setting (GET /router)
+ *    - Pattern setting (GET /pattern)
+ *    - Interval setting (GET /intervalChange)
+ *    - Brightness setting (GET /brightness)
+ *  - Controlling LED behavior
+ *
+ * @param router The router setting to use
+ * @param pass The password to use
+ * @note This function sets up the web server and its routes, but does not start the server.
+ */
 void webServerSetupLogic(String router, String pass)
 {
-  // Serial.print("webserver router is: ");
-  // Serial.println(router);
-  // Serial.print("webserver pass is: ");
-  // Serial.println(pass);
-
   int checkChannel;
-  checkChannel = int(EEPROM.read(13)); // change from ascii
+  checkChannel = int(EEPROM.read(13));
   int newChannel = checkChannel;
 
-  // html taking up too much room? moved to LittleFS!
   File html = LittleFS.open("/site.htm", "r");
   responseHTML = "";
 
-  if (!html) {
-      Serial.println("Failed to open file for reading");
-  } else {
-      size_t fileSize = html.size(); // Get the size of the file
-      responseHTML.reserve(fileSize); // Reserve memory to store the file content
-
-      // Read the entire file into responseHTML
-      while (html.available()) {
-          responseHTML += (char)html.read(); // Read one character at a time and append it to the string
-      }
-
-      html.close();
-      Serial.println("Finished building html");
+  if (!html)
+  {
+    Serial.println("Failed to open file for reading");
   }
-  
-  /////////////////////////////////////////////////FSBrowser2////////////////////////////////////////////////////////////////////////////////////
+  else
+  {
+    size_t fileSize = html.size();
+    responseHTML.reserve(fileSize);
+
+    // Read the entire file into responseHTML
+    while (html.available())
+    {
+      responseHTML += (char)html.read(); // Read one character at a time and append it to the string
+    }
+
+    html.close();
+    Serial.println("Finished building html");
+  }
+
   // SERVER INIT
-  // server.on("/", HTTP_GET, handleRoot);
-  server.on("/", HTTP_OPTIONS, handleOptions); // Handle CORS preflight request
-  
+  server.on("/", HTTP_OPTIONS, handleOptions); // Handle CORS preflight requests
   // list directory
   server.on("/list", HTTP_GET, handleFileList);
+
   // load editor
   server.on("/edit", HTTP_GET, handleFileRead);
+
   // create file
   server.on("/edit", HTTP_PUT, handleFileCreate);
+
   // delete file
   server.on("/edit", HTTP_DELETE, handleFileDelete);
-  // first callback is called after the request has ended with all parsed arguments
-  // second callback handles file uploads at that location
+
+  // Handle file uploads
   server.on(
-      "/edit", HTTP_POST, []()
-      {
-        
+      "/edit", HTTP_POST, []() {
+
       },
       handleFileUpload);
 
-  // called when the url is not defined here
-  // use it to load content from SPIFFS
+  // called when the url is not defined here - captive portal
   server.onNotFound([]()
                     {
                       server.sendHeader("Access-Control-Allow-Origin", "*");
                       server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
                       server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
                       server.sendHeader("Access-Control-Allow-Credentials", "true");
-                      server.send(200, "text/html", responseHTML); // my code here, should work for eeprom settings!
-                      //     server.send(204, "text/html", responseHTML); //my code here, should work for eeprom settings!
+                      server.send(200, "text/html", responseHTML); // sends webpage for eeprom settings if url not defined. Captive portal.
                     });
 
-  ///////////////////////////////////////////End FSBrowser2 code////////////////////////////////////////////////////////////////////////////////////
-
-  //////////////////////////////////////////////////////////////////return settings////////////////////////////////////////////////////////
-  // works with httpPostToPoiSettings processing app (in internet folder)
+  // settings - returns in format SSID, PASS, Channel, A, B, C, D, Pattern - ABCD is IP address numbers
   server.on("/returnsettings", []()
             {
               server.sendHeader("Access-Control-Allow-Origin", "*");
               server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
               server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
               server.sendHeader("Access-Control-Allow-Credentials", "true");
-              //    content = "huaweiRouter,password,more";
               statusCode = 200;
-              /// //Serial.println(pass);
-
-              // below converts char array to string
-              // see https://stackoverflow.com/questions/17158890/transform-char-array-into-string
-              // content = str((char*)router_array);
-              // String rrr = String(router_array);/
-              // String rrr = String(str((char*)router_array));
-              /// String ppp = String(pwd_array); //wtf thought this worked???!!!!!!!!!
-              // String ppp = pass;
-
-              // content = rrr + "," + ppp + "," + String(apChannel);/
-              // content = String(router_array) + "," + String(pwd_array) + "," + String(apChannel);
-
-              // I know try open Spiffs settings.txt and read out to var:
-              ///////////////////////////////////////////////////////////////////////read spiffs settings again://///////////////////////////////////////////////////////
-              // why do I have to read it all again? ???????
 
               settings = LittleFS.open("/settings.txt", "r");
-              String anotherSettingsFUP = settings.readStringUntil('\n');
-              String anotherSettingsFUP2 = settings.readStringUntil('\n');
-
-              //
+              String settingsSSID = settings.readStringUntil('\n');
+              String settingsPASS = settings.readStringUntil('\n');
 
               settings.close();
               // delay(100);
-              int newChannelAgainFUP = int(EEPROM.read(13));
-              // delay(30);
-              // MUST WE READ ALL SETTINGS AGAIN? OR USE INITIALIZED ONES LIKE addrNumA?
-              //////////////////////////////////////////end read spiffs settings again/////////////////////////////////////////////////////////////////////////////
-              content = anotherSettingsFUP + "," + anotherSettingsFUP2 + "," + newChannelAgainFUP + "," + addrNumA + "," + addrNumB + "," + addrNumC + "," + addrNumD + "," + patternChooser;
-              server.send(statusCode, "text/html", content);
-            });
-  //////////////////////////////////////////////////////////////////end return settings/////////////////////////////////////////////
+              int newChannel = int(EEPROM.read(13));
+              content = settingsSSID + "," + settingsPASS + "," + newChannel + "," + addrNumA + "," + addrNumB + "," + addrNumC + "," + addrNumD + "," + patternChooser;
+              server.send(statusCode, "text/html", content); });
 
-  // replay to all requests with same HTML
-  //  server.onNotFound([]() {
-  //    server.send(200, "text/html", responseHTML);
-  //  });
-
-  /////////////////////////////////////////////////////////quick change Router://////////////////////////////////////////////////////////////////////////////////
   // to activate in browser: http://192.168.1.78/router?router=1
   // don't forget main: http://192.168.1.1/router?router=1
   // nothing happens, but router is now switched on.
@@ -360,19 +573,19 @@ void webServerSetupLogic(String router, String pass)
   // to deactivate in browser: http://192.168.8.78/router?router=0  *use actual ip address
   // don't forget main: http://192.168.8.79/router?router=0 *use actual ip address
 
+  // Router settings changes
   server.on("/router", []()
             {
               server.sendHeader("Access-Control-Allow-Origin", "*");
               server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
               server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
               server.sendHeader("Access-Control-Allow-Credentials", "true");
-              //////////////////////////////////////////////////////change PatternChooser setting in EEPROM://///////////////////////////////////////////////////////////////////////////////
-              String onRouter = server.arg("router"); // need to handle errors what if it's too big
+              String onRouter = server.arg("router"); // todo: need to handle errors what if it's too big
               if (onRouter.length() > 0)
               {
                 EEPROM.write(100, 0); // clearing... Is this necessary? make it some sort of default then in case of errors..?
                 EEPROM.commit();
-                int newRouter; // temp variable - not needed, use same one as previously:
+                int newRouter;
                 newRouter = onRouter.toInt();
                 if (newRouter == 0 || newRouter > 1)
                 { // set to not work here! Deliberate?
@@ -403,11 +616,9 @@ void webServerSetupLogic(String router, String pass)
               EEPROM.commit(); // save for next time?
               // Serial.println("10, patternChooser saved");
               // black, this could take a while, so save power? Also an indicator...
-              FastLED.showColor(CRGB::Black);
-            });
-  ////////////////////////////////////////////////////end change router setting in EEPROM////////////////////////////////////////////////////////////////////////////////
+              FastLED.showColor(CRGB::Black); });
 
-  /////////////////////////////////////////////////////////quick change Pattern://////////////////////////////////////////////////////////////////////////////////
+  // Pattern settings changes
   server.on("/pattern", []()
             {
               Serial.println("pattern change requested");
@@ -415,7 +626,6 @@ void webServerSetupLogic(String router, String pass)
               server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
               server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
               server.sendHeader("Access-Control-Allow-Credentials", "true");
-              //////////////////////////////////////////////////////change PatternChooser setting in EEPROM://///////////////////////////////////////////////////////////////////////////////
               String onAddress = server.arg("patternChooserChange"); // need to handle errors what if it's too big
               if (onAddress.length() > 0)
               {
@@ -438,31 +648,27 @@ void webServerSetupLogic(String router, String pass)
                   //         pattern++; //for loadPatternChooser change pattern why not! (may remove this I don't know)
                 }
                 EEPROM.commit(); // save for next time?
-                // Serial.println("10, patternChooser saved");
                 // black, this could take a while, so save power? Also an indicator...
                 //  FastLED.showColor(CRGB::Black);
                 //  loadPatternChooser();
                 content = "{\"Success\":\" your pattern is set \"}";
                 statusCode = 200;
-            
 
                 // Send the response
                 server.send(statusCode, "application/json", content);
               }
               else
               {
-                
+
                 content = "{\"Error\":\"404 not found\"}";
                 statusCode = 404;
-                
 
                 // Send the error response
                 server.send(statusCode, "application/json", content);
               } // nothing
             });
-  ////////////////////////////////////////////////////end change Pattern Chooser setting in EEPROM////////////////////////////////////////////////////////////////////////////////
 
-  //////////////////////////////////////////////////////interval changer://///////////////////////////////////////////////////////////////////////////////
+  // Interval settings changes
   server.on("/intervalChange", []()
             {
               server.sendHeader("Access-Control-Allow-Origin", "*");
@@ -503,42 +709,42 @@ void webServerSetupLogic(String router, String pass)
                 server.send(statusCode, "application/json", content);
               } // nothing
             });
-  ////////////////////////////////////////////////////end change interval changer////////////////////////////////////////////////////////////////////////////////
 
-/////////////////////////////////////////////////////////quick change Brighness://////////////////////////////////////////////////////////////////////////////////
+  // Brightness Settings changes
   server.on("/brightness", []()
             {
               server.sendHeader("Access-Control-Allow-Origin", "*");
               server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
               server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
               server.sendHeader("Access-Control-Allow-Credentials", "true");
-              //////////////////////////////////////////////////////change PatternChooser setting in EEPROM://///////////////////////////////////////////////////////////////////////////////
-              String onNewBRT = server.arg("brt"); 
+              String onNewBRT = server.arg("brt");
               if (onNewBRT.length() > 0)
-              {                
+              {
                 newBrightness = onNewBRT.toInt();
-                if(newBrightness > 254){
+                if (newBrightness > 254)
+                {
                   newBrightness = 255;
                 }
-                if(newBrightness < 20){
+                if (newBrightness < 20)
+                {
                   newBrightness = 20;
                 }
-                
-                FastLED.setBrightness(  newBrightness ); //should I be removing this becos https://github.com/FastLED/FastLED/wiki/FastLED-Temporal-Dithering
-                FastLED.showColor( CRGB::Black );
 
-                EEPROM.write(15, newBrightness);                
+                FastLED.setBrightness(newBrightness); // should I be removing this becos https://github.com/FastLED/FastLED/wiki/FastLED-Temporal-Dithering
+                FastLED.showColor(CRGB::Black);
+
+                EEPROM.write(15, newBrightness);
                 EEPROM.commit(); // save for next time
-                
+
                 content = "{\"Success\":\" your brightness is set \"}";
                 statusCode = 200;
-                
+
                 // Send the response
                 server.send(statusCode, "application/json", content);
               }
               else
               {
-                
+
                 content = "{\"Error\":\"404 not found\"}";
                 statusCode = 404;
 
@@ -546,66 +752,24 @@ void webServerSetupLogic(String router, String pass)
                 server.send(statusCode, "application/json", content);
               } // nothing
             });
-  ////////////////////////////////////////////////////end change Pattern Chooser setting in EEPROM////////////////////////////////////////////////////////////////////////////////
-
-
-  ////////////////////////////////////////////////////////settings form://////////////////////////////////////////////////////////////////////////////////////////
+  // Update settings in format SSID, PASS, Channel, A, B, C, D, Pattern - ABCD is IP address numbers
   server.on("/setting", []()
             {
               server.sendHeader("Access-Control-Allow-Origin", "*");
               server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
               server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
               server.sendHeader("Access-Control-Allow-Credentials", "true");
-               //test:
-                //    String stip = webServer.arg("ip");
-                //      if (stip.length() > 0 ) {
-                //        for (int i = 0; i < 13; ++i) {
-                //          EEPROM.write(i, 0); //clearing
-                //        }
-                //        EEPROM.commit();
-                //
-                //        for (int i = 0; i < 13 ; ++i)
-                //        {
-                //          EEPROM.write(i, stip[i]);
-                //        }
-                //        EEPROM.commit();
-                //        //Serial.print("stip is: ");
-                //        //Serial.println(stip);
-                //        content = "{\"Success\":\"saved to eeprom... reset to boot into new wifi\"}";
-                //        statusCode = 200;
-                //      }else{
-                //      content = "{\"Error\":\"404 not found\"}";
-                //        statusCode = 404;
-                //        //Serial.println("Sending 404");
-                //      //Serial.println("not found");
-                //      }
-             
-              // change router settings in Spiffs://////////////////////////////////////////////////////////////////////////////////
-              // not working currently
-              //  open file for writing
+
               settings = LittleFS.open("/settings.txt", "w");
               if (!settings)
               {
                 // Serial.println("settings file open failed");
+                // todo: return something useful here
               }
-              // Serial.println("====== Writing to SETTINGS file =========");
 
-              // String pwd2 = server.arg("pwd");
-              // int pwd2_len = pwd2.length() + 1;
-              // char pwd2_array[pwd2_len];
-              // pwd2.toCharArray(pwd2_array, pwd2_len);
-              // settings.println(pwd2);
-              //
-              // settings.println("Smart_Poi_2");
-              // settings.println("password");
-
-              // old method with strings below:
-
-              // try string.trim() as well... //
               settings.print(server.arg("ssid"));
-              //todo: in order to change channel below we need to overwrite the router name and password? FIX!
-              settings.print("\n"); // finally solved not loading problem
-
+              // todo: in order to change channel below we need to overwrite the router name and password? FIX!
+              settings.print("\n");
               // note: never use settings.println, use print("\n") instead
 
               // Serial.print("saving ssid: ");
@@ -660,21 +824,6 @@ void webServerSetupLogic(String router, String pass)
                 ////Serial.print("onChannel is now: ");
                 ////Serial.println(newChannel2);
 
-                // test: use address field for patternChooser:
-                // make another field here for this, has it's own eeprom address and everything!
-                // ok can't use html because of auxillary poi not working with this. Use other method. Just a test delete this!
-                //       patternChooser = onAddress.toInt();
-                //       //error check:
-                //       if(patternChooser > 3){
-                //         patternChooser = 3;
-                //       }
-                //       if(patternChooser < 1) {
-                //         patternChooser = 1;
-                //       }
-                //       loadPatternChooser();
-                // end patternChooser Change test
-
-                //        content = "huaweiRouter,password,more";
                 content = "{\"Success\":\" now switch both poi off and on again\"}";
                 statusCode = 200;
                 // add in patternChooser variable here, choose offline patterns in app!
@@ -687,7 +836,6 @@ void webServerSetupLogic(String router, String pass)
                 ////Serial.println("Sending 404");
                 ////Serial.println("not found");
               }
-              //////////////////////////////////////////////////////change addrA setting in EEPROM://///////////////////////////////////////////////////////////////////////////////
               onAddress = server.arg("addressA"); // need to handle errors what if it's too big
               if (onAddress.length() > 0)
               {
@@ -703,9 +851,7 @@ void webServerSetupLogic(String router, String pass)
               else
               {
               } // nothing
-              ////////////////////////////////////////////////////end change addrA setting in EEPROM////////////////////////////////////////////////////////////////////////////////
 
-              //////////////////////////////////////////////////////change addrB setting in EEPROM://///////////////////////////////////////////////////////////////////////////////
               onAddress = server.arg("addressB"); // need to handle errors what if it's too big
               if (onAddress.length() > 0)
               {
@@ -721,9 +867,7 @@ void webServerSetupLogic(String router, String pass)
               else
               {
               } // nothing
-              ////////////////////////////////////////////////////end change addrB setting in EEPROM////////////////////////////////////////////////////////////////////////////////
 
-              //////////////////////////////////////////////////////change addrC setting in EEPROM://///////////////////////////////////////////////////////////////////////////////
               onAddress = server.arg("addressC"); // need to handle errors what if it's too big
               if (onAddress.length() > 0)
               {
@@ -739,9 +883,7 @@ void webServerSetupLogic(String router, String pass)
               else
               {
               } // nothing
-              ////////////////////////////////////////////////////end change addrC setting in EEPROM////////////////////////////////////////////////////////////////////////////////
 
-              //////////////////////////////////////////////////////change PatternChooser setting in EEPROM://///////////////////////////////////////////////////////////////////////////////
               onAddress = server.arg("patternChooserChange"); // need to handle errors what if it's too big
               if (onAddress.length() > 0)
               {
@@ -772,7 +914,6 @@ void webServerSetupLogic(String router, String pass)
               else
               {
               } // nothing
-              ////////////////////////////////////////////////////end change Pattern Chooser setting in EEPROM////////////////////////////////////////////////////////////////////////////////
 
               // Send the status code response
               server.send(statusCode, "application/json", content);
