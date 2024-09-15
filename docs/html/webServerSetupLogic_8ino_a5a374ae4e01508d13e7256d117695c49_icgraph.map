@@ -1,0 +1,9 @@
+<map id="handleFileList" name="handleFileList">
+<area shape="rect" id="Node000001" title=" " alt="" coords="518,5,630,33"/>
+<area shape="rect" id="Node000002" href="$webServerSetupLogic_8ino.html#ab1a4e589c24b98976ddbc5261f35417f" title="Sets up the web server with routes for handling file operations, settings, and LED control." alt="" coords="309,5,470,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="502,22,471,22,471,16,502,16"/>
+<area shape="rect" id="Node000003" href="$initalize_8ino.html#a5a10e3f3b65b980a9fb005a41a8ace3d" title="Loads settings from LittleFS file system." alt="" coords="111,5,261,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="294,22,262,22,262,16,294,16"/>
+<area shape="rect" id="Node000004" href="$main_8ino.html#a4fc01d736fe50cf5b977f755b675f11d" title="Setup function, called once at program start." alt="" coords="5,5,63,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="95,22,63,22,63,16,95,16"/>
+</map>

@@ -1,0 +1,21 @@
+var searchData=
+[
+  ['changepaletteeverytime_0',['ChangePaletteEveryTime',['../colourPalette__code_8ino.html#a6b1ac33f8e2d91f8ecc3f2d41deb85bf',1,'colourPalette_code.ino']]],
+  ['changepaletteperiodically_1',['ChangePalettePeriodically',['../colourPalette__code_8ino.html#a50c2e0f8c7120112ab44db6f47400021',1,'colourPalette_code.ino']]],
+  ['changepaletteperiodically2_2',['ChangePalettePeriodically2',['../colourPalette__code_8ino.html#afbd740aa67b48e4358438e947668109b',1,'colourPalette_code.ino']]],
+  ['changepaletteperiodically3_3',['ChangePalettePeriodically3',['../colourPalette__code_8ino.html#a307a62e0ca7564da5ad6e6d6670e9af4',1,'colourPalette_code.ino']]],
+  ['changepatternperiodically_4',['ChangePatternPeriodically',['../timeFunc_8ino.html#a3c5f9b5a2f1532d1f7d600b067ac556b',1,'timeFunc.ino']]],
+  ['changestripesperiodically_5',['ChangeStripesPeriodically',['../colourPalette__code_8ino.html#af6f69593db64dba282962cda4db95ae6',1,'colourPalette_code.ino']]],
+  ['channelchange_6',['channelChange',['../main_8ino.html#a2063f1af623cfe36a5fc333b5abb1e66',1,'main.ino']]],
+  ['checkfilesinsetup_7',['checkFilesInSetup',['../initalize_8ino.html#a2e14a7e6ee626d7f58ccea0181bd21e0',1,'initalize.ino']]],
+  ['checkfilespace_8',['checkFileSpace',['../webServerSetupLogic_8ino.html#a7561f74c2719c551fae9a586831271ca',1,'webServerSetupLogic.ino']]],
+  ['checkit_9',['checkit',['../main_8ino.html#a996c18a14a2f68b4814e71dcfb71f0c1',1,'main.ino']]],
+  ['clock_5fpin_10',['CLOCK_PIN',['../main_8ino.html#a23b348310475af5d6544794f1a167ee8',1,'main.ino']]],
+  ['cnti_11',['cnti',['../showLittleFSImage_8ino.html#a7674f33da2776fe94d921d4e09952f80',1,'showLittleFSImage.ino']]],
+  ['colourpalette_5fcode_2eino_12',['colourPalette_code.ino',['../colourPalette__code_8ino.html',1,'']]],
+  ['content_13',['content',['../main_8ino.html#a5afce1c98d73512f8ffcb0482df23708',1,'main.ino']]],
+  ['currentblending_14',['currentBlending',['../main_8ino.html#a21132cfd0171a2d0969b2bda8d56e341',1,'main.ino']]],
+  ['currentmillis_15',['currentMillis',['../main_8ino.html#a8c339f5f1b55aa2e873f2a780e93db5e',1,'main.ino']]],
+  ['currentmillis2_16',['currentMillis2',['../main_8ino.html#a2a8d5ccff34793ce2fbf5eabf370b712',1,'main.ino']]],
+  ['currentpalette_17',['currentPalette',['../main_8ino.html#acbe8fb0854d08fec34211bbb130b9276',1,'main.ino']]]
+];

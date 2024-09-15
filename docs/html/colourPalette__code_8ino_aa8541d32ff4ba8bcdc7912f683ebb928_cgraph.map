@@ -1,0 +1,20 @@
+<map id="funColourJam" name="funColourJam">
+<area shape="rect" id="Node000001" title="Implements the &quot;Colour Jam&quot; pattern." alt="" coords="5,109,115,137"/>
+<area shape="rect" id="Node000002" href="$colourPalette__code_8ino.html#a307a62e0ca7564da5ad6e6d6670e9af4" title=" " alt="" coords="168,57,367,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,107,194,87,195,92,116,112"/>
+<area shape="rect" id="Node000006" href="$colourPalette__code_8ino.html#af6f69593db64dba282962cda4db95ae6" title=" " alt="" coords="172,5,363,33"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="74,107,112,75,161,43,179,36,181,41,164,48,115,79,78,111"/>
+<area shape="rect" id="Node000007" href="$colourPalette__code_8ino.html#ae6b0ecfd96a40d5cec6d0dba0a3685fe" title=" " alt="" coords="172,109,363,137"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="115,120,156,120,156,126,115,126"/>
+<area shape="rect" id="Node000008" href="$colourPalette__code_8ino.html#aaf883560f6fde9d29e393af62585dc98" title=" " alt="" coords="163,161,372,206"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="111,135,174,154,173,159,110,140"/>
+<area shape="rect" id="Node000009" href="$colourPalette__code_8ino.html#af36bd534545dc126541e194079fd8486" title=" " alt="" coords="165,229,370,257"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="74,136,111,176,136,197,164,216,175,221,173,226,161,220,133,202,108,180,71,139"/>
+<area shape="rect" id="Node000003" href="$colourPalette__code_8ino.html#af3b87e2ff0afd2de155aa1828c0fdf4a" title=" " alt="" coords="424,5,580,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="333,54,421,34,422,40,334,59"/>
+<area shape="rect" id="Node000004" href="$colourPalette__code_8ino.html#a214dec62c47bbb1636be9a08689e81cc" title=" " alt="" coords="420,57,584,85"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="367,68,404,68,404,74,367,74"/>
+<area shape="rect" id="Node000005" href="$colourPalette__code_8ino.html#aeb0ab7f3319e010d7baff00310f076d2" title=" " alt="" coords="420,109,584,137"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="334,83,422,103,421,108,333,88"/>
+<area shape="poly" id="edge6_Node000006_Node000003" title=" " alt="" coords="363,16,408,16,408,22,363,22"/>
+</map>

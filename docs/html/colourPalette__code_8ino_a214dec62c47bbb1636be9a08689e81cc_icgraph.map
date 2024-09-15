@@ -1,0 +1,9 @@
+<map id="SetupVariablePalette3" name="SetupVariablePalette3">
+<area shape="rect" id="Node000001" title=" " alt="" coords="507,5,672,33"/>
+<area shape="rect" id="Node000002" href="$colourPalette__code_8ino.html#a307a62e0ca7564da5ad6e6d6670e9af4" title=" " alt="" coords="260,5,459,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="492,22,460,22,460,16,492,16"/>
+<area shape="rect" id="Node000003" href="$colourPalette__code_8ino.html#aa8541d32ff4ba8bcdc7912f683ebb928" title="Implements the &quot;Colour Jam&quot; pattern." alt="" coords="103,5,212,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="244,22,212,22,212,16,244,16"/>
+<area shape="rect" id="Node000004" href="$main_8ino.html#afe461d27b9c48d5921c00d521181f12f" title="Main loop function, called repeatedly after setup." alt="" coords="5,5,55,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="87,22,55,22,55,16,87,16"/>
+</map>

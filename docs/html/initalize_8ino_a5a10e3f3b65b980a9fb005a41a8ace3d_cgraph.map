@@ -1,0 +1,44 @@
+<map id="littleFSLoadSettings" name="littleFSLoadSettings">
+<area shape="rect" id="Node000001" title="Loads settings from LittleFS file system." alt="" coords="5,363,156,390"/>
+<area shape="rect" id="Node000002" href="$webServerSetupLogic_8ino.html#ab1a4e589c24b98976ddbc5261f35417f" title="Sets up the web server with routes for handling file operations, settings, and LED control." alt="" coords="204,184,365,212"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="96,360,254,220,257,224,100,364"/>
+<area shape="rect" id="Node000012" href="$initalize_8ino.html#af667f87580db5734b6709a3a1801e995" title="Configures Wi&#45;Fi settings based on the selected mode." alt="" coords="236,491,333,518"/>
+<area shape="poly" id="edge18_Node000001_Node000012" title=" " alt="" coords="106,389,249,480,246,484,103,393"/>
+<area shape="rect" id="Node000003" href="$webServerSetupLogic_8ino.html#a8c77f65f0ebc6f33815c1b24e5698cf7" title="Handles file creation requests to the server." alt="" coords="609,5,741,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="291,182,309,153,335,116,370,79,412,49,456,30,503,19,550,13,594,12,594,17,551,19,504,24,458,36,414,53,374,83,339,119,313,156,296,185"/>
+<area shape="rect" id="Node000004" href="$main_8ino.html#a58141c4f251beaa1fee89b632d87152f" title=" " alt="" coords="789,184,851,212"/>
+<area shape="poly" id="edge17_Node000002_Node000004" title=" " alt="" coords="305,181,380,138,432,114,490,92,553,75,617,68,681,73,712,81,742,93,764,108,783,127,809,169,804,171,778,131,761,112,739,98,710,86,680,78,617,73,554,81,492,97,434,119,382,143,308,186"/>
+<area shape="rect" id="Node000005" href="$webServerSetupLogic_8ino.html#a1266b17297c36cb097123920f0a089a9" title="Handles file deletion requests to the server." alt="" coords="609,107,741,134"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="339,181,412,163,594,130,595,135,414,168,340,186"/>
+<area shape="rect" id="Node000006" href="$webServerSetupLogic_8ino.html#a5a374ae4e01508d13e7256d117695c49" title=" " alt="" coords="619,159,731,186"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="365,190,604,174,604,180,366,195"/>
+<area shape="rect" id="Node000007" href="$webServerSetupLogic_8ino.html#a27ff065a831c2bf637fb318fb80f26c4" title="Handles file read requests from the server." alt="" coords="426,209,548,237"/>
+<area shape="poly" id="edge8_Node000002_Node000007" title=" " alt="" coords="366,205,411,211,411,216,365,211"/>
+<area shape="rect" id="Node000009" href="$webServerSetupLogic_8ino.html#a3ad222f20f56d154a7728c39310e6873" title="Handles file uploads to LittleFS File System." alt="" coords="420,285,554,313"/>
+<area shape="poly" id="edge12_Node000002_Node000009" title=" " alt="" coords="315,210,445,276,443,280,313,215"/>
+<area shape="rect" id="Node000011" href="$webServerSetupLogic_8ino.html#a63e4545ba7e7d5d584ce6f8dc28cee12" title="Handles CORS preflight (OPTIONS) requests." alt="" coords="617,413,733,441"/>
+<area shape="poly" id="edge15_Node000002_Node000011" title=" " alt="" coords="298,210,345,264,378,295,414,322,453,342,486,351,520,358,562,373,611,398,624,404,622,409,608,403,560,378,519,363,485,356,451,347,412,327,375,299,341,268,294,214"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="716,31,742,49,766,78,786,109,812,168,807,170,781,112,762,81,739,53,713,36"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="715,132,742,145,787,172,785,177,739,150,713,137"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="732,180,774,187,773,192,731,185"/>
+<area shape="poly" id="edge11_Node000007_Node000004" title=" " alt="" coords="548,216,773,199,773,204,548,221"/>
+<area shape="rect" id="Node000008" href="$webServerSetupLogic_8ino.html#ac1311527864d9a4219f50d677608e538" title=" " alt="" coords="613,260,737,288"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="542,235,607,253,606,258,540,240"/>
+<area shape="poly" id="edge10_Node000008_Node000004" title=" " alt="" coords="705,257,739,239,780,217,782,222,742,244,707,262"/>
+<area shape="poly" id="edge14_Node000009_Node000004" title=" " alt="" coords="550,311,594,317,642,318,692,313,739,297,760,283,778,264,804,225,808,228,782,268,764,287,742,302,694,318,643,324,593,322,549,316"/>
+<area shape="rect" id="Node000010" href="$webServerSetupLogic_8ino.html#a7561f74c2719c551fae9a586831271ca" title=" " alt="" coords="614,361,736,389"/>
+<area shape="poly" id="edge13_Node000009_Node000010" title=" " alt="" coords="525,311,626,353,624,358,523,316"/>
+<area shape="poly" id="edge16_Node000011_Node000004" title=" " alt="" coords="722,411,739,399,769,358,790,311,804,265,812,227,817,228,809,266,795,313,774,360,743,402,725,415"/>
+<area shape="rect" id="Node000013" href="$main_8ino.html#a6e8964cdd32367af24a10ea7c11b429d" title=" " alt="" coords="462,387,512,414"/>
+<area shape="poly" id="edge19_Node000012_Node000013" title=" " alt="" coords="305,488,353,457,412,425,447,410,449,415,414,430,356,462,308,492"/>
+<area shape="rect" id="Node000014" href="$main_8ino.html#af281bc28b4d6500a3448be2efeccaccf" title=" " alt="" coords="434,439,540,466"/>
+<area shape="poly" id="edge20_Node000012_Node000014" title=" " alt="" coords="333,489,419,467,420,472,334,495"/>
+<area shape="rect" id="Node000015" href="$main_8ino.html#a6916549510dbd270c835c2302aebbb29" title=" " alt="" coords="413,491,561,518"/>
+<area shape="poly" id="edge21_Node000012_Node000015" title=" " alt="" coords="334,502,397,502,397,507,334,507"/>
+<area shape="rect" id="Node000016" href="$main_8ino.html#a23683aadf05351edb86e6f09ebe69808" title=" " alt="" coords="448,543,526,570"/>
+<area shape="poly" id="edge22_Node000012_Node000016" title=" " alt="" coords="334,514,434,540,433,545,333,520"/>
+<area shape="rect" id="Node000017" href="$main_8ino.html#a9902dda7c692990afed9d22fa771c7b8" title=" " alt="" coords="434,595,540,622"/>
+<area shape="poly" id="edge23_Node000012_Node000017" title=" " alt="" coords="308,517,356,547,414,579,429,586,427,591,412,584,353,552,305,521"/>
+<area shape="rect" id="Node000018" href="$main_8ino.html#a10d67e03c1256d30140ff234d1940cdb" title=" " alt="" coords="458,647,517,674"/>
+<area shape="poly" id="edge24_Node000012_Node000018" title=" " alt="" coords="298,517,345,572,378,604,414,632,444,646,442,651,412,636,375,608,341,576,294,521"/>
+</map>

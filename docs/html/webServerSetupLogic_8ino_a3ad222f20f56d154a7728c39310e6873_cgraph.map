@@ -1,0 +1,7 @@
+<map id="handleFileUpload" name="handleFileUpload">
+<area shape="rect" id="Node000001" title="Handles file uploads to LittleFS File System." alt="" coords="5,32,140,60"/>
+<area shape="rect" id="Node000002" href="$webServerSetupLogic_8ino.html#a7561f74c2719c551fae9a586831271ca" title=" " alt="" coords="188,5,309,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,33,172,28,173,33,141,38"/>
+<area shape="rect" id="Node000003" href="$main_8ino.html#a58141c4f251beaa1fee89b632d87152f" title=" " alt="" coords="217,57,280,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="141,53,202,62,201,67,140,58"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="wifiChooser" name="wifiChooser">
+<area shape="rect" id="Node000001" title="Configures Wi&#45;Fi settings based on the selected mode." alt="" coords="5,136,103,164"/>
+<area shape="rect" id="Node000002" href="$main_8ino.html#a6e8964cdd32367af24a10ea7c11b429d" title=" " alt="" coords="200,5,250,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="63,134,98,90,122,65,149,44,184,27,186,32,152,48,126,69,102,93,67,137"/>
+<area shape="rect" id="Node000003" href="$main_8ino.html#af281bc28b4d6500a3448be2efeccaccf" title=" " alt="" coords="172,57,278,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="78,133,150,95,165,89,168,94,152,100,81,138"/>
+<area shape="rect" id="Node000004" href="$main_8ino.html#a6916549510dbd270c835c2302aebbb29" title=" " alt="" coords="151,109,299,137"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="103,140,135,135,136,140,103,145"/>
+<area shape="rect" id="Node000005" href="$main_8ino.html#a23683aadf05351edb86e6f09ebe69808" title=" " alt="" coords="186,161,264,189"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="103,154,171,165,170,170,103,160"/>
+<area shape="rect" id="Node000006" href="$main_8ino.html#a9902dda7c692990afed9d22fa771c7b8" title=" " alt="" coords="172,213,278,241"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="81,162,152,198,168,205,166,210,150,203,79,166"/>
+<area shape="rect" id="Node000007" href="$main_8ino.html#a10d67e03c1256d30140ff234d1940cdb" title=" " alt="" coords="195,265,254,293"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="67,162,102,205,126,229,152,250,181,265,179,270,149,255,122,233,98,209,63,166"/>
+</map>

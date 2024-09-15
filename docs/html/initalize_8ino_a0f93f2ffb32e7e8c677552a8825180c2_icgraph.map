@@ -1,0 +1,5 @@
+<map id="eepromRouterOptionChooser" name="eepromRouterOptionChooser">
+<area shape="rect" id="Node000001" title="Retrieves and sets the router option from EEPROM." alt="" coords="111,5,321,33"/>
+<area shape="rect" id="Node000002" href="$main_8ino.html#a4fc01d736fe50cf5b977f755b675f11d" title="Setup function, called once at program start." alt="" coords="5,5,63,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,22,63,22,63,16,95,16"/>
+</map>

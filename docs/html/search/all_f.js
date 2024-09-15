@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['savingtospiffs_0',['savingToSpiffs',['../main_8ino.html#aa34455e7ad004ade200e3ae201d5e068',1,'main.ino']]],
+  ['server_1',['server',['../main_8ino.html#a58141c4f251beaa1fee89b632d87152f',1,'main.ino']]],
+  ['setting_2',['setting',['../main_8ino.html#a40749d9db506137ca79f01c3e9eb543a',1,'main.ino']]],
+  ['settings_3',['settings',['../main_8ino.html#a665869f5560155bde680fb5646a690b0',1,'main.ino']]],
+  ['setup_4',['setup',['../main_8ino.html#a4fc01d736fe50cf5b977f755b675f11d',1,'main.ino']]],
+  ['setupblackandwhitestripedpalette_5',['SetupBlackAndWhiteStripedPalette',['../colourPalette__code_8ino.html#afea43f4d537a50569a537b9fa2bc2f26',1,'colourPalette_code.ino']]],
+  ['setuppurpleandgreenpalette_6',['SetupPurpleAndGreenPalette',['../colourPalette__code_8ino.html#aea1a93f40934fd32c715042e04540d46',1,'colourPalette_code.ino']]],
+  ['setuprandomvariablepalette_7',['SetupRandomVariablePalette',['../colourPalette__code_8ino.html#a85ace04d03aaf62d92d1118e2ae0f0d2',1,'colourPalette_code.ino']]],
+  ['setuprandomvariablepalette2_8',['SetupRandomVariablePalette2',['../colourPalette__code_8ino.html#ada18e9c106621d03f945c925516e528c',1,'colourPalette_code.ino']]],
+  ['setuptotallyrandompalette_9',['SetupTotallyRandomPalette',['../colourPalette__code_8ino.html#a0341f9e24549d5cbf47ce7c13eae9028',1,'colourPalette_code.ino']]],
+  ['setupvariablepalette_10',['SetupVariablePalette',['../colourPalette__code_8ino.html#af3b87e2ff0afd2de155aa1828c0fdf4a',1,'colourPalette_code.ino']]],
+  ['setupvariablepalette3_11',['SetupVariablePalette3',['../colourPalette__code_8ino.html#a214dec62c47bbb1636be9a08689e81cc',1,'colourPalette_code.ino']]],
+  ['setupvariablepalette5_12',['SetupVariablePalette5',['../colourPalette__code_8ino.html#aeb0ab7f3319e010d7baff00310f076d2',1,'colourPalette_code.ino']]],
+  ['setupvariablepalette6_13',['SetupVariablePalette6',['../colourPalette__code_8ino.html#afdddcfed0f8a510dd1054ca3aba37da5',1,'colourPalette_code.ino']]],
+  ['setupvariablepalette7_14',['SetupVariablePalette7',['../colourPalette__code_8ino.html#a308c9740ff434839cd3d91d45de9181d',1,'colourPalette_code.ino']]],
+  ['setupvariablestripes_15',['SetupVariableStripes',['../colourPalette__code_8ino.html#ad262ac1bc21ee954705680d1bf7e0526',1,'colourPalette_code.ino']]],
+  ['showlittlefsimage_16',['showLittleFSImage',['../showLittleFSImage_8ino.html#a89ef4fef801eea4e9d023e738477a844',1,'showLittleFSImage.ino']]],
+  ['showlittlefsimage_2eino_17',['showLittleFSImage.ino',['../showLittleFSImage_8ino.html',1,'']]],
+  ['smart_20poi_18',['Smart Poi',['../index.html',1,'']]],
+  ['start_19',['start',['../main_8ino.html#ae6fdddca074c0d901df5a4ca9a6cba15',1,'main.ino']]],
+  ['state_20',['state',['../main_8ino.html#a89f234133d3efe315836311cbf21c64b',1,'main.ino']]],
+  ['status_21',['status',['../main_8ino.html#a6e27f49150e9a14580fb313cc2777e00',1,'main.ino']]],
+  ['statuscode_22',['statusCode',['../main_8ino.html#a9c9877be1b826fab3b40ec4e74beda4e',1,'main.ino']]]
+];

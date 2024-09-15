@@ -1,0 +1,28 @@
+<map id="loop" name="loop">
+<area shape="rect" id="Node000001" title="Main loop function, called repeatedly after setup." alt="" coords="5,136,55,164"/>
+<area shape="rect" id="Node000002" href="$timeFunc_8ino.html#a3c5f9b5a2f1532d1f7d600b067ac556b" title="Changes the pattern periodically based on the set interval." alt="" coords="103,57,295,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="46,134,71,114,101,95,119,88,121,93,104,100,74,118,49,138"/>
+<area shape="rect" id="Node000003" href="$colourPalette__code_8ino.html#aa8541d32ff4ba8bcdc7912f683ebb928" title="Implements the &quot;Colour Jam&quot; pattern." alt="" coords="144,109,254,137"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="55,143,128,132,129,137,56,149"/>
+<area shape="rect" id="Node000012" href="$main_8ino.html#a58141c4f251beaa1fee89b632d87152f" title=" " alt="" coords="168,161,230,189"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="56,151,153,166,152,171,55,156"/>
+<area shape="rect" id="Node000013" href="$showLittleFSImage_8ino.html#a89ef4fef801eea4e9d023e738477a844" title=" " alt="" coords="127,213,271,241"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="49,162,74,181,104,198,121,205,119,210,101,203,71,185,46,166"/>
+<area shape="rect" id="Node000004" href="$colourPalette__code_8ino.html#a307a62e0ca7564da5ad6e6d6670e9af4" title=" " alt="" coords="348,57,547,85"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="253,109,363,86,364,91,254,114"/>
+<area shape="rect" id="Node000008" href="$colourPalette__code_8ino.html#af6f69593db64dba282962cda4db95ae6" title=" " alt="" coords="352,5,543,33"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="253,111,294,94,308,82,317,70,326,56,342,44,354,37,357,42,344,48,330,60,321,73,312,86,296,99,255,116"/>
+<area shape="rect" id="Node000009" href="$colourPalette__code_8ino.html#ae6b0ecfd96a40d5cec6d0dba0a3685fe" title=" " alt="" coords="352,109,543,137"/>
+<area shape="poly" id="edge9_Node000003_Node000009" title=" " alt="" coords="254,120,337,120,337,126,254,126"/>
+<area shape="rect" id="Node000010" href="$colourPalette__code_8ino.html#aaf883560f6fde9d29e393af62585dc98" title=" " alt="" coords="343,161,552,206"/>
+<area shape="poly" id="edge10_Node000003_Node000010" title=" " alt="" coords="254,134,338,154,337,159,253,139"/>
+<area shape="rect" id="Node000011" href="$colourPalette__code_8ino.html#af36bd534545dc126541e194079fd8486" title=" " alt="" coords="346,229,550,257"/>
+<area shape="poly" id="edge11_Node000003_Node000011" title=" " alt="" coords="255,129,276,136,297,148,313,165,321,183,329,200,345,216,352,220,349,225,341,220,325,203,316,185,309,168,293,152,274,141,253,134"/>
+<area shape="rect" id="Node000005" href="$colourPalette__code_8ino.html#af3b87e2ff0afd2de155aa1828c0fdf4a" title=" " alt="" coords="604,5,761,33"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="513,54,601,34,602,40,514,59"/>
+<area shape="rect" id="Node000006" href="$colourPalette__code_8ino.html#a214dec62c47bbb1636be9a08689e81cc" title=" " alt="" coords="600,57,765,85"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="548,68,585,68,585,74,548,74"/>
+<area shape="rect" id="Node000007" href="$colourPalette__code_8ino.html#aeb0ab7f3319e010d7baff00310f076d2" title=" " alt="" coords="600,109,765,137"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="514,83,602,103,601,108,513,88"/>
+<area shape="poly" id="edge8_Node000008_Node000005" title=" " alt="" coords="544,16,589,16,589,22,544,22"/>
+</map>

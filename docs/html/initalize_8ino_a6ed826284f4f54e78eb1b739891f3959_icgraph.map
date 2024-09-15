@@ -1,0 +1,5 @@
+<map id="fastLEDInit" name="fastLEDInit">
+<area shape="rect" id="Node000001" title="Initializes FastLED library and sets up LED strip." alt="" coords="111,5,203,33"/>
+<area shape="rect" id="Node000002" href="$main_8ino.html#a4fc01d736fe50cf5b977f755b675f11d" title="Setup function, called once at program start." alt="" coords="5,5,63,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,22,63,22,63,16,95,16"/>
+</map>

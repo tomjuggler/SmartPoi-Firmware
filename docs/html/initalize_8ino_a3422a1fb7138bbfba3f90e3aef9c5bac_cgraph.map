@@ -1,0 +1,5 @@
+<map id="eepromPatternChooser" name="eepromPatternChooser">
+<area shape="rect" id="Node000001" title="Retrieves and sets the pattern from EEPROM." alt="" coords="5,5,176,33"/>
+<area shape="rect" id="Node000002" href="$initalize_8ino.html#a51d20b0095a55a842a4817e5c3edfbd5" title="Reads and increments the pattern from EEPROM." alt="" coords="224,5,421,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,16,208,16,208,22,176,22"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="handleFileRead" name="handleFileRead">
+<area shape="rect" id="Node000001" title="Handles file read requests from the server." alt="" coords="5,31,127,58"/>
+<area shape="rect" id="Node000002" href="$webServerSetupLogic_8ino.html#ac1311527864d9a4219f50d677608e538" title=" " alt="" coords="175,5,298,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,33,159,28,160,33,127,38"/>
+<area shape="rect" id="Node000003" href="$main_8ino.html#a58141c4f251beaa1fee89b632d87152f" title=" " alt="" coords="346,31,408,58"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="127,42,331,42,331,47,127,47"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="299,28,331,34,330,39,298,33"/>
+</map>
