@@ -253,7 +253,7 @@ void readAnotherPatternEEProm()
  * @note This function is used to initialize channel and address settings from EEPROM.
  * @note Uses global variables apChannel, addrNumD, addrNumA, addrNumB, and addrNumC.
  * @note Calls other function EEPROM.read().
- * @note Valid channel values are 1-11.
+ * @note Valid channel values are 1-11 in USA.
  * @note If channel is outside the valid range, it is set to 4 (default).
  */
 void eepromReadChannelAndAddress(int addr1, int addr2, int addr3, int addr4, int addr5)
@@ -261,10 +261,10 @@ void eepromReadChannelAndAddress(int addr1, int addr2, int addr3, int addr4, int
   int readAPEeprom = int(EEPROM.read(addr1)); // read channel info (from EEPROM13) and change 
   apChannel = readAPEeprom;                   
 
-  if (apChannel > 11 || apChannel < 1)
-  {                      // 13 for SA, is it 14 for Australia?
-    EEPROM.write(11, 1); 
-    apChannel = 4;
+  if (apChannel > 11 || apChannel < 1) // 13 for SA, is it 14 for Australia? 11 for US
+  {                      
+    EEPROM.write(13, 1); 
+    apChannel = 1;
   }
   else
   {
@@ -443,7 +443,8 @@ void wifiChooser(char router_array[], char pwd_array[])
       WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
       WiFi.softAP(apName, apPass, apChannel); // use pre-set values here
       dnsServer.start(DNS_PORT, "*", apIP);   // AP mode only, surely??
-
+      // Serial.print("Wifi Setup: ");
+      // Serial.println(apPass);
       // wait for station:
       while (WiFi.softAPgetStationNum() == 0)
       {
@@ -514,9 +515,9 @@ void fastLEDInit()
 {
 
   ////////////////////////////////////////////////Fast LED Setup: ////////////////////////////////////////////////////////////////////////////////////////////////
-  // FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, BGR>(leds, NUM_LEDS); //DATA_RATE_MHZ(8)
+  FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, BGR>(leds, NUM_LEDS); //DATA_RATE_MHZ(8)
   //  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
-  LEDS.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
+  // LEDS.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
   FastLED.setBrightness(newBrightness); // should be low figure here, for startup battery saving...
 
   FastLED.showColor(CRGB::Black);

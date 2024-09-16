@@ -63,8 +63,8 @@ CRGB leds[NUM_LEDS];
 //   #define NUM_PX 72
 #define NUM_PX 120
 
-// todo: try 24000 below, 120x200
-const int maxPX = 24000;
+// 24000 is too large - oom error, 120x200
+const int maxPX = 21600; // 120x180
 // const int maxPX = 20736; //enough for 72x288 or 36x576
 // const int maxPX = 10368; //enough for 72x144 or 36x288
 // const int maxPX = 14400; //enough for 72x200 or 36x400
@@ -110,6 +110,7 @@ const unsigned int localPort = 2390; // local port to listen on
 
 byte packetBuffer[NUM_PX]; // buffer to hold incoming packet
 // char  ReplyBuffer[] = "acknowledged";       // a string to send back
+const size_t bufferSize = 1024; // Adjust buffer size as needed
 
 WiFiUDP Udp;
 
@@ -160,8 +161,6 @@ int imageChooser = 1;
 boolean preloaded = false;
 int byteCounter = 0;
 
-boolean tempSwitch = true; // testing 2 images toggle
-
 // tmp:
 IPAddress tmpGateway(192, 168, 8, 1);
 IPAddress tmpIP(192, 168, 8, 77);
@@ -173,9 +172,9 @@ int imageToUse = 0;
 // max and min images need to be saved in spiffs (settings.txt? EEProm?) and updateable via the app
 int maxImages = 52; // how many can we have? 50 is enough for big poi, memory wise
 int minImages = 0;  // start of block - change according to pattern!
-// below is a hack! need a better address system
-String images = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; // need MORE for small poi
-String bin = "a.bin";                                                             // one more than chars
+// Below is a hack! Needs a better address system. Not doing upgrade for SmartPoi, MagicPoi can have any number of files with any filename, depending on Flash size. 
+String images = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; 
+String bin = "a.bin";                                                             
 
 int uploadCounter = 1;
 
@@ -355,7 +354,7 @@ void loop()
   case 5:
   {
     minImages = 0;  // start of block
-    maxImages = 52; // end of block
+    maxImages = 62; // end of block
     bin.setCharAt(0, images.charAt(imageToUse));
     showLittleFSImage();
     break;

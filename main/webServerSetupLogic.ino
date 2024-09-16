@@ -193,6 +193,13 @@ void handleFileRead()
   return;
 }
 
+
+//test function to clear memory while uploading.
+void clearArray() {
+  memset(message1Data, 0, sizeof(message1Data));
+}
+
+
 // todo: note for the handleFileUpload function:
 /*
    need error handling
@@ -218,6 +225,8 @@ void handleFileRead()
  */
 void handleFileUpload()
 {
+  clearArray(); //todo: did this help? 
+
   if (server.uri() != "/edit")
     return;
 
@@ -245,8 +254,8 @@ void handleFileUpload()
     Serial.print("handleFileUpload Name: ");
     Serial.println(filename);
 
-    // Check if filename is a single character present in images string
-    if (filename.length() != 2 || images.indexOf(filename[1]) == -1)
+    // Check if filename is a single character present in images string eg "/a.bin"
+    if (filename.length() != 6 || images.indexOf(filename[1]) == -1) 
     {
       Serial.println("Error: Invalid filename");
       server.send(400, "text/plain", "Invalid filename");
@@ -299,7 +308,17 @@ void handleFileUpload()
     // Proceed with writing data if within the size limit
     if (fsUploadFile)
     {
-      fsUploadFile.write(upload.buf, upload.currentSize);
+      //trying buffer here: 
+      char buffer[bufferSize];
+      size_t bytesRead = upload.currentSize;
+      while (bytesRead > 0)
+      {
+        size_t chunkSize = std::min(bytesRead, bufferSize);
+        memcpy(buffer, upload.buf, chunkSize);
+        fsUploadFile.write(buffer, chunkSize);
+        bytesRead -= chunkSize;
+      }
+      // fsUploadFile.write(upload.buf, upload.currentSize);
     }
   }
   else if (upload.status == UPLOAD_FILE_END)
