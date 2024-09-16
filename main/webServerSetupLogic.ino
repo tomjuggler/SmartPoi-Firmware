@@ -308,17 +308,17 @@ void handleFileUpload()
     // Proceed with writing data if within the size limit
     if (fsUploadFile)
     {
-      //trying buffer here: 
-      char buffer[bufferSize];
-      size_t bytesRead = upload.currentSize;
-      while (bytesRead > 0)
-      {
-        size_t chunkSize = std::min(bytesRead, bufferSize);
-        memcpy(buffer, upload.buf, chunkSize);
-        fsUploadFile.write(buffer, chunkSize);
-        bytesRead -= chunkSize;
-      }
-      // fsUploadFile.write(upload.buf, upload.currentSize);
+      //trying buffer here (todo: delete this it didn't work): 
+      // char buffer[bufferSize];
+      // size_t bytesRead = upload.currentSize;
+      // while (bytesRead > 0)
+      // {
+      //   size_t chunkSize = std::min(bytesRead, bufferSize);
+      //   memcpy(buffer, upload.buf, chunkSize);
+      //   fsUploadFile.write(buffer, chunkSize);
+      //   bytesRead -= chunkSize;
+      // }
+      fsUploadFile.write(upload.buf, upload.currentSize);
     }
   }
   else if (upload.status == UPLOAD_FILE_END)
@@ -566,6 +566,18 @@ void webServerSetupLogic(String router, String pass)
                       server.send(200, "text/html", responseHTML); // sends webpage for eeprom settings if url not defined. Captive portal.
                     });
 
+  // trying to sync poi after one re-starts. todo: did it work? 
+  server.on("/resetimagetouse", []()
+            {
+              server.sendHeader("Access-Control-Allow-Origin", "*");
+              server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+              server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+              server.sendHeader("Access-Control-Allow-Credentials", "true");
+              statusCode = 200;
+              imageToUse = 0;
+              server.send(200, "text/plain", ""); 
+            });
+
   // settings - returns in format SSID, PASS, Channel, A, B, C, D, Pattern - ABCD is IP address numbers
   server.on("/returnsettings", []()
             {
@@ -583,7 +595,8 @@ void webServerSetupLogic(String router, String pass)
               // delay(100);
               int newChannel = int(EEPROM.read(13));
               content = settingsSSID + "," + settingsPASS + "," + newChannel + "," + addrNumA + "," + addrNumB + "," + addrNumC + "," + addrNumD + "," + patternChooser;
-              server.send(statusCode, "text/html", content); });
+              server.send(statusCode, "text/html", content); 
+            });
 
   // to activate in browser: http://192.168.1.78/router?router=1
   // don't forget main: http://192.168.1.1/router?router=1
@@ -635,7 +648,8 @@ void webServerSetupLogic(String router, String pass)
               EEPROM.commit(); // save for next time?
               // Serial.println("10, patternChooser saved");
               // black, this could take a while, so save power? Also an indicator...
-              FastLED.showColor(CRGB::Black); });
+              FastLED.showColor(CRGB::Black); 
+            });
 
   // Pattern settings changes
   server.on("/pattern", []()
