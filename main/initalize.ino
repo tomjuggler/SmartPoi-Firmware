@@ -425,7 +425,7 @@ void wifiChooser(char router_array[], char pwd_array[])
       WiFi.config(apIPauxillary, ipGatewayauxillary, ipSubnet, ipGatewayauxillary);
       while (WiFi.status() != WL_CONNECTED)
       {
-        if (millis() > 20000)
+        if (millis() > 10000)
         {
           // don't wait if > 1 minute!
           break;
@@ -515,9 +515,9 @@ void fastLEDInit()
 {
 
   ////////////////////////////////////////////////Fast LED Setup: ////////////////////////////////////////////////////////////////////////////////////////////////
-  FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, BGR>(leds, NUM_LEDS); //DATA_RATE_MHZ(8)
+  // FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, BGR>(leds, NUM_LEDS); //DATA_RATE_MHZ(8)
   //  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
-  // LEDS.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
+  LEDS.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
   FastLED.setBrightness(newBrightness); // should be low figure here, for startup battery saving...
 
   FastLED.showColor(CRGB::Black);
