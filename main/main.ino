@@ -54,14 +54,14 @@ boolean auxillary = false; // true for second (auxillary) poi - auxillary don't 
 
 // #define NUM_LEDS 37
 //   #define NUM_LEDS 73
-#define NUM_LEDS 121
+#define NUM_LEDS 60
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
 
 // #define NUM_PX 36
 //   #define NUM_PX 72
-#define NUM_PX 120
+#define NUM_PX 60
 
 // 24000 is too large - oom error, 120x200
 const int maxPX = 21600; // 120x180
@@ -87,7 +87,7 @@ ESP8266WebServer server(80);
 int status = WL_IDLE_STATUS;
 // char ssid[] = "RouterName"; //  your network SSID (name) - now read from SPIFFS, no need for hard coding
 // char pass[] = "RouterPassword";    // your network password (use for WPA, or use as key for WEP)
-char apName[] = "Smart_Poi7"; //"Smart_Poi_2";
+char apName[] = "Smart_Poi8"; //"Smart_Poi_2";
 char apPass[] = "SmartOne";   //"password";
 int apChannel = 1;
 int keyIndex = 0; // your network key Index number (needed only for WEP)
@@ -115,6 +115,7 @@ const size_t bufferSize = 1024; // Adjust buffer size as needed
 WiFiUDP Udp;
 
 String responseHTML;
+String upload_responseHTML;
 
 String content;
 int statusCode;

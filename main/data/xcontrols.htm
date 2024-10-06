@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poi Controls</title>
+  <img id="poiImage" class="center-image" src="" alt="Smaller Logo">
+  <style>
+    /* Add your CSS for styling here */
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    button {
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .pattern-buttons button {
+      width: auto;
+      height: 40px;
+      border-radius: 50%;
+      margin: 5px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    /* active button */
+    .pattern-buttons button.active {
+      border: 3px solid #000000;
+      /* Black border for the active pattern */
+      box-shadow: 0 0 10px #000000;
+    }
+
+    .pattern-buttons button:nth-child(1) {
+      background-color: #ff0000;
+      /* Red */
+    }
+
+    .pattern-buttons button:nth-child(2) {
+      background-color: #00ff00;
+      /* Green */
+    }
+
+    .pattern-buttons button:nth-child(3) {
+      background-color: #0000ff;
+      /* Blue */
+    }
+
+    .pattern-buttons button:nth-child(4) {
+      background-color: #ffff00;
+      /* Yellow */
+    }
+
+    .pattern-buttons button:nth-child(5) {
+      background-color: #ff00ff;
+      /* Magenta */
+    }
+
+    /* Spinner styles */
+    .spinner {
+      display: none;
+      margin: 20px auto;
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #3498db;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    #counter {
+      display: none;
+      font-size: 18px;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .center-image {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Poi Controls</h1>
+
+  <form id="routerForm" onsubmit="submitForm(event)">
+    <div class="pattern-buttons">
+      <label>
+        Change Pattern:
+        <button type="button" onclick="submitPattern('1')" style="background-color: #ff0000;">Generated</button>
+        <button type="button" onclick="submitPattern('2')" style="background-color: #00ff00;">IMG 1-5</button>
+        <button type="button" onclick="submitPattern('3')" style="background-color: #0000ff;">IMG 6-10</button>
+        <button type="button" onclick="submitPattern('4')" style="background-color: #ffff00;">IMG 10-20</button>
+        <button type="button" onclick="submitPattern('5')" style="background-color: #ff00ff;">IMG 1-52</button>
+        <button type="button" onclick="submitPattern('6')" style="background-color: #00e1ff;">On/Off Switch
+          Mode*</button>
+      </label>
+      <p>
+        <i>*Now you can switch poi on/off to change modes. Make sure to restart both poi at the same time to make sure
+          modes are in sync!</i>
+      </p>
+    </div>
+
+    <label>
+      Change Speed (seconds):
+      <input type="text" id="speedInput" placeholder="Enter speed">
+      <button type="button" onclick="submitSpeed()">Submit</button>
+    </label>
+
+    <label>
+      Change Brightness (20-255):
+      <input type="text" id="brightnessInput" placeholder="Enter brightness">
+      <button type="button" onclick="submitBrightness()">Submit</button>
+    </label>
+
+    <br>
+    <br>
+    <br>
+
+    <h2>-------------------------------------- DANGER ZONE --------------------------------------</h2>
+
+    <label>
+      Update Router Name and Password:
+      <input type="text" id="routerInput" placeholder="Enter Router Name">
+      <input type="text" id="passwordInput" placeholder="Enter Router Password">
+      <button type="button" onclick="submitRouter()">Submit</button>
+    </label>
+
+    <label>
+      Switch for Router Mode (submit unchecked to turn off):
+      <input type="checkbox" id="routerModeCheckbox" value="0">
+      <button type="button" onclick="submitRouterMode()">Submit</button>
+    </label>
+
+    <h2>-------------- -------------- -------------- ------------- -------------- -------------- --------------</h2>
+  </form>
+
+  <!-- Spinner and counter elements -->
+  <div class="spinner" id="spinner"></div>
+  <p id="counter">Scanning IP: <span id="currentIP">0</span> for poi!</p>
+
+  <label>
+    WiFi Poi IP Address Discovery (Router Mode):
+    <button id="discoverBtn">Discover POI</button> <span id="result"></span>
+  </label>
+
+  <h1>Poi Settings Data: </h1>
+  <button id="fetchBtn">Fetch Settings</button>
+  <h4>Main Poi:</h4>
+  <p>Router: <span id="router">N/A</span></p>
+  <p>Password: <span id="password">N/A</span></p>
+  <p>Channel: <span id="channel">N/A</span></p>
+  <p>Pattern: <span id="pattern">N/A</span></p>
+
+  <h4>Auxillary Poi:</h4>
+  <p>Router: <span id="routerTwo">N/A</span></p>
+  <p>Password: <span id="passwordTwo">N/A</span></p>
+  <p>Channel: <span id="channelTwo">N/A</span></p>
+  <p>Pattern: <span id="patternTwo">N/A</span></p>
+
+  <script>
+    const spinner = document.getElementById('spinner');
+    const counter = document.getElementById('counter');
+    const currentIPSpan = document.getElementById('currentIP');
+
+    let poi_one_ip = "192.168.1.1"; // Default Main Poi IP (AP Mode)
+    // const poi_one_ip = "10.0.0.5"
+    let poi_two_ip = "192.168.1.78"; // Default Auxillary Poi IP (AP Mode)
+
+    // todo: get ip addresses handler here
+
+    // settings globals: 
+    let data = "";
+    let parts = "";
+
+    let router = "";
+    let password = "";
+    let channel = "";
+    let pattern = "";
+
+    let data_two = "";
+    let parts_two = "";
+
+    let router_two = "";
+    let password_two = "";
+    let channel_two = "";
+    let pattern_two = "";
+
+    // Display the values
+    document.getElementById('routerTwo').textContent = router_two;
+    document.getElementById('passwordTwo').textContent = password_two;
+    document.getElementById('channelTwo').textContent = channel_two;
+    document.getElementById('patternTwo').textContent = pattern_two;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Fetch the current settings when the page loads
+      document.getElementById('fetchBtn').click();
+
+      // Add a slight delay to ensure the fetch completes before updating the UI
+      setTimeout(() => {
+        // Highlight the button based on the fetched pattern
+        console.log(`pattern: ${pattern}`);
+        highlightActiveButton(pattern);
+      }, 6000); // Adjust the delay if necessary
+    });
+
+
+    function submitRouter() {
+      const routerInput = document.getElementById('routerInput').value;
+      const passwordInput = document.getElementById('passwordInput').value;
+      sendRequest(`http://${poi_two_ip}/setting?ssid=${routerInput}&pwd=${passwordInput}`);
+      sendRequest(`http://${poi_one_ip}/setting?ssid=${routerInput}&pwd=${passwordInput}`);
+
+      // Add a slight delay to ensure the fetch completes before proceeding
+      setTimeout(() => {
+        // Trigger the fetchBtn click to update the current pattern first
+        document.getElementById('fetchBtn').click();
+      }, 2500); // Adjust the delay if necessary
+
+    }
+
+    function submitRouterMode() {
+      const routerMode = document.getElementById('routerModeCheckbox').checked ? '1' : '0';
+      sendRequest(`http://${poi_two_ip}/router?router=${routerMode}`);
+      sendRequest(`http://${poi_one_ip}/router?router=${routerMode}`);
+    }
+
+    function submitPattern(chosen_pattern) {
+      // Send request 
+      sendRequest(`http://${poi_two_ip}/pattern?patternChooserChange=${chosen_pattern}`);
+      sendRequest(`http://${poi_one_ip}/pattern?patternChooserChange=${chosen_pattern}`);
+
+      // Add a slight delay to ensure the fetch completes before proceeding
+      setTimeout(() => {
+        // Trigger the fetchBtn click to update the current pattern first
+        document.getElementById('fetchBtn').click();
+      }, 1500); // Adjust the delay if necessary
+
+      setTimeout(() => {
+        // Update the active button based on the selected pattern
+        highlightActiveButton(pattern);
+      }, 2500); // Adjust the delay if necessary
+    }
+
+    // Function to highlight the active pattern button
+    function highlightActiveButton(selectedPattern) {
+      // Get all the pattern buttons
+      const buttons = document.querySelectorAll('.pattern-buttons button');
+
+      // Remove the 'active' class from all buttons
+      buttons.forEach(button => {
+        button.classList.remove('active');
+      });
+
+      // Add the 'active' class to the selected button
+      if (selectedPattern >= 1 && selectedPattern <= 6) {
+        buttons[selectedPattern - 1].classList.add('active'); // Arrays are 0-indexed, hence -1
+      }
+    }
+
+    function submitSpeed() {
+      const speed = document.getElementById('speedInput').value;
+      if (speed !== '') {
+        sendRequest(`http://${poi_two_ip}/intervalChange?interval=${speed}`);
+        sendRequest(`http://${poi_one_ip}/intervalChange?interval=${speed}`);
+      }
+    }
+
+    function submitBrightness() {
+      const brightness = document.getElementById('brightnessInput').value;
+      if (brightness !== '') {
+        sendRequest(`http://${poi_two_ip}/brightness?brt=${brightness}`);
+        sendRequest(`http://${poi_one_ip}/brightness?brt=${brightness}`);
+      }
+    }
+
+    function sendRequest(url) {
+      fetch(url)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.text();
+        })
+        .then(data => {
+          console.log('Request succeeded with response:', data);
+          // Handle the response if needed
+        })
+        .catch(error => {
+          console.error('There was a problem with the fetch operation:', error);
+        });
+    }
+
+    let ip = "";
+    document.getElementById('discoverBtn').addEventListener('click', async function () {
+      // Show the spinner and counter
+      spinner.style.display = 'block';
+      counter.style.display = 'block';
+
+      const subnets = ['10.0.0.', '192.168.1.']; // Scan two subnets: 10.0.0.x and 192.168.1.x
+      // const subnets = ['10.0.0.']; // Scan one subnet: 10.0.0.x
+      const timeout = 600; // Set timeout for each request (in ms)
+      let foundDevices = 0;
+
+      for (const subnet of subnets) {
+        for (let i = 1; i <= 254; i++) {
+          ip = subnet + i;
+          currentIPSpan.innerText = ip; // Update the counter with the current IP being scanned
+
+          try {
+            const controller = new AbortController();
+            const signal = controller.signal;
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+            const response = await fetch(`http://${ip}/`, { signal });
+
+            if (response.ok) {
+              if (foundDevices === 0) {
+                poi_one_ip = ip; // Assign first device's IP
+                document.getElementById('result').innerText = `First POI found at: http://${ip}/`;
+                foundDevices++;
+              } else if (foundDevices === 1) {
+                poi_two_ip = ip; // Assign second device's IP
+                document.getElementById('result').innerText += ` | Second POI found at: http://${ip}/`;
+                foundDevices++;
+                clearTimeout(timeoutId); // Stop timeout once the second device is found
+                break; // Stop scanning when both devices are found
+              }
+            }
+          } catch (error) {
+            if (error.name === 'AbortError') {
+              console.log(`Request to ${ip} timed out`);
+            } else {
+              console.log(`Failed to connect to ${ip}: ${error.message}`);
+            }
+          }
+        }
+
+        if (foundDevices >= 2) break; // Exit the outer loop if two devices are found
+      }
+
+      // Hide spinner and counter when done
+      spinner.style.display = 'none';
+      counter.style.display = 'none';
+
+      if (foundDevices === 0) {
+        document.getElementById('result').innerText = 'No POI found on the subnet.';
+      } else if (foundDevices === 1) {
+        document.getElementById('result').innerText += ' | Only one POI found.';
+      }
+    });
+
+    document.getElementById('fetchBtn').addEventListener('click', async function () {
+      try {
+        const response = await fetch(`http://${poi_one_ip}/returnsettings`, { mode: 'cors' });
+        if (response.ok) {
+          data = await response.text();
+          parts = data.split(',');
+
+          // format is: router, password, channel, ip1, ip2, ip3, ip4, pattern
+          router = parts[0].trim();
+          password = parts[1].trim();
+          channel = parts[2].trim();
+          pattern = parts[parts.length - 1].trim(); // The last parameter is pattern
+
+          // Display the values
+          document.getElementById('router').textContent = router;
+          document.getElementById('password').textContent = password;
+          document.getElementById('channel').textContent = channel;
+          document.getElementById('pattern').textContent = pattern;
+
+          // Update the placeholders for input fields
+          document.getElementById('routerInput').placeholder = router;
+          document.getElementById('passwordInput').placeholder = password;
+
+          console.log(`got pattern in click function: ${pattern}`);
+        } else {
+          console.error('Fetch error:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+
+      try {
+        const response_two = await fetch(`http://${poi_two_ip}/returnsettings`, { mode: 'cors' });
+        if (response_two.ok) {
+          data_two = await response_two.text();
+          parts_two = data_two.split(',');
+
+          // format is: router, password, channel, ip1, ip2, ip3, ip4, pattern
+          router_two = parts_two[0].trim();
+          password_two = parts_two[1].trim();
+          channel_two = parts_two[2].trim();
+          pattern_two = parts_two[parts_two.length - 1].trim(); // The last parameter is pattern
+
+          // Display the values
+          document.getElementById('routerTwo').textContent = router_two;
+          document.getElementById('passwordTwo').textContent = password_two;
+          document.getElementById('channelTwo').textContent = channel_two;
+          document.getElementById('patternTwo').textContent = pattern_two;
+
+        } else {
+          console.error('Fetch error:', response_two.statusText);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+
+    });
+
+    function updateImage() {
+    const img = document.getElementById('poiImage');
+    img.src = `http://${poi_one_ip}/edit?file=smaller-logo.jpg`;
+  }
+
+  // Call updateImage when the page loads to set the initial image src
+  window.onload = updateImage;
+  </script>
+</body>
+
+</html>

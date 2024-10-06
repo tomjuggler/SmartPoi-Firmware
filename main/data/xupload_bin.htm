@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Uploads</title>
+    <style>
+        /* General Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        h4 {
+            font-size: 1rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Form Container */
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        .input-container input,
+        .input-container button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        .input-container button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border: none;
+        }
+
+        .input-container button:hover {
+            background-color: #0056b3;
+        }
+
+        .note {
+            font-size: 1rem;
+            color: #000000;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        /* Current pixel size indicator */
+        .current-px {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #007bff;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        /* Responsive Media Queries */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.3rem;
+            }
+
+            .input-container input,
+            .input-container button {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Upload Pics</h1>
+        <div class="input-container">
+            <input type="file" id="fileInput" accept="image/*" multiple>
+            <button id="uploadButton" onclick="handleUpload()">Upload and convert</button>
+        </div>
+        <div class="input-container">
+            <h4>Number of Pixels</h4>
+            <input type="number" id="pixelInput" value="120" min="1" max="1000">
+            <button onclick="updatePixelSize()">Submit</button>
+            <span class="current-px" id="currentPx">Current px: 120</span>
+        </div>
+        <div class="input-container">
+            <span class="note">Click on "Choose files" then click on "Upload and convert".</span>
+            <span class="note">Make sure to choose correct number of pixels.</span>
+            <span class="note">Enjoy spinning!!</span>
+        </div>
+    </div>
+
+    <script src="http://192.168.1.1/edit?file=xjimp.js"></script>
+    <script>
+        let number_of_pixels = 120; // Default Number of Pixels
+        let ws_strip = true; //using ws2812 or APA102? 
+        let poi_one_ip = "192.168.1.1"; // Default Main Poi IP (AP Mode)
+        let poi_two_ip = "192.168.1.78"; // Default Auxiliary Poi IP (AP Mode)
+
+        function updatePixelSize() {
+            const pixelInput = document.getElementById('pixelInput').value;
+            number_of_pixels = parseInt(pixelInput, 10);
+            document.getElementById('currentPx').textContent = `Current px: ${number_of_pixels}`;
+        }
+
+        function createMessage(message) {
+            const messagesDiv = document.createElement('div');
+            messagesDiv.textContent = message;
+            messagesDiv.style.backgroundColor = '#DFF0D8';
+            messagesDiv.style.padding = '10px';
+            messagesDiv.style.border = '1px solid #007bff';
+            messagesDiv.style.borderRadius = '4px';
+            messagesDiv.style.marginBottom = '10px';
+            messagesDiv.style.transition = 'opacity 0.5s';
+
+            const body = document.getElementsByTagName('body')[0];
+            body.insertBefore(messagesDiv, body.firstChild);
+
+            setTimeout(() => {
+                messagesDiv.style.opacity = 0;
+                setTimeout(() => messagesDiv.remove(), 500);
+            }, 5000);
+        }
+
+        function getCharFromIndex(index) {
+            const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            return characters.charAt(index);
+        }
+
+        async function compressImagesAndSend(files, ip) {
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const charAtIndex = getCharFromIndex(i);
+                try {
+                    createMessage("Processing " + file.name);
+                    const reader = new FileReader();
+
+                    reader.onload = async function (event) {
+                        try {
+                            const image = await Jimp.read(event.target.result);
+                            const rotatedImage = image.rotate(-90);
+                            let height;
+                            if (ws_strip) {
+                                height = rotatedImage.bitmap.height / 2; // Get half of the current height
+                            } else {
+                                height = rotatedImage.bitmap.height;
+                            }
+                            const resizedImage = rotatedImage.resize(number_of_pixels, height);
+
+                            const binaryData = [];
+                            resizedImage.scan(0, 0, resizedImage.bitmap.width, resizedImage.bitmap.height, function (x, y, idx) {
+                                const r = this.bitmap.data[idx + 0];
+                                const g = this.bitmap.data[idx + 1];
+                                const b = this.bitmap.data[idx + 2];
+                                const encoded = ((r & 0xE0) | ((g & 0xE0) >> 3) | (b >> 6));
+                                binaryData.push(encoded);
+                            });
+
+                            const fileName = charAtIndex + '.bin';
+
+                            const formData = new FormData();
+                            formData.append('file', new Blob([Buffer.from(binaryData)], { type: 'application/octet-stream' }), fileName);
+
+                            const requestOptions = {
+                                method: 'POST',
+                                body: formData,
+                            };
+
+                            await fetch('http://' + ip + '/edit', requestOptions);
+                            createMessage('File ' + file.name + ' uploaded to http://' + ip + '/edit');
+
+                        } catch (error) {
+                            console.error('Error processing image:', error);
+                        }
+                    };
+
+                    reader.readAsDataURL(file);
+
+                    // Introduce delay before moving to the next file
+                    await delay(1500); // Adjust the delay as needed (e.g., 2000ms = 2 seconds)
+
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+        }
+
+        // Helper function to create a delay
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+
+        async function handleUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const files = fileInput.files;
+
+            if (files.length > 0) {
+                createMessage('Beginning Processing and Upload');
+
+                try {
+                    // Compress and send to auxiliary POI (poi_two_ip) first
+                    await compressImagesAndSend(files, poi_two_ip);
+
+                    // Once that's done, compress and send to main POI (poi_one_ip)
+                    await compressImagesAndSend(files, poi_one_ip);
+
+                    createMessage('Processing and upload complete for both POIs');
+                } catch (error) {
+                    console.error('Error during upload process:', error);
+                }
+
+            } else {
+                alert("Please select at least one file.");
+            }
+        }
+
+    </script>
+</body>
+
+</html>

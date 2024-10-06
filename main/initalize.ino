@@ -93,9 +93,9 @@ void eepromRouterOptionChooser(int addr)
  * @note wifiModeChooser used in wifiChooser()
  */
 void eepromWifiModeChooser(int addr)
-{  
+{
   if (routerOption) // ok this is set to toggle between two modes - I guess to make sure I don't get stuck?
-  { 
+  {
     wifiModeChooser = int(EEPROM.read(addr));
     wifiModeChooser++; // take this out and it stays on router?
     if (wifiModeChooser == 2)
@@ -145,31 +145,31 @@ void eepromPatternChooser(int addr)
   if (patternChooser == 1)
   {
     pattern = 1;
-    EEPROM.write(10, 1); 
+    EEPROM.write(10, 1);
   }
   if (patternChooser == 2)
   {
     pattern = 2;
-    EEPROM.write(10, 2); 
+    EEPROM.write(10, 2);
   }
   if (patternChooser == 3)
   {
     pattern = 3;
-    EEPROM.write(10, 3); 
+    EEPROM.write(10, 3);
   }
   if (patternChooser == 4)
   {
     pattern = 4;
-    EEPROM.write(10, 4); 
+    EEPROM.write(10, 4);
   }
   if (patternChooser == 5)
   {
     pattern = 5;
-    EEPROM.write(10, 5); 
+    EEPROM.write(10, 5);
   }
   if (patternChooser == 6) // hard coded, todo: need variable here to add more patterns?
-  { 
-    EEPROM.write(10, 6); 
+  {
+    EEPROM.write(10, 6);
     readAnotherPatternEEProm(); // on/off switcher
   }
   if (patternChooser > 6)
@@ -202,24 +202,24 @@ void eepromPatternChooser(int addr)
  */
 void readAnotherPatternEEProm()
 {
-  // EEProm Pattern chooser: changes every time you restart poi 
+  // EEProm Pattern chooser: changes every time you restart poi
   pattern = int(EEPROM.read(11));
   pattern++;
   if (pattern == 2)
   {
-    EEPROM.write(11, 2); 
+    EEPROM.write(11, 2);
   }
   if (pattern == 3)
   {
-    EEPROM.write(11, 3); 
+    EEPROM.write(11, 3);
   }
   if (pattern == 4)
   {
-    EEPROM.write(11, 4); 
+    EEPROM.write(11, 4);
   }
   if (pattern == 5)
   {
-    EEPROM.write(11, 5); 
+    EEPROM.write(11, 5);
   }
   if (pattern > 5)
   {
@@ -258,27 +258,26 @@ void readAnotherPatternEEProm()
  */
 void eepromReadChannelAndAddress(int addr1, int addr2, int addr3, int addr4, int addr5)
 {
-  int readAPEeprom = int(EEPROM.read(addr1)); // read channel info (from EEPROM13) and change 
-  apChannel = readAPEeprom;                   
+  int readAPEeprom = int(EEPROM.read(addr1)); // read channel info (from EEPROM13) and change
+  apChannel = readAPEeprom;
 
   if (apChannel > 11 || apChannel < 1) // 13 for SA, is it 14 for Australia? 11 for US
-  {                      
-    EEPROM.write(13, 1); 
+  {
+    EEPROM.write(13, 1);
     apChannel = 1;
   }
   else
   {
-    
   }
   // SET IP:
-  uint8_t readAddrEeprom = uint8_t(EEPROM.read(addr2)); 
-  addrNumD = readAddrEeprom;   
-  readAddrEeprom = uint8_t(EEPROM.read(addr3)); 
-  addrNumA = readAddrEeprom;                   
-  readAddrEeprom = uint8_t(EEPROM.read(addr4)); 
-  addrNumB = readAddrEeprom;                    
+  uint8_t readAddrEeprom = uint8_t(EEPROM.read(addr2));
+  addrNumD = readAddrEeprom;
+  readAddrEeprom = uint8_t(EEPROM.read(addr3));
+  addrNumA = readAddrEeprom;
+  readAddrEeprom = uint8_t(EEPROM.read(addr4));
+  addrNumB = readAddrEeprom;
   readAddrEeprom = uint8_t(EEPROM.read(addr5));
-  addrNumC = readAddrEeprom;                    
+  addrNumC = readAddrEeprom;
 }
 
 /**
@@ -356,40 +355,44 @@ void checkFilesInSetup()
   while (dir.next())
   {
     String fileName = dir.fileName();
-    File file = dir.openFile("r");
-
-    // Check file size
-    size_t fileSize = file.size();
-    Serial.print("Checking file: ");
-    Serial.print(fileName);
-    Serial.print(" - Size: ");
-    Serial.println(fileSize);
-
-    // If file size exceeds maxPX, delete it
-    if (fileSize > maxPX)
+    // Check if file ends with ".bin"
+    if (fileName.endsWith(".bin"))
     {
-      Serial.print("File too large. Deleting: ");
-      Serial.println(fileName);
-      LittleFS.remove(fileName);
-    }
-    else
-    {
-      // Try to read a small portion of the file to detect corruption
-      uint8_t buffer[10];
-      if (file.read(buffer, sizeof(buffer)) != sizeof(buffer))
+      File file = dir.openFile("r");
+
+      // Check file size
+      size_t fileSize = file.size();
+      Serial.print("Checking file: ");
+      Serial.print(fileName);
+      Serial.print(" - Size: ");
+      Serial.println(fileSize);
+
+      // If file size exceeds maxPX, delete it
+      if (fileSize > maxPX)
       {
-        // File might be corrupted, unable to read
-        Serial.print("Corrupted file detected. Deleting: ");
+        Serial.print("File too large. Deleting: ");
         Serial.println(fileName);
         LittleFS.remove(fileName);
       }
       else
       {
-        Serial.println("File is valid.");
+        // Try to read a small portion of the file to detect corruption
+        uint8_t buffer[10];
+        if (file.read(buffer, sizeof(buffer)) != sizeof(buffer))
+        {
+          // File might be corrupted, unable to read
+          Serial.print("Corrupted file detected. Deleting: ");
+          Serial.println(fileName);
+          LittleFS.remove(fileName);
+        }
+        else
+        {
+          Serial.println("File is valid.");
+        }
       }
-    }
 
-    file.close();
+      file.close();
+    }
   }
 }
 
@@ -467,7 +470,7 @@ void wifiChooser(char router_array[], char pwd_array[])
     WiFi.mode(WIFI_STA); // disable AP on this one
     tmpIP = IPAddress(addrNumA, addrNumB, addrNumC, addrNumD);
     tmpGateway = IPAddress(addrNumA, addrNumB, addrNumC, 1); // make last another variable? YA!
-    WiFiMulti.addAP(router_array, pwd_array); 
+    WiFiMulti.addAP(router_array, pwd_array);
     byte wifiConnectAttemptCount = 0;
     byte maxWifiConnectAttemptCount = 18; // this should be in adjustable settings
 
@@ -490,10 +493,9 @@ void wifiChooser(char router_array[], char pwd_array[])
         ESP.restart(); // Note: this won't work the first time, needs manual restart!!!!!!!!
       }
     }
-    
+
     uploadCounter = 1;
   }
-
 }
 
 /**
