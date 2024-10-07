@@ -54,14 +54,14 @@ boolean auxillary = false; // true for second (auxillary) poi - auxillary don't 
 
 // #define NUM_LEDS 37
 //   #define NUM_LEDS 73
-#define NUM_LEDS 121
+#define NUM_LEDS 61
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
 
 // #define NUM_PX 36
 //   #define NUM_PX 72
-#define NUM_PX 120
+#define NUM_PX 60
 
 // 24000 is too large - oom error, 120x200
 const int maxPX = 21600; // 120x180

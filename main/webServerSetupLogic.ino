@@ -1,4 +1,18 @@
 
+/**                                                                                                                                                                  
+  * @brief Handles requests to get the number of pixels.                                                                                                              
+  *                                                                                                                                                                   
+  * This route returns the value of NUM_PX, which represents the number of LEDs.                                                                                      
+  *                                                                                                                                                                   
+  * @return Sends a 200 OK response with the number of pixels as a plain text string.                                                                                 
+  */                                                                                                                                                                  
+ void handleGetPixels() {                                                                                                                                             
+   server.sendHeader("Access-Control-Allow-Origin", "*");                                                                                                             
+   server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");                                                                       
+   server.sendHeader("Access-Control-Allow-Headers", "Content-Type");                                                                                                 
+   server.sendHeader("Access-Control-Allow-Credentials", "true");                                                                                                     
+   server.send(200, "text/plain", String(NUM_PX));                                                                                                                    
+ } 
 
 /**
  * @brief Checks if a file size exceeds the maximum allowed size on LittleFS.
@@ -15,6 +29,7 @@
  * @example checkFileSpace(10000) returns true if the file size is within the maximum allowed size
  * @example checkFileSpace(30000) returns false if the file size exceeds the maximum allowed size
  */
+
 bool checkFileSpace(size_t fileSize)
 {
   // Get total available space on LittleFS
@@ -376,6 +391,7 @@ void handleFileUpload()
  */
 void handleFileDelete()
 {
+  Serial.print("attempt at deleting file: ");
   server.sendHeader("Access-Control-Allow-Origin", "*");
   server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
   server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -388,6 +404,7 @@ void handleFileDelete()
     return server.send(500, "text/plain", "BAD PATH");
   if (!LittleFS.exists(path))
     return server.send(404, "text/plain", "FileNotFound");
+  Serial.println(path);
   LittleFS.remove(path);
   server.send(200, "text/plain", "");
   path = String();
@@ -566,6 +583,9 @@ void webServerSetupLogic(String router, String pass)
                       server.send(200, "text/html", responseHTML); // sends webpage for eeprom settings if url not defined. Captive portal.
                     });
 
+  // Add the /get-pixels route                                                                                                                                       
+  server.on("/get-pixels", HTTP_GET, handleGetPixels);
+  
   // trying to sync poi after one re-starts. todo: did it work? 
   server.on("/resetimagetouse", []()
             {

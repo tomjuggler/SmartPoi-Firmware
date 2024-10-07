@@ -2,3 +2,4 @@
 main/.vscode/*
 docs/*
 Doxyfile
+.aider*
