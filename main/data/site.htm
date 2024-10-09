@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Poi Controls</title>
+  <img id="poiImage" class="center-image" src="" alt="Smaller Logo">
   <style>
     /* Add your CSS for styling here */
     form {
@@ -48,14 +49,14 @@
     <br>
 
 
-    <h2>-------------      DANGER ZONE      --------------</h2>
+    <!-- <h2>-------------      DANGER ZONE      --------------</h2> -->
         
     
-    <label>
+    <!-- <label>
         Switch On Router Mode:
         <input type="checkbox" id="routerModeCheckbox" value="0">
         <button type="button" onclick="submitRouterMode()">Submit</button>
-      </label>
+      </label> -->
 
       <h2>-------------    -------------  -------------      ------------</h2>
   </form>
@@ -105,6 +106,14 @@
           console.error('There was a problem with the fetch operation:', error);
         });
     }
+
+function updateImage() {
+    const img = document.getElementById('poiImage');
+    img.src = `http://${poi_one_ip}/edit?file=smaller-logo.jpg`;
+  }
+
+  // Call updateImage when the page loads to set the initial image src
+  window.onload = updateImage;
   </script>
 </body>
 </html>
