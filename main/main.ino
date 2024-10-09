@@ -50,7 +50,7 @@ File settings;
 boolean auxillary = false; // true for second (auxillary) poi - auxillary don't work alone!!!
 /////////////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////HOW MANY PIXELS? 36 OR 72 - 2 variables to edit-  //////////////////
+////////////////////////////HOW MANY PIXELS? - 2 variables to edit-  //////////////////
 
 // #define NUM_LEDS 37
 //   #define NUM_LEDS 73
@@ -91,9 +91,6 @@ char apName[] = "Smart_Poi7"; //"Smart_Poi_2";
 char apPass[] = "SmartOne";   //"password";
 int apChannel = 1;
 int keyIndex = 0; // your network key Index number (needed only for WEP)
-
-// IPAddress ipBroadcast(255, 255, 255, 255);
-// IPAddress ipMulti(0, 0, 0, 0);
 
 IPAddress ipSubnet(255, 255, 255, 0);
 IPAddress ipGateway(192, 168, 8, 1);
@@ -164,7 +161,6 @@ int byteCounter = 0;
 // tmp:
 IPAddress tmpGateway(192, 168, 8, 1);
 IPAddress tmpIP(192, 168, 8, 77);
-// int testAddrNum = 77;
 
 String Field;
 
@@ -358,6 +354,18 @@ void loop()
     bin.setCharAt(0, images.charAt(imageToUse));
     showLittleFSImage();
     break;
+  }
+  case 7:
+  {
+    // do nothing - new option for use during uploading
+    Serial.print(">");
+    FastLED.delay(100);
+    yield();
+    break;
+  }
+  default:
+  {
+    yield();
   }
     // todo: add some more patterns, pattern 0...
   }

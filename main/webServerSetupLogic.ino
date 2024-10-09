@@ -1,18 +1,19 @@
 
-/**                                                                                                                                                                  
-  * @brief Handles requests to get the number of pixels.                                                                                                              
-  *                                                                                                                                                                   
-  * This route returns the value of NUM_PX, which represents the number of LEDs.                                                                                      
-  *                                                                                                                                                                   
-  * @return Sends a 200 OK response with the number of pixels as a plain text string.                                                                                 
-  */                                                                                                                                                                  
- void handleGetPixels() {                                                                                                                                             
-   server.sendHeader("Access-Control-Allow-Origin", "*");                                                                                                             
-   server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");                                                                       
-   server.sendHeader("Access-Control-Allow-Headers", "Content-Type");                                                                                                 
-   server.sendHeader("Access-Control-Allow-Credentials", "true");                                                                                                     
-   server.send(200, "text/plain", String(NUM_PX));                                                                                                                    
- } 
+/**
+ * @brief Handles requests to get the number of pixels.
+ *
+ * This route returns the value of NUM_PX, which represents the number of LEDs.
+ *
+ * @return Sends a 200 OK response with the number of pixels as a plain text string.
+ */
+void handleGetPixels()
+{
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  server.sendHeader("Access-Control-Allow-Credentials", "true");
+  server.send(200, "text/plain", String(NUM_PX));
+}
 
 /**
  * @brief Checks if a file size exceeds the maximum allowed size on LittleFS.
@@ -208,12 +209,11 @@ void handleFileRead()
   return;
 }
 
-
-//test function to clear memory while uploading.
-void clearArray() {
+// test function to clear memory while uploading.
+void clearArray()
+{
   memset(message1Data, 0, sizeof(message1Data));
 }
-
 
 // todo: note for the handleFileUpload function:
 /*
@@ -240,7 +240,7 @@ void clearArray() {
  */
 void handleFileUpload()
 {
-  clearArray(); //todo: did this help? 
+  clearArray(); // todo: did this help?
 
   if (server.uri() != "/edit")
     return;
@@ -270,7 +270,7 @@ void handleFileUpload()
     Serial.println(filename);
 
     // Check if filename is a single character present in images string eg "/a.bin"
-    if (filename.length() != 6 || images.indexOf(filename[1]) == -1) 
+    if (filename.length() != 6 || images.indexOf(filename[1]) == -1)
     {
       Serial.println("Error: Invalid filename");
       server.send(400, "text/plain", "Invalid filename");
@@ -323,16 +323,16 @@ void handleFileUpload()
     // Proceed with writing data if within the size limit
     if (fsUploadFile)
     {
-      //trying buffer here (todo: delete this it didn't work): 
-      // char buffer[bufferSize];
-      // size_t bytesRead = upload.currentSize;
-      // while (bytesRead > 0)
-      // {
-      //   size_t chunkSize = std::min(bytesRead, bufferSize);
-      //   memcpy(buffer, upload.buf, chunkSize);
-      //   fsUploadFile.write(buffer, chunkSize);
-      //   bytesRead -= chunkSize;
-      // }
+      // trying buffer here (todo: delete this it didn't work):
+      //  char buffer[bufferSize];
+      //  size_t bytesRead = upload.currentSize;
+      //  while (bytesRead > 0)
+      //  {
+      //    size_t chunkSize = std::min(bytesRead, bufferSize);
+      //    memcpy(buffer, upload.buf, chunkSize);
+      //    fsUploadFile.write(buffer, chunkSize);
+      //    bytesRead -= chunkSize;
+      //  }
       fsUploadFile.write(upload.buf, upload.currentSize);
     }
   }
@@ -583,10 +583,10 @@ void webServerSetupLogic(String router, String pass)
                       server.send(200, "text/html", responseHTML); // sends webpage for eeprom settings if url not defined. Captive portal.
                     });
 
-  // Add the /get-pixels route                                                                                                                                       
+  // Add the /get-pixels route
   server.on("/get-pixels", HTTP_GET, handleGetPixels);
-  
-  // trying to sync poi after one re-starts. todo: did it work? 
+
+  // trying to sync poi after one re-starts. todo: did it work?
   server.on("/resetimagetouse", []()
             {
               server.sendHeader("Access-Control-Allow-Origin", "*");
@@ -595,8 +595,7 @@ void webServerSetupLogic(String router, String pass)
               server.sendHeader("Access-Control-Allow-Credentials", "true");
               statusCode = 200;
               imageToUse = 0;
-              server.send(200, "text/plain", ""); 
-            });
+              server.send(200, "text/plain", ""); });
 
   // settings - returns in format SSID, PASS, Channel, A, B, C, D, Pattern - ABCD is IP address numbers
   server.on("/returnsettings", []()
@@ -615,8 +614,7 @@ void webServerSetupLogic(String router, String pass)
               // delay(100);
               int newChannel = int(EEPROM.read(13));
               content = settingsSSID + "," + settingsPASS + "," + newChannel + "," + addrNumA + "," + addrNumB + "," + addrNumC + "," + addrNumD + "," + patternChooser;
-              server.send(statusCode, "text/html", content); 
-            });
+              server.send(statusCode, "text/html", content); });
 
   // to activate in browser: http://192.168.1.78/router?router=1
   // don't forget main: http://192.168.1.1/router?router=1
@@ -668,13 +666,12 @@ void webServerSetupLogic(String router, String pass)
               EEPROM.commit(); // save for next time?
               // Serial.println("10, patternChooser saved");
               // black, this could take a while, so save power? Also an indicator...
-              FastLED.showColor(CRGB::Black); 
-            });
+              FastLED.showColor(CRGB::Black); });
 
   // Pattern settings changes
   server.on("/pattern", []()
             {
-              Serial.println("pattern change requested");
+              Serial.print("pattern change requested: ");
               server.sendHeader("Access-Control-Allow-Origin", "*");
               server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
               server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -682,28 +679,29 @@ void webServerSetupLogic(String router, String pass)
               String onAddress = server.arg("patternChooserChange"); // need to handle errors what if it's too big
               if (onAddress.length() > 0)
               {
-                EEPROM.write(10, 1); // clearing... Is this necessary? make it some sort of default then in case of errors..?
-                EEPROM.commit();
-                // change address:
-                int newPatt; // temp variable - not needed, use same one as previously:
-                newPatt = onAddress.toInt();
-                // if newPatt < max patt and also > 0 { //add this check here or null()
+                int newPatt = onAddress.toInt();
+                Serial.println(newPatt);
                 patternChooser = newPatt; // change on poi as well as saving
                 EEPROM.write(10, newPatt);
+                EEPROM.commit();
                 if (newPatt < 6 && newPatt > 0)
                 {
                   pattern = patternChooser;
                   EEPROM.write(11, newPatt);
+                  EEPROM.commit();
+                }
+                else if (newPatt == 7) // pattern option which does nothing - for uploading
+                {
+                  // black, this could take a while, so save power? Also an indicator...
+                  FastLED.showColor(CRGB::Black);
+                  pattern = patternChooser;
+                  // don't save pattern here
                 }
                 else
                 {
+                  yield();
                   // do something here??
-                  //         pattern++; //for loadPatternChooser change pattern why not! (may remove this I don't know)
                 }
-                EEPROM.commit(); // save for next time?
-                // black, this could take a while, so save power? Also an indicator...
-                //  FastLED.showColor(CRGB::Black);
-                //  loadPatternChooser();
                 content = "{\"Success\":\" your pattern is set \"}";
                 statusCode = 200;
 
@@ -712,7 +710,7 @@ void webServerSetupLogic(String router, String pass)
               }
               else
               {
-
+                Serial.println("error");
                 content = "{\"Error\":\"404 not found\"}";
                 statusCode = 404;
 
@@ -940,29 +938,28 @@ void webServerSetupLogic(String router, String pass)
               onAddress = server.arg("patternChooserChange"); // need to handle errors what if it's too big
               if (onAddress.length() > 0)
               {
-                EEPROM.write(10, 1); // clearing... Is this necessary? make it some sort of default then in case of errors..?
-                EEPROM.commit();
-                // change address:
-                int newPatt; // temp variable - not needed, use same one as previously:
-                newPatt = onAddress.toInt();
-                // if newPatt < max patt and also > 0 { //add this check here or null()
+                int newPatt = onAddress.toInt();
                 patternChooser = newPatt; // change on poi as well as saving
                 EEPROM.write(10, newPatt);
+                EEPROM.commit();
                 if (newPatt < 6 && newPatt > 0)
                 {
                   pattern = patternChooser;
                   EEPROM.write(11, newPatt);
+                  EEPROM.commit();
+                }
+                else if (newPatt == 7) // pattern option which does nothing - for uploading
+                {
+                  // black, this could take a while, so save power? Also an indicator...
+                  FastLED.showColor(CRGB::Black);
+                  pattern = patternChooser;
+                  // don't save pattern here
                 }
                 else
                 {
+                  yield();
                   // do something here??
-                  //         pattern++; //for loadPatternChooser change pattern why not! (may remove this I don't know)
                 }
-                EEPROM.commit(); // save for next time?
-                // Serial.println("10, patternChooser saved");
-                // black, this could take a while, so save power? Also an indicator...
-                //  FastLED.showColor(CRGB::Black);
-                //  loadPatternChooser();
               }
               else
               {
