@@ -52,16 +52,16 @@ boolean auxillary = false; // true for second (auxillary) poi - auxillary don't 
 
 ////////////////////////////HOW MANY PIXELS? - 2 variables to edit-  //////////////////
 
-// #define NUM_LEDS 37
+#define NUM_LEDS 37
 //   #define NUM_LEDS 73
-#define NUM_LEDS 61
+// #define NUM_LEDS 121
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
 
-// #define NUM_PX 36
+#define NUM_PX 36
 //   #define NUM_PX 72
-#define NUM_PX 60
+// #define NUM_PX 120
 
 // 24000 is too large - oom error, 120x200
 const int maxPX = 21600; // 120x180
@@ -103,13 +103,17 @@ uint8_t addrNumB = 168;
 uint8_t addrNumC = 8;
 uint8_t addrNumD = 78;
 
-const unsigned int localPort = 2390; // local port to listen on
+////////////////////////////////////// UDP CODE OPTIONAL: ///////////////////////////////////////////////////////////////////////////
+// const unsigned int localPort = 2390; // local port to listen on
 
-byte packetBuffer[NUM_PX]; // buffer to hold incoming packet
-// char  ReplyBuffer[] = "acknowledged";       // a string to send back
-const size_t bufferSize = 1024; // Adjust buffer size as needed
+// byte packetBuffer[NUM_PX]; // buffer to hold incoming packet
+// // char  ReplyBuffer[] = "acknowledged";       // a string to send back
+// const size_t bufferSize = 1024; // Adjust buffer size as needed
 
-WiFiUDP Udp;
+// WiFiUDP Udp;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 String responseHTML;
 
@@ -118,9 +122,11 @@ int statusCode;
 
 //////////////////////////////////////////////////////////////end mostly networking stuff////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////UDP CODE OPTIONAL: //////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////setup timer: ////////////////////////////////////////////////////////////////
-unsigned long previousMillis = 0; // will store last time LED was updated
-unsigned long previousMillis2 = 0;
+// unsigned long previousMillis = 0; // will store last time LED was updated
+// unsigned long previousMillis2 = 0;
+/////////////////////////////////////////////////////////////////////////////////
 unsigned long previousMillis3 = 0;
 long interval = 5000; // after this interval switch over to internal
 // above also used as interval for change of image. Todo: Need new updateable variable
@@ -226,23 +232,26 @@ void setup()
 
   // The following is related to router settings (using AP mode currently)
   littleFSLoadSettings();
-  checkFilesInSetup();
+  checkFilesInSetup(); // Check files for corruption or size issues
   fastLEDIndicate(); // indicates AP (Auxillary: Red, Main: Blue) or STA mode (Green)
-  Udp.begin(localPort);
-  // Check files for corruption or size issues
+
+  /////// UDP OPTIONAL ///////////
+  // Udp.begin(localPort);
+  
+  
 }
 
-volatile byte X;
-volatile byte Y;
-volatile byte R1;
-volatile byte G1;
-volatile byte M1;
+// volatile byte X;
+// volatile byte Y;
+// volatile byte R1;
+// volatile byte G1;
+// volatile byte M1;
 
-volatile unsigned long currentMillis = millis();
-volatile unsigned long currentMillis2 = millis();
-volatile int packetSize;
-volatile int len;
-
+// volatile unsigned long currentMillis = millis();
+// volatile unsigned long currentMillis2 = millis();
+// volatile int packetSize;
+// volatile int len;
+////////////////////////////////
 /**
  * @brief Main loop function, called repeatedly after setup.
  *
@@ -265,45 +274,49 @@ volatile int len;
  */
 void loop()
 {
+  //todo: do we need this? looks like an experiment - maybe remove start completely
   // this only works once:
-  if (start == false)
-  {
-    if (routerOption)
-    {
-      if (millis() > interval * 4)
-      { // perhaps wait a little longer...?
-        start = true;
-      }
-    }
-    else
-    {
-      if (millis() > interval * 2)
-      { // wait for less time...
-        start = true;
-      }
-    }
-  }
+  // if (start == false)
+  // {
+  //   if (routerOption)
+  //   {
+  //     if (millis() > interval * 4)
+  //     { // perhaps wait a little longer...?
+  //       start = true;
+  //     }
+  //   }
+  //   else
+  //   {
+  //     if (millis() > interval * 2)
+  //     { // wait for less time...
+  //       start = true;
+  //     }
+  //   }
+  // }
+
   dnsServer.processNextRequest();
   server.handleClient();
+  ChangePatternPeriodically(); 
 
+///////////////////////////// OPTIONAL: UDP Packet handling (STREAMING from app option): /////////////////////////////////////////////////
   //////////////////////////////////////////////////////////// check if there is no signal ////////////////////////////////////////////////
-  currentMillis = millis();
-  currentMillis2 = millis();
-  ChangePatternPeriodically();
+  // currentMillis = millis();
+  // currentMillis2 = millis();
+  
 
-  if (start)
-  {
-    //
-    if (currentMillis - previousMillis >= interval)
-    { // should not ever be true if udp is sending at correct speed!
-      //    Serial.println(millis());
-      // save the last time you checked the time
-      previousMillis = currentMillis;
-      state = 1; // udp no signal state
-    }
-  }
+  // if (start)
+  // {
+  //   //
+  //   if (currentMillis - previousMillis >= interval)
+  //   { // should not ever be true if udp is sending at correct speed!
+  //     //    Serial.println(millis());
+  //     // save the last time you checked the time
+  //     previousMillis = currentMillis;
+  //     state = 1; // udp no signal state
+  //   }
+  // }
 
-  ///////////////////////////// OPTIONAL: UDP Packet handling (STREAMING from app option): /////////////////////////////////////////////////
+  
   // if there's data available, read a packet
   //  packetSize = Udp.parsePacket();
   //  if (packetSize) // if udp packet is received:

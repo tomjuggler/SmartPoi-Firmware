@@ -391,6 +391,9 @@ void checkFilesInSetup()
 
     file.close();
   }
+  size_t remainingSpace = getRemainingSpace();
+  Serial.print("Space remaining on disk: ");
+  Serial.println(remainingSpace);
 }
 
 /**
@@ -515,9 +518,9 @@ void fastLEDInit()
 {
 
   ////////////////////////////////////////////////Fast LED Setup: ////////////////////////////////////////////////////////////////////////////////////////////////
-  // FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, BGR>(leds, NUM_LEDS); //DATA_RATE_MHZ(8)
+  FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, BGR>(leds, NUM_LEDS); //DATA_RATE_MHZ(8)
   //  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
-  LEDS.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
+  // FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
   FastLED.setBrightness(newBrightness); // should be low figure here, for startup battery saving...
 
   FastLED.showColor(CRGB::Black);

@@ -1,5 +1,6 @@
 /**
  * @brief Handles incoming UDP packets.
+ * OPTIONAL! NEEDS SOME SETUP CODE UNCOMMENTED TO WORK! 
  *
  * This function processes UDP packets, checks for configuration messages,
  * and updates the LED strip accordingly.
@@ -15,6 +16,7 @@
  * @note Calls other functions such as Udp.read(), EEPROM.write(), and FastLED.showColor().
  */
 
+/*
 void handleUDP(){
   if (currentMillis2 - previousMillis2 > interval * 2) { //message received after long wait, may be config message? check it
       // save the last time you checked the time
@@ -133,3 +135,4 @@ void handleUDP(){
     //    Udp.write(ReplyBuffer);
     //    Udp.endPacket();
 }
+*/

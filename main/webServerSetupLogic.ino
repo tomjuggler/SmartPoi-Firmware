@@ -215,16 +215,56 @@ void clearArray()
   memset(message1Data, 0, sizeof(message1Data));
 }
 
-// todo: note for the handleFileUpload function:
+
+
+/**
+ * @brief Get the total space in LittleFS (ESP8266)
+ *
+ * @return size_t Total space in bytes
+ */
+size_t getTotalSpace()
+{
+    FSInfo fs_info;
+    LittleFS.info(fs_info);
+    return fs_info.totalBytes;
+}
+
+/**
+ * @brief Get the remaining space in LittleFS (ESP8266)
+ *
+ * @return size_t Remaining space in bytes
+ */
+size_t getRemainingSpace()
+{
+    FSInfo fs_info;
+    LittleFS.info(fs_info);
+    return fs_info.totalBytes - fs_info.usedBytes;
+}
+
+/**
+ * @brief Get the used space in LittleFS (ESP8266)
+ *
+ * @return size_t Used space in bytes
+ */
+size_t getUsedSpace()
+{
+    FSInfo fs_info;
+    LittleFS.info(fs_info);
+    return fs_info.usedBytes;
+}
+
+
+// todo: notes for the handleFileUpload function:
 /*
-   need error handling
+   need more error handling
    size too big - Done
-   todo: LittleFS must not exeed bounds
+   LittleFS must not exeed bounds - Done
 
    wrong file name only upload abcdefghij... no more!- todo: did my solution to this work?
 
 
  * */
+
 /**
  * @brief Handles file uploads to LittleFS File System.
  *
@@ -320,19 +360,26 @@ void handleFileUpload()
       return;
     }
 
-    // Proceed with writing data if within the size limit
+    // Check remaining space before upload: 
+    if (fileSize > getRemainingSpace())
+    {
+      Serial.println("Error: Not enough space on disk to save file");
+
+      // Close the file and delete it
+      if (fsUploadFile)
+      {
+        fsUploadFile.close();
+        LittleFS.remove(upload.filename); // Remove the partially written file
+      }
+
+      // Send error response and return
+      server.send(500, "text/plain", "Not enough space remaining to save the file");
+      return;
+    }
+
+    // Proceed with writing data if within the size limit and we have space:
     if (fsUploadFile)
     {
-      // trying buffer here (todo: delete this it didn't work):
-      //  char buffer[bufferSize];
-      //  size_t bytesRead = upload.currentSize;
-      //  while (bytesRead > 0)
-      //  {
-      //    size_t chunkSize = std::min(bytesRead, bufferSize);
-      //    memcpy(buffer, upload.buf, chunkSize);
-      //    fsUploadFile.write(buffer, chunkSize);
-      //    bytesRead -= chunkSize;
-      //  }
       fsUploadFile.write(upload.buf, upload.currentSize);
     }
   }
