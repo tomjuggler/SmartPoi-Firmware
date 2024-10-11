@@ -95,6 +95,6 @@ void showLittleFSImage()
         {
             // No delay needed for larger LED strips
         }
-        yield(); // let's make time here for WiFi operations! 
+        // yield(); // let's make time here for WiFi operations! 
     }
 }
