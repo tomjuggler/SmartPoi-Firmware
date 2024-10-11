@@ -66,6 +66,11 @@
         <input type="text" id="brightnessInput" placeholder="Enter brightness">
         <button type="button" onclick="submitBrightness()">Submit</button>
       </label>
+
+      <label>
+        <button type="button" onclick="sync()">Sync Poi now!</button>
+        - reset both poi to display the first image
+      </label>
     </form>
     
 
@@ -141,6 +146,18 @@
         console.error('There was a problem with the fetch operation:', error);
       });
   }
+
+  async function sync() {
+      try {
+        await Promise.all([
+          sendRequest(`http://192.168.1.1/resetimagetouse`),
+          sendRequest(`http://192.168.1.78/resetimagetouse`)
+        ]);
+        console.log('Both requests completed!');
+      } catch (error) {
+        console.error('Error syncing Poi:', error);
+      }
+    }
 
   function updateImage() {
     const img = document.getElementById('poiImage');
