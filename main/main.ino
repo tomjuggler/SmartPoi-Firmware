@@ -50,22 +50,27 @@ File settings;
 boolean auxillary = false; // true for second (auxillary) poi - auxillary don't work alone!!!
 /////////////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////TYPE OF LED's to use///////////////////////////////////////
+// #define LED_APA102 //comment this line to use WS2812, uncomment for APA102
+///////////////////////////////////////////////////////////////////////////////////////
+
 ////////////////////////////HOW MANY PIXELS? - 2 variables to edit-  //////////////////
 
-#define NUM_LEDS 37
+// #define NUM_LEDS 37
 //   #define NUM_LEDS 73
-// #define NUM_LEDS 121
+#define NUM_LEDS 121
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
 
-#define NUM_PX 36
+// #define NUM_PX 36
 //   #define NUM_PX 72
-// #define NUM_PX 120
+#define NUM_PX 120
 
 // 24000 is too large - oom error, 120x200
-const int maxPX = 21600; // 120x180
-// const int maxPX = 20736; //enough for 72x288 or 36x576
+// const int maxPX = 20736 // 144x144 - very large, may be unstable?
+const int maxPX = 19200; // 120x160 - very large, may be unstable? 
+// const int maxPX = 20736; //enough for 72x288 or 36x576 - very large, may be unstable?
 // const int maxPX = 10368; //enough for 72x144 or 36x288
 // const int maxPX = 14400; //enough for 72x200 or 36x400
 
@@ -75,7 +80,7 @@ uint8_t message1Data[maxPX]; // this is much larger than our image
 int pxDown = NUM_PX;
 
 int pxAcross = pxDown; // this will change with the image
-//////////////////////////////END HOW MANY PIXELS///////////////////////
+//////////////////////////////END HOW MANY PIXELS/////////////////////////////////////////
 
 ////////////////////////////////////////////////////Mostly networking stuff: ////////////////////////////////////////////
 const byte DNS_PORT = 53;

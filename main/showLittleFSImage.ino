@@ -82,7 +82,7 @@ void showLittleFSImage()
             // Optional: Print RGB values for debugging
             // Serial.print(R1); Serial.print(", "); Serial.print(G1); Serial.print(", "); Serial.println(M1);
         }
-
+        
         // Display the current row of pixels on the LED strip
         FastLED.show();
 
@@ -95,5 +95,6 @@ void showLittleFSImage()
         {
             // No delay needed for larger LED strips
         }
+        yield(); // let's make time here for WiFi operations! 
     }
 }

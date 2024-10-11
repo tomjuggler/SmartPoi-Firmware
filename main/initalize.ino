@@ -518,9 +518,14 @@ void fastLEDInit()
 {
 
   ////////////////////////////////////////////////Fast LED Setup: ////////////////////////////////////////////////////////////////////////////////////////////////
+  // APA102 or WS2812 now defined in main.ino. comment the line #define LED_APA102 to change to WS2812
+  #ifdef LED_APA102
   FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, BGR>(leds, NUM_LEDS); //DATA_RATE_MHZ(8)
+  #else
   //  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
-  // FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
+  FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
+  #endif
+
   FastLED.setBrightness(newBrightness); // should be low figure here, for startup battery saving...
 
   FastLED.showColor(CRGB::Black);

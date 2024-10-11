@@ -1,6 +1,6 @@
 
 
-//Todo: add a function to update interval
+// Todo: add a function to update interval
 
 /**
  * @brief Changes the pattern periodically based on the set interval.
@@ -15,14 +15,18 @@
 void ChangePatternPeriodically()
 {
   unsigned long currentMillis3 = millis();
-  if (currentMillis3 - previousMillis3 >= interval) //should not ever be true if udp is sending at correct speed!
-  { 
+  if (currentMillis3 - previousMillis3 >= interval) // should not ever be true if udp is sending at correct speed!
+  {
     imageToUse++;
     previousMillis3 = currentMillis3;
     if (imageToUse > maxImages)
     {
       imageToUse = minImages;
     }
-  }  
+    Serial.print("Changed to image: ");
+    Serial.print(imageToUse);
+    Serial.print(" Pattern: ");
+    Serial.println(pattern);
+  }
+  yield();
 }
-

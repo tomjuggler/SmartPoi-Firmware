@@ -642,6 +642,7 @@ void webServerSetupLogic(String router, String pass)
               server.sendHeader("Access-Control-Allow-Credentials", "true");
               statusCode = 200;
               imageToUse = 0;
+              previousMillis3 = millis(); //re-set timer here!
               server.send(200, "text/plain", ""); });
 
   // settings - returns in format SSID, PASS, Channel, A, B, C, D, Pattern - ABCD is IP address numbers
