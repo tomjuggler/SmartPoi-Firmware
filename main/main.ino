@@ -37,7 +37,7 @@ ESP8266WiFiMulti WiFiMulti;
 #include <FastLED.h>
 
 int newBrightness = 20; // setting 20 for battery and so white is not too much! This is re-set on startup, for safety and battery
-#define DATA_PIN D2     // D2 for D1Mini, 2 for ESP-01
+#define DATA_PIN 2     // D2 for D1Mini, 2 for ESP-01
 #define CLOCK_PIN D1    // D1 for D1Mini, 0 for ESP-01
 
 File f;
@@ -51,21 +51,23 @@ boolean auxillary = false; // true for second (auxillary) poi - auxillary don't 
 /////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////TYPE OF LED's to use///////////////////////////////////////
-// #define LED_APA102 //comment this line to use WS2812, uncomment for APA102
+//#define LED_APA102 //comment this line to use WS2812, uncomment for APA102
 ///////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////HOW MANY PIXELS? - 2 variables to edit-  //////////////////
 
-// #define NUM_LEDS 37
+//#define NUM_LEDS 37
+#define NUM_LEDS 61
 //   #define NUM_LEDS 73
-#define NUM_LEDS 121
+// #define NUM_LEDS 121
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
 
-// #define NUM_PX 36
+//#define NUM_PX 36
+#define NUM_PX 60
 //   #define NUM_PX 72
-#define NUM_PX 120
+// #define NUM_PX 120
 
 // 24000 is too large - oom error, 120x200
 // const int maxPX = 20736 // 144x144 - very large, may be unstable?
@@ -92,7 +94,7 @@ ESP8266WebServer server(80);
 int status = WL_IDLE_STATUS;
 // char ssid[] = "RouterName"; //  your network SSID (name) - now read from SPIFFS, no need for hard coding
 // char pass[] = "RouterPassword";    // your network password (use for WPA, or use as key for WEP)
-char apName[] = "Smart_Poi7"; //"Smart_Poi_2";
+char apName[] = "Smart_Poi8"; //"Smart_Poi_2";
 char apPass[] = "SmartOne";   //"password";
 int apChannel = 1;
 int keyIndex = 0; // your network key Index number (needed only for WEP)
@@ -399,6 +401,3 @@ void loop()
 
   yield(); // give WiFi and other processor processes time to work
 }
-
-
-
