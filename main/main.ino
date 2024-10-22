@@ -211,7 +211,7 @@ boolean routerOption = false;
  */
 void setup()
 {
-  ESP.wdtDisable();
+  // ESP.wdtDisable();
   digitalWrite(CLOCK_PIN, LOW);
   digitalWrite(DATA_PIN, LOW);
   fastLEDInit();
