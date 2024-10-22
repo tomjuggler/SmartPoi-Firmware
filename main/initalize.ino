@@ -424,6 +424,7 @@ void wifiChooser(char router_array[], char pwd_array[])
     {
       // Serial.println("auxillary POI");
       WiFi.mode(WIFI_STA);
+      WiFi.setOutputPower(19.25);
       WiFi.begin(apName, apPass);
       WiFi.config(apIPauxillary, ipGatewayauxillary, ipSubnet, ipGatewayauxillary);
       while (WiFi.status() != WL_CONNECTED)
@@ -443,6 +444,7 @@ void wifiChooser(char router_array[], char pwd_array[])
     { // main poi here
       // Serial.println("main POI");
       WiFi.mode(WIFI_AP);
+      WiFi.setOutputPower(19.25);
       WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
       WiFi.softAP(apName, apPass, apChannel); // use pre-set values here
       dnsServer.start(DNS_PORT, "*", apIP);   // AP mode only, surely??
@@ -468,6 +470,7 @@ void wifiChooser(char router_array[], char pwd_array[])
     //////////////////////////////////////////////////////////Connect to Router here://///////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////Input Settings from Spiffs: ////////////////////////////////////////////////////////////////////
     WiFi.mode(WIFI_STA); // disable AP on this one
+    WiFi.setOutputPower(19.25);
     tmpIP = IPAddress(addrNumA, addrNumB, addrNumC, addrNumD);
     tmpGateway = IPAddress(addrNumA, addrNumB, addrNumC, 1); // make last another variable? YA!
     WiFiMulti.addAP(router_array, pwd_array); 

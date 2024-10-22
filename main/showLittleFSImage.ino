@@ -85,7 +85,7 @@ void showLittleFSImage()
         
         // Display the current row of pixels on the LED strip
         FastLED.show();
-
+        yield();
         // Optional delay depending on the number of LEDs
         if (NUM_LEDS < 72)
         {
