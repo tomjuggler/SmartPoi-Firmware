@@ -533,15 +533,6 @@ void handleFileList()
     output += String(file.name());
     output += "\"}";
     file = root.openNextFile();
-    if (output != "[")
-      output += ',';
-    bool isDir = false;
-    output += "{\"type\":\"";
-    output += (isDir) ? "dir" : "file";
-    output += "\",\"name\":\"";
-    output += String(entry.name());
-    output += "\"}";
-    entry.close();
   }
 
   output += "]";
