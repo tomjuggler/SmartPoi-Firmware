@@ -351,12 +351,12 @@ void littleFSLoadSettings()
  */
 void checkFilesInSetup()
 {
-  Dir dir = LittleFS.openDir("/");
+  File root = LittleFS.open("/");
+  File file = root.openNextFile();
 
-  while (dir.next())
+  while (file)
   {
-    String fileName = dir.fileName();
-    File file = dir.openFile("r");
+    String fileName = file.name();
 
     // Check file size
     size_t fileSize = file.size();
@@ -424,7 +424,9 @@ void wifiChooser(char router_array[], char pwd_array[])
     {
       // Serial.println("auxillary POI");
       WiFi.mode(WIFI_STA);
-      WiFi.setOutputPower(19.25);
+      #ifdef PLATFORM_ESP8266
+        WiFi.setOutputPower(19.25);
+      #endif
       WiFi.begin(apName, apPass);
       WiFi.config(apIPauxillary, ipGatewayauxillary, ipSubnet, ipGatewayauxillary);
       while (WiFi.status() != WL_CONNECTED)
@@ -444,7 +446,9 @@ void wifiChooser(char router_array[], char pwd_array[])
     { // main poi here
       // Serial.println("main POI");
       WiFi.mode(WIFI_AP);
-      WiFi.setOutputPower(19.25);
+      #ifdef PLATFORM_ESP8266
+        WiFi.setOutputPower(19.25);
+      #endif
     #ifdef PLATFORM_ESP32
       WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
     #else
@@ -474,7 +478,9 @@ void wifiChooser(char router_array[], char pwd_array[])
     //////////////////////////////////////////////////////////Connect to Router here://///////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////Input Settings from Spiffs: ////////////////////////////////////////////////////////////////////
     WiFi.mode(WIFI_STA); // disable AP on this one
-    WiFi.setOutputPower(19.25);
+    #ifdef PLATFORM_ESP8266
+      WiFi.setOutputPower(19.25);
+    #endif
     tmpIP = IPAddress(addrNumA, addrNumB, addrNumC, addrNumD);
     tmpGateway = IPAddress(addrNumA, addrNumB, addrNumC, 1); // make last another variable? YA!
     WiFiMulti.addAP(router_array, pwd_array); 

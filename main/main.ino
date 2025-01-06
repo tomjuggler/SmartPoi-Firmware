@@ -41,7 +41,7 @@ File fsUploadFile;
   #include <WebServer.h>
   #include <EEPROM.h>
   #include <WiFiMulti.h>
-  ESP32WebServer server(80);
+  WebServer server(80);
   WiFiMulti WiFiMulti;
 #else
   #include <ESP8266WiFi.h>
@@ -60,7 +60,7 @@ File fsUploadFile;
 
 int newBrightness = 20; // setting 20 for battery and so white is not too much! This is re-set on startup, for safety and battery
 #ifdef PLATFORM_ESP32
-  #define DATA_PIN 23   // Example pin for ESP32
+  #define DATA_PIN 5    // GPIO5 for ESP32
   #define CLOCK_PIN 18  // Example pin for ESP32
 #else
   #define DATA_PIN D2   // D2 for D1Mini, 2 for ESP-01
@@ -116,7 +116,6 @@ const byte DNS_PORT = 53;
 IPAddress apIP(192, 168, 1, 1);
 IPAddress apIPauxillary(192, 168, 1, 78);
 DNSServer dnsServer;
-ESP8266WebServer server(80);
 
 int status = WL_IDLE_STATUS;
 // char ssid[] = "RouterName"; //  your network SSID (name) - now read from SPIFFS, no need for hard coding
