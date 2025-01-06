@@ -34,10 +34,8 @@ void handleGetPixels()
 bool checkFileSpace(size_t fileSize)
 {
   // Get total available space on LittleFS
-  FSInfo fs_info;
-  LittleFS.info(fs_info);
-  size_t totalSpace = fs_info.totalBytes;
-  size_t availableSpace = fs_info.usedBytes;
+  size_t totalSpace = LittleFS.totalBytes();
+  size_t availableSpace = LittleFS.usedBytes();
 
   // Calculate maximum allowed file size
   size_t maxAllowedSize = totalSpace - maxPX - 1024; // reserve 24,000 bytes and some extra buffer
@@ -224,9 +222,7 @@ void clearArray()
  */
 size_t getTotalSpace()
 {
-    FSInfo fs_info;
-    LittleFS.info(fs_info);
-    return fs_info.totalBytes;
+    return LittleFS.totalBytes();
 }
 
 /**
@@ -236,9 +232,7 @@ size_t getTotalSpace()
  */
 size_t getRemainingSpace()
 {
-    FSInfo fs_info;
-    LittleFS.info(fs_info);
-    return fs_info.totalBytes - fs_info.usedBytes;
+    return LittleFS.totalBytes() - LittleFS.usedBytes();
 }
 
 /**
@@ -248,9 +242,7 @@ size_t getRemainingSpace()
  */
 size_t getUsedSpace()
 {
-    FSInfo fs_info;
-    LittleFS.info(fs_info);
-    return fs_info.usedBytes;
+    return LittleFS.usedBytes();
 }
 
 
@@ -528,13 +520,19 @@ void handleFileList()
 
   String path = server.arg("dir");
   // Serial.println("handleFileList: " + path);
-  Dir dir = LittleFS.openDir(path);
-  path = String();
-
+  File root = LittleFS.open(path);
   String output = "[";
-  while (dir.next())
+  File file = root.openNextFile();
+  
+  while (file)
   {
-    File entry = dir.openFile("r");
+    if (output != "[") output += ',';
+    output += "{\"type\":\"";
+    output += (file.isDirectory()) ? "dir" : "file";
+    output += "\",\"name\":\"";
+    output += String(file.name());
+    output += "\"}";
+    file = root.openNextFile();
     if (output != "[")
       output += ',';
     bool isDir = false;
