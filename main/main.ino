@@ -23,7 +23,9 @@
 
 // todo: change if else main/auxillary code to #ifdef syntax, to save on program space (applied at compile time)
 
-#include "user_interface.h" //for testing
+#ifdef PLATFORM_ESP8266
+  #include "user_interface.h" // ESP8266-specific header
+#endif
 
 /////////////////////////////////////FSBrowser2/////////////////////////////////////////////////
 // #include "FS.h"
