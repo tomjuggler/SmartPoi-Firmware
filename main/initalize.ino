@@ -445,7 +445,11 @@ void wifiChooser(char router_array[], char pwd_array[])
       // Serial.println("main POI");
       WiFi.mode(WIFI_AP);
       WiFi.setOutputPower(19.25);
+    #ifdef PLATFORM_ESP32
       WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+    #else
+      WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+    #endif
       WiFi.softAP(apName, apPass, apChannel); // use pre-set values here
       dnsServer.start(DNS_PORT, "*", apIP);   // AP mode only, surely??
       // Serial.print("Wifi Setup: ");
@@ -526,7 +530,11 @@ void fastLEDInit()
   FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, BGR>(leds, NUM_LEDS); //DATA_RATE_MHZ(8)
   #else
   //  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
+#ifdef PLATFORM_ESP32
   FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
+#else
+  FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
+#endif
   #endif
 
   FastLED.setBrightness(newBrightness); // should be low figure here, for startup battery saving...

@@ -1,4 +1,13 @@
 
+// Platform detection
+#if defined(ESP32)
+  #define PLATFORM_ESP32
+#elif defined(ESP8266)
+  #define PLATFORM_ESP8266
+#else
+  #error "Unsupported platform"
+#endif
+
 // ESP-01 Arduino 1.8.5 settings for this to work:
 // 80mhz flash, 160mhz clock, 26mhz crystal
 // Flash mode: DOUT (for the chips with the numbers on, V3 printed on back)
@@ -18,27 +27,43 @@
 
 /////////////////////////////////////FSBrowser2/////////////////////////////////////////////////
 // #include "FS.h"
-#include "LittleFS.h" //SPIFFS DEPRECIATED! using LittleFS now. Faster
+#include <LittleFS.h> //SPIFFS DEPRECIATED! using LittleFS now. Faster
 
 File fsUploadFile;
 
 ///////////////////////////////////End FSBrowser2////////////////////////////////////////////
 
-#include <ESP8266WiFi.h>
-#include <DNSServer.h>
-#include <ESP8266WebServer.h>
-#include <EEPROM.h>
-#include <ESP8266WiFiMulti.h>
+#ifdef PLATFORM_ESP32
+  #include <WiFi.h>
+  #include <DNSServer.h>
+  #include <WebServer.h>
+  #include <EEPROM.h>
+  #include <WiFiMulti.h>
+  ESP32WebServer server(80);
+  WiFiMulti WiFiMulti;
+#else
+  #include <ESP8266WiFi.h>
+  #include <DNSServer.h>
+  #include <ESP8266WebServer.h>
+  #include <EEPROM.h>
+  #include <ESP8266WiFiMulti.h>
+  ESP8266WebServer server(80);
+  ESP8266WiFiMulti WiFiMulti;
+#endif
 
-ESP8266WiFiMulti WiFiMulti;
 #include <WiFiUdp.h>
 
 //////////////////////////////////////////FastLED code:////////////
 #include <FastLED.h>
 
 int newBrightness = 20; // setting 20 for battery and so white is not too much! This is re-set on startup, for safety and battery
-#define DATA_PIN D2     // D2 for D1Mini, 2 for ESP-01
-#define CLOCK_PIN D1    // D1 for D1Mini, 0 for ESP-01
+#ifdef PLATFORM_ESP32
+  #define DATA_PIN 23   // Example pin for ESP32
+  #define CLOCK_PIN 18  // Example pin for ESP32
+#else
+  #define DATA_PIN D2   // D2 for D1Mini, 2 for ESP-01
+  #define CLOCK_PIN D1  // D1 for D1Mini, 0 for ESP-01
+#endif
 
 File f;
 File a;
@@ -221,7 +246,11 @@ void setup()
   Serial.println(""); // new line for readability
   Serial.println("Started");
   //////////////////////////////////////////////read eeprom settings://////////////////////////////////////////////////////////////////
+#ifdef PLATFORM_ESP32
+  EEPROM.begin(512); // Initialize EEPROM with 512 bytes
+#else
   EEPROM.begin(512);
+#endif
 
   // EEPROM storage:
   // Brightness 15, wifiMode 5, PatternChooser 10, pattern 11, apChannel 13, addrNumD 14, addrNumA 16, addrNumB 17, addrNumC 18
@@ -235,7 +264,11 @@ void setup()
 
   ///////////////////////////////////////////////////////LittleFS: /////////////////////////////////////////////////////////
   // always use this to "mount" the filesystem
+#ifdef PLATFORM_ESP32
+  bool result = LittleFS.begin(true); // Format if mount fails on ESP32
+#else
   bool result = LittleFS.begin();
+#endif
   String router;
 
   // The following is related to router settings (using AP mode currently)

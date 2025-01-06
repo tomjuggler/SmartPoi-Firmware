@@ -1,5 +1,5 @@
-Combined 36 and 72px (and now 120px) version of SmartPoi ESP8266 firmware
-Works well on D1 mini and OK on ESP-01
+Combined 36 and 72px (and now 120px) version of SmartPoi firmware for ESP8266 and ESP32
+Works well on D1 mini (ESP8266), ESP32, and OK on ESP-01
 
 see circusscientist.com for details on how to get this to work
 
@@ -10,4 +10,4 @@ To upload images and control the poi please see smartpoi-js-utilities (works in 
  
 Under active development
 
-Coming soon: "Magic Poi" for ESP32 - see http://magicpoi.circusscientist.com 
+Now supports ESP32! Also coming soon: "Magic Poi" for ESP32 - see http://magicpoi.circusscientist.com 
