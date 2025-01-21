@@ -139,7 +139,7 @@ uint8_t addrNumD = 78;
 ////////////////////////////////////// UDP CODE OPTIONAL: ///////////////////////////////////////////////////////////////////////////
 const unsigned int localPort = 2390; // local port to listen on
 
-byte packetBuffer[NUM_PX]; // buffer to hold incoming packet
+byte packetBuffer[255]; // buffer to hold incoming packet
 // char  ReplyBuffer[] = "acknowledged";       // a string to send back
 const size_t bufferSize = 1024; // Adjust buffer size as needed
 

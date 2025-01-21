@@ -28,7 +28,7 @@ void handleUDP(){
     state = 0; //udp good signal state 
 
     // read the packet into packetBufffer
-    len = Udp.read(packetBuffer, NUM_PX);
+    len = Udp.read(packetBuffer, 255);
     if (len > 0) packetBuffer[len] = 0;
     ////////////////////////////////////FastLED Code://///////////
     for (int i = 0; i < NUM_PX; i++)
