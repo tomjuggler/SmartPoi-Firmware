@@ -209,8 +209,11 @@ int maxImages = 52; // how many can we have? 50 is enough for big poi, memory wi
 int minImages = 0;  // start of block - change according to pattern!
 // Below is a hack! Needs a better address system. Not doing upgrade for SmartPoi, MagicPoi can have any number of files with any filename, depending on Flash size. 
 String images = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; 
-String bin = "a.bin";                                                             
-
+#ifndef ESP32
+  String bin = "a.bin";                                                             
+#else
+  String bin = "/a.bin";
+#endif
 int uploadCounter = 1;
 
 boolean wifiEventDetect = false;
@@ -382,7 +385,11 @@ void loop()
   {
     minImages = 0; // start of block
     maxImages = 4; // end of block
-    bin.setCharAt(0, images.charAt(imageToUse));
+    #ifndef ESP32
+      bin.setCharAt(0, images.charAt(imageToUse));
+    #else
+      bin.setCharAt(1, images.charAt(imageToUse));
+    #endif
     showLittleFSImage();
     break;
   }
@@ -390,7 +397,11 @@ void loop()
   {
     minImages = 5;  // start of block
     maxImages = 10; // end of block
-    bin.setCharAt(0, images.charAt(imageToUse));
+    #ifndef ESP32
+      bin.setCharAt(0, images.charAt(imageToUse));
+    #else
+      bin.setCharAt(1, images.charAt(imageToUse));
+    #endif
     showLittleFSImage();
     break;
   }
@@ -398,7 +409,11 @@ void loop()
   {
     minImages = 11; // start of block
     maxImages = 20; // end of block
-    bin.setCharAt(0, images.charAt(imageToUse));
+    #ifndef ESP32
+      bin.setCharAt(0, images.charAt(imageToUse));
+    #else
+      bin.setCharAt(1, images.charAt(imageToUse));
+    #endif
     showLittleFSImage();
     break;
   }
@@ -406,7 +421,11 @@ void loop()
   {
     minImages = 0;  // start of block
     maxImages = 62; // end of block
-    bin.setCharAt(0, images.charAt(imageToUse));
+    #ifndef ESP32
+      bin.setCharAt(0, images.charAt(imageToUse));
+    #else
+      bin.setCharAt(1, images.charAt(imageToUse));
+    #endif
     showLittleFSImage();
     break;
   }
