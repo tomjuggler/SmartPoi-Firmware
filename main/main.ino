@@ -78,7 +78,7 @@ boolean auxillary = false; // true for second (auxillary) poi - auxillary don't 
 /////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////TYPE OF LED's to use///////////////////////////////////////
-//#define LED_APA102 //comment this line to use WS2812, uncomment for APA102
+#define LED_APA102 //comment this line to use WS2812, uncomment for APA102
 ///////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////HOW MANY PIXELS? - 2 variables to edit-  //////////////////
@@ -86,7 +86,7 @@ boolean auxillary = false; // true for second (auxillary) poi - auxillary don't 
 //#define NUM_LEDS 37
 // #define NUM_LEDS 61
 //   #define NUM_LEDS 73
-#define NUM_LEDS 121
+#define NUM_LEDS 37
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
@@ -94,13 +94,13 @@ CRGB leds[NUM_LEDS];
 //#define NUM_PX 36
 // #define NUM_PX 60
 //   #define NUM_PX 72
-#define NUM_PX 120
+#define NUM_PX 36
 
 // 24000 is too large - oom error, 120x200
 // const int maxPX = 20736 // 144x144 - very large, may be unstable?
-const int maxPX = 19200; // 120x160 - very large, may be unstable? 
+// const int maxPX = 19200; // 120x160 - very large, may be unstable? 
 // const int maxPX = 20736; //enough for 72x288 or 36x576 - very large, may be unstable?
-// const int maxPX = 10368; //enough for 72x144 or 36x288
+const int maxPX = 10368; //enough for 72x144 or 36x288
 // const int maxPX = 14400; //enough for 72x200 or 36x400
 
 // lets try using a maximum number of pixels so very large array to hold any number:
@@ -137,13 +137,13 @@ uint8_t addrNumC = 8;
 uint8_t addrNumD = 78;
 
 ////////////////////////////////////// UDP CODE OPTIONAL: ///////////////////////////////////////////////////////////////////////////
-// const unsigned int localPort = 2390; // local port to listen on
+const unsigned int localPort = 2390; // local port to listen on
 
-// byte packetBuffer[NUM_PX]; // buffer to hold incoming packet
-// // char  ReplyBuffer[] = "acknowledged";       // a string to send back
-// const size_t bufferSize = 1024; // Adjust buffer size as needed
+byte packetBuffer[NUM_PX]; // buffer to hold incoming packet
+// char  ReplyBuffer[] = "acknowledged";       // a string to send back
+const size_t bufferSize = 1024; // Adjust buffer size as needed
 
-// WiFiUDP Udp;
+WiFiUDP Udp;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -157,8 +157,8 @@ int statusCode;
 
 ////////////////////////////////////////////////////////UDP CODE OPTIONAL: //////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////setup timer: ////////////////////////////////////////////////////////////////
-// unsigned long previousMillis = 0; // will store last time LED was updated
-// unsigned long previousMillis2 = 0;
+unsigned long previousMillis = 0; // will store last time LED was updated
+unsigned long previousMillis2 = 0;
 /////////////////////////////////////////////////////////////////////////////////
 unsigned long previousMillis3 = 0;
 long interval = 5000; // after this interval switch over to internal
@@ -278,21 +278,21 @@ void setup()
   fastLEDIndicate(); // indicates AP (Auxillary: Red, Main: Blue) or STA mode (Green)
 
   /////// UDP OPTIONAL ///////////
-  // Udp.begin(localPort);
+  Udp.begin(localPort);
   
   
 }
 
-// volatile byte X;
-// volatile byte Y;
-// volatile byte R1;
-// volatile byte G1;
-// volatile byte M1;
+volatile byte X;
+volatile byte Y;
+volatile byte R1;
+volatile byte G1;
+volatile byte M1;
 
-// volatile unsigned long currentMillis = millis();
-// volatile unsigned long currentMillis2 = millis();
-// volatile int packetSize;
-// volatile int len;
+volatile unsigned long currentMillis = millis();
+volatile unsigned long currentMillis2 = millis();
+volatile int packetSize;
+volatile int len;
 ////////////////////////////////
 /**
  * @brief Main loop function, called repeatedly after setup.
@@ -342,31 +342,31 @@ void loop()
 
 ///////////////////////////// OPTIONAL: UDP Packet handling (STREAMING from app option): /////////////////////////////////////////////////
   //////////////////////////////////////////////////////////// check if there is no signal ////////////////////////////////////////////////
-  // currentMillis = millis();
-  // currentMillis2 = millis();
+  currentMillis = millis();
+  currentMillis2 = millis();
   
 
-  // if (start)
-  // {
-  //   //
-  //   if (currentMillis - previousMillis >= interval)
-  //   { // should not ever be true if udp is sending at correct speed!
-  //     //    Serial.println(millis());
-  //     // save the last time you checked the time
-  //     previousMillis = currentMillis;
-  //     state = 1; // udp no signal state
-  //   }
-  // }
+  if (start)
+  {
+    //
+    if (currentMillis - previousMillis >= interval)
+    { // should not ever be true if udp is sending at correct speed!
+      //    Serial.println(millis());
+      // save the last time you checked the time
+      previousMillis = currentMillis;
+      state = 1; // udp no signal state
+    }
+  }
 
   
   // if there's data available, read a packet
-  //  packetSize = Udp.parsePacket();
-  //  if (packetSize) // if udp packet is received:
-  //  {
-  //    handleUdp();
-  //  }
-  //  else if (!packetSize && state == 1)
-  //  { // this is backup, if udp not received ie: connection dropped for > interval millisecs
+   packetSize = Udp.parsePacket();
+   if (packetSize) // if udp packet is received:
+   {
+     handleUDP();
+   }
+   else if (!packetSize && state == 1)
+   { // this is backup, if udp not received ie: connection dropped for > interval millisecs
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   switch (pattern)
@@ -426,12 +426,12 @@ void loop()
   }
 
   ///////////////////////////////////// Optional: UDP Parse packet (streaming) code: ///////////////////////////////////////////////////
-  //    yield(); // this is to give WiFi process control for tasks
-  //  }
-  //  else {
-  //    //    //Serial.println("/");
-  //    //nothing for <interval> seconds wait for signal
-  //  }
+     yield(); // this is to give WiFi process control for tasks
+   }
+   else {
+     //    //Serial.println("/");
+     //nothing for <interval> seconds wait for signal
+   }
   ///////////////////////////////////// End optional UDP code //////////////////////////////////////////////////////////////////////////
 
   yield(); // give WiFi and other processor processes time to work
