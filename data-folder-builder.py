@@ -2,7 +2,7 @@ import os
 from littlefs import LittleFS
 
 # Create a LittleFS filesystem object
-fs = LittleFS(block_size=4096, block_count=256)  # 1MB filesystem
+fs = LittleFS(block_size=4096, block_count=512)  # 2MB filesystem
 
 # Directory to create the image from
 data_dir = "main/data"
