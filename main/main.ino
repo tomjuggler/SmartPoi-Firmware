@@ -270,10 +270,20 @@ void setup()
   // always use this to "mount" the filesystem
 #ifdef PLATFORM_ESP32
   bool result = LittleFS.begin(true); // Format if mount fails on ESP32
+  if (!result) {
+  Serial.println("Failed to mount LittleFS, attempting to format...");
+  LittleFS.format();
+  result = LittleFS.begin(true);
+  if (!result) {
+    Serial.println("Failed to format LittleFS");
+  } else {
+    Serial.println("LittleFS formatted successfully");
+  }
+}
 #else
   bool result = LittleFS.begin();
 #endif
-  String router;
+  String router; //todo: not used? 
 
   // The following is related to router settings (using AP mode currently)
   littleFSLoadSettings();
