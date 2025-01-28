@@ -6,4 +6,4 @@ Doxyfile
 PlatformIO/*
 image.bin
 utilities/venv/*
-
+main/build/*
