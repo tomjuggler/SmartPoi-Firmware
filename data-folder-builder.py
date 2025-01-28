@@ -5,6 +5,7 @@ import argparse
 from pathlib import Path
 from littlefs import LittleFS
 import subprocess
+import time
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -129,24 +130,27 @@ def compile_and_upload_sketch(config):
         # Compile the sketch
         logger.info("Starting Arduino sketch compilation...")
         logger.info(f"Expected output directory: {output_dir}")
-        compile_result = subprocess.run(
-            [
-                str(arduino_cli_path),
-                "compile",
-                "--fqbn", config['fqbn'],
-                "--libraries", config['library_path'],
-                "--output-dir", str(output_dir),
-                "--build-property", f"partitions={config['partition_file']}",
-                config['sketch_path']
-            ],
-            check=True,
-            capture_output=True,
-            text=True
-        )
-        
-        logger.info("arduino-cli compile output:\n" + compile_result.stdout)
-        if compile_result.stderr:
-            logger.warning("arduino-cli compile warnings:\n" + compile_result.stderr)
+        # Identify the generated binary file
+        binary_files = list(output_dir.glob("*.bin"))
+        if not binary_files:
+            compile_result = subprocess.run(
+                [
+                    str(arduino_cli_path),
+                    "compile",
+                    "--fqbn", config['fqbn'],
+                    "--libraries", config['library_path'],
+                    "--output-dir", str(output_dir),
+                    "--build-property", f"partitions={config['partition_file']}",
+                    config['sketch_path']
+                ],
+                check=True,
+                capture_output=True,
+                text=True
+            )
+            
+            logger.info("arduino-cli compile output:\n" + compile_result.stdout)
+            if compile_result.stderr:
+                logger.warning("arduino-cli compile warnings:\n" + compile_result.stderr)
 
         # Identify the generated binary file
         binary_files = list(output_dir.glob("*.bin"))
@@ -193,7 +197,7 @@ def main():
         'block_count': 512,
         'output_file': 'image.bin',
         'venv_path': 'utilities/venv',
-        'esptool_path':'/home/tom/.platformio/packages/tool-esptoolpy/esptool.py',
+        'esptool_path':'/home/tom/.arduino15/packages/esp32/tools/esptool_py/4.6/esptool.py',
         'chip_type': 'esp32s3',
         'serial_port': '/dev/ttyACM0',
         'baud_rate': 921600,
@@ -219,7 +223,7 @@ def main():
         logger.info("Arduino sketch uploaded successfully")
     else:
         logger.error("Arduino sketch upload failed")
-
+    time.sleep(10)
     # Create and upload LittleFS image
     builder = LittleFSBuilder(config)
     if builder.create_image(args.data_dir):
