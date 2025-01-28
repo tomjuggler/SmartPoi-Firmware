@@ -1,4 +1,7 @@
 import os
+import subprocess
+import sys
+
 from littlefs import LittleFS
 
 # Create a LittleFS filesystem object
@@ -25,16 +28,32 @@ print("LittleFS image 'image.bin' created successfully.")
 
 # Construct the path to esptool.py within the virtual environment
 venv_path = "utilities/venv"  # Replace with your virtual environment directory if different
-esptool_path = os.path.join(venv_path, "Scripts", "esptool.py") # Windows
+
+# Determine the correct esptool.py path based on the operating system
+if sys.platform == "win32":
+    esptool_path = os.path.join(venv_path, "Scripts", "esptool.py")  # Windows
+else:
+    esptool_path = os.path.join(venv_path, "bin", "esptool.py")  # Linux/macOS
+
+# Check if esptool.py exists
 if not os.path.exists(esptool_path):
-    esptool_path = os.path.join(venv_path, "bin", "esptool.py") # Linux/macOS
+    print(f"Error: esptool.py not found at '{esptool_path}'. Check your virtual environment path.")
+    sys.exit(1)
 
 # Upload using esptool.py from the virtual environment
 try:
-    esptool_process = subprocess.run([
-        esptool_path, "--chip", "esp32", "--port", "/dev/ttyACM0", "--baud", "921600",
-        "write_flash", "0x200000", "image.bin"
-    ], check=True, capture_output=True, text=True)
+    esptool_process = subprocess.run(
+        [
+            esptool_path,
+            "--chip", "esp32s3",  # Updated chip type to esp32s3
+            "--port", "/dev/ttyACM0",  # Replace with your serial port
+            "--baud", "921600",
+            "write_flash", "0x200000", "image.bin"  # Replace with your LittleFS image path
+        ],
+        check=True,
+        capture_output=True,
+        text=True
+    )
     print("esptool.py output:")
     print(esptool_process.stdout)
     if esptool_process.stderr:
@@ -44,6 +63,5 @@ try:
 except subprocess.CalledProcessError as e:
     print(f"Error uploading with esptool.py: {e}")
     print(e.stderr)  # Print esptool's error output
-except FileNotFoundError:
-    print(f"Error: esptool.py not found at '{esptool_path}'. Check your virtual environment path.")
-
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
