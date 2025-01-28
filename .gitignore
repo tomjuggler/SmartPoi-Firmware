@@ -4,3 +4,6 @@ docs/*
 Doxyfile
 .aider*
 PlatformIO/*
+image.bin
+utilities/venv/*
+

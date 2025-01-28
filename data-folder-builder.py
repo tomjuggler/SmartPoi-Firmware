@@ -1,67 +1,122 @@
 import os
-import subprocess
 import sys
-
+import logging
+import argparse
+from pathlib import Path
 from littlefs import LittleFS
-
-# Create a LittleFS filesystem object
-fs = LittleFS(block_size=4096, block_count=512)  # 2MB filesystem
-
-# Directory to create the image from
-data_dir = "main/data"
-
-# Iterate through files in the data directory
-for filename in os.listdir(data_dir):
-    filepath = os.path.join(data_dir, filename)
-    # Open each file and write it to the LittleFS image
-    with open(filepath, "rb") as f, fs.open(filename, "wb") as outfile:
-        outfile.write(f.read())
-
-# Write the LittleFS image to a file
-with open("image.bin", "wb") as fh:
-    fh.write(fs.context.buffer)
-
 import subprocess
-import os
 
-print("LittleFS image 'image.bin' created successfully.")
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-# Construct the path to esptool.py within the virtual environment
-venv_path = "utilities/venv"  # Replace with your virtual environment directory if different
+class LittleFSBuilder:
+    def __init__(self, config):
+        self.config = config
+        self.fs = LittleFS(block_size=config['block_size'], block_count=config['block_count'])
 
-# Determine the correct esptool.py path based on the operating system
-if sys.platform == "win32":
-    esptool_path = os.path.join(venv_path, "Scripts", "esptool.py")  # Windows
-else:
-    esptool_path = os.path.join(venv_path, "bin", "esptool.py")  # Linux/macOS
+    def create_image(self, data_dir):
+        """Create LittleFS image from directory"""
+        try:
+            data_path = Path(data_dir)
+            if not data_path.exists():
+                raise FileNotFoundError(f"Data directory not found: {data_dir}")
 
-# Check if esptool.py exists
-if not os.path.exists(esptool_path):
-    print(f"Error: esptool.py not found at '{esptool_path}'. Check your virtual environment path.")
-    sys.exit(1)
+            for filename in data_path.iterdir():
+                if filename.is_file():
+                    self._add_file_to_image(filename)
+            
+            self._write_image()
+            logger.info("LittleFS image created successfully")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to create image: {str(e)}")
+            return False
 
-# Upload using esptool.py from the virtual environment
-try:
-    esptool_process = subprocess.run(
-        [
-            esptool_path,
-            "--chip", "esp32s3",  # Updated chip type to esp32s3
-            "--port", "/dev/ttyACM0",  # Replace with your serial port
-            "--baud", "921600",
-            "write_flash", "0x200000", "image.bin"  # Replace with your LittleFS image path
-        ],
-        check=True,
-        capture_output=True,
-        text=True
-    )
-    print("esptool.py output:")
-    print(esptool_process.stdout)
-    if esptool_process.stderr:
-        print("esptool.py errors:")
-        print(esptool_process.stderr)
+    def _add_file_to_image(self, filepath):
+        """Add a single file to the filesystem"""
+        try:
+            with filepath.open("rb") as f:
+                with self.fs.open(filepath.name, "wb") as outfile:
+                    outfile.write(f.read())
+            logger.debug(f"Added file: {filepath.name}")
+        except Exception as e:
+            logger.error(f"Failed to add file {filepath.name}: {str(e)}")
+            raise
 
-except subprocess.CalledProcessError as e:
-    print(f"Error uploading with esptool.py: {e}")
-    print(e.stderr)  # Print esptool's error output
-except Exception as e:
-    print(f"An unexpected error occurred: {e}")
+    def _write_image(self):
+        """Write filesystem to output file"""
+        try:
+            with open(self.config['output_file'], "wb") as fh:
+                fh.write(self.fs.context.buffer)
+        except Exception as e:
+            logger.error(f"Failed to write image: {str(e)}")
+            raise
+
+def upload_image(config):
+    """Upload image using esptool"""
+    try:
+        esptool_path = Path(config['venv_path']) / ("Scripts" if sys.platform == "win32" else "bin") / "esptool.py"
+        
+        if not esptool_path.exists():
+            raise FileNotFoundError(f"esptool.py not found at {esptool_path}")
+
+        result = subprocess.run(
+            [
+                str(esptool_path),
+                "--chip", config['chip_type'],
+                "--port", config['serial_port'],
+                "--baud", str(config['baud_rate']),
+                "write_flash", config['flash_address'], config['output_file']
+            ],
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        
+        logger.info("esptool.py output:\n" + result.stdout)
+        if result.stderr:
+            logger.warning("esptool.py warnings:\n" + result.stderr)
+            
+        return True
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Upload failed: {e.stderr}")
+        return False
+    except Exception as e:
+        logger.error(f"Upload error: {str(e)}")
+        return False
+
+def main():
+    # Configuration (could be moved to a separate config file)
+    config = {
+        'block_size': 4096,
+        'block_count': 512,
+        'output_file': 'image.bin',
+        'venv_path': 'utilities/venv',
+        'chip_type': 'esp32s3',
+        'serial_port': '/dev/ttyACM0',
+        'baud_rate': 921600,
+        'flash_address': '0x200000'
+    }
+
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="Build and upload LittleFS image")
+    parser.add_argument('data_dir', help="Directory containing files to include")
+    parser.add_argument('--port', help="Serial port to use")
+    args = parser.parse_args()
+
+    if args.port:
+        config['serial_port'] = args.port
+
+    # Create and upload image
+    builder = LittleFSBuilder(config)
+    if builder.create_image(args.data_dir):
+        if upload_image(config):
+            logger.info("Process completed successfully")
+        else:
+            logger.error("Upload failed")
+    else:
+        logger.error("Image creation failed")
+
+if __name__ == "__main__":
+    main()
