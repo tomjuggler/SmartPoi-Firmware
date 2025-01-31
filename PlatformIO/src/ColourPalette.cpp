@@ -23,6 +23,7 @@ const CRGBPalette16 myRedWhiteBluePalette_p PROGMEM =
 
 CRGBPalette16 currentPalette;
 TBlendType currentBlending = NOBLEND;
+int paletteVar = 1;
 
 void FillLEDsFromPaletteColors(uint8_t colorIndex)
 {
