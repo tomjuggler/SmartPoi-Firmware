@@ -42,6 +42,8 @@ extern WiFiUDP Udp;
 extern DNSServer dnsServer;
 extern WebServer server;
 extern int newBrightness;  // Declaration for brightness control variable
+extern bool routerOption;  // Declaration for router configuration flag
+extern int wifiModeChooser;  // Declaration for WiFi mode selection
 
 // Shared Functions
 void fastLEDInit();
