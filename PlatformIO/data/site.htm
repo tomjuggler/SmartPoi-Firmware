@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <style>
+    .centered-container {
+      display: flex;
+      flex-direction: column;
+      /* This stacks the elements vertically */
+      align-items: center;
+      /* This centers the elements horizontally */
+      justify-content: center;
+      /* This centers the elements vertically */
+    }
+
+    body {
+      background-color: #222;
+      /* Dark color code */
+      color: #fff;
+      /* White text color for contrast */
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    button {
+      padding: 10px;
+      cursor: pointer;
+    }
+  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poi Controls</title>
+  <div class="centered-container">
+    <img id="poiImage" class="center-image" src="" alt="Smaller Logo">
+  </div>
+</head>
+
+<body>
+  <div class="centered-container">
+    <h1>Poi Controls</h1>
+
+    <form id="routerForm" onsubmit="submitForm(event)">
+      <label>
+        Pattern:
+        <input type="radio" name="pattern" value="1" checked> 1
+        <input type="radio" name="pattern" value="2"> 2
+        <input type="radio" name="pattern" value="3"> 3
+        <input type="radio" name="pattern" value="4"> 4
+        <input type="radio" name="pattern" value="5"> 5
+        <input type="radio" name="pattern" value="6"> 6
+        <input type="radio" name="pattern" value="7"> 7
+        <button type="button" onclick="submitPattern()">Submit</button>
+      </label>
+
+      <label>
+        Speed (seconds):
+        <input type="text" id="speedInput" placeholder="Enter speed">
+        <button type="button" onclick="submitSpeed()">Submit</button>
+      </label>
+
+      <label>
+        Brightness (20-255):
+        <input type="text" id="brightnessInput" placeholder="Enter brightness">
+        <button type="button" onclick="submitBrightness()">Submit</button>
+      </label>
+
+      <label>
+        <button type="button" onclick="sync()">Sync Poi now!</button>
+        - reset both poi to display the first image
+      </label>
+    </form>
+    
+
+
+    <!-- <h2>-------------      DANGER ZONE      --------------</h2> -->
+
+
+    <!-- <label>
+        Switch On Router Mode:
+        <input type="checkbox" id="routerModeCheckbox" value="0">
+        <button type="button" onclick="submitRouterMode()">Submit</button>
+      </label> -->
+
+    <h2>------------- ------------- ------------- ------------</h2>
+    <h2>Patterns:</h2>
+    <ol>
+      <li>Computer generated</li>
+      <li>Images 1-5</li>
+      <li>Images 6-10</li>
+      <li>Images 10-20</li>
+      <li>Images 1-62</li>
+      <li>On/Off Switch (pattern changes from 1-5 every time you re-start poi)</li>
+      <li>LED's OFF</li>
+    </ol>
+    <h2>------------- ------------- ------------- ------------</h2>
+
+  </div>
+</body>
+</form>
+
+<script>
+  function submitRouterMode() {
+    const routerMode = document.getElementById('routerModeCheckbox').checked ? '0' : '1';
+    sendRequest(`http://192.168.1.1/router?router=${routerMode}`);
+    sendRequest(`http://192.168.1.78/router?router=${routerMode}`);
+  }
+
+  function submitPattern() {
+    const pattern = document.querySelector('input[name="pattern"]:checked').value;
+    sendRequest(`http://192.168.1.1/pattern?patternChooserChange=${pattern}`);
+    sendRequest(`http://192.168.1.78/pattern?patternChooserChange=${pattern}`);
+  }
+
+  function submitSpeed() {
+    const speed = document.getElementById('speedInput').value;
+    if (speed !== '') {
+      sendRequest(`http://192.168.1.1/intervalChange?interval=${speed}`);
+      sendRequest(`http://192.168.1.78/intervalChange?interval=${speed}`);
+    }
+  }
+
+  function submitBrightness() {
+    const brightness = document.getElementById('brightnessInput').value;
+    if (brightness !== '') {
+      sendRequest(`http://192.168.1.1/brightness?brt=${brightness}`);
+      sendRequest(`http://192.168.1.78/brightness?brt=${brightness}`);
+    }
+  }
+
+  function sendRequest(url) {
+    fetch(url)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.text();
+      })
+      .then(data => {
+        console.log('Request succeeded with response:', data);
+        // Handle the response if needed
+      })
+      .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+      });
+  }
+
+  async function sync() {
+      try {
+        await Promise.all([
+          sendRequest(`http://192.168.1.1/resetimagetouse`),
+          sendRequest(`http://192.168.1.78/resetimagetouse`)
+        ]);
+        console.log('Both requests completed!');
+      } catch (error) {
+        console.error('Error syncing Poi:', error);
+      }
+    }
+
+  function updateImage() {
+    const img = document.getElementById('poiImage');
+    img.src = `http://192.168.1.1/edit?file=smaller-logo.jpg`;
+  }
+
+  // Call updateImage when the page loads to set the initial image src
+  window.onload = updateImage;
+</script>
+
+
+</html>
