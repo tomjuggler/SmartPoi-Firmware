@@ -3,7 +3,8 @@ main/.vscode/*
 docs/*
 Doxyfile
 .aider*
-PlatformIO/*
+PlatformIO/.vscode/*
+PlatformIO/.pio/*
 image.bin
 utilities/venv/*
 main/build/*
