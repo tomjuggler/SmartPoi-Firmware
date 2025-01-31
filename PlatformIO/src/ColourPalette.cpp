@@ -1,7 +1,7 @@
 #include "ColourPalette.h"
 #include "Globals.h"
 
-const TProgmemPalette16 myRedWhiteBluePalette_p PROGMEM =
+const CRGBPalette16 myRedWhiteBluePalette_p PROGMEM =
 {
   CRGB::Red,
   CRGB::Gray,
