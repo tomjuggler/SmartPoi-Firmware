@@ -41,6 +41,7 @@ extern CRGB leds[NUM_LEDS];
 extern WiFiUDP Udp;
 extern DNSServer dnsServer;
 extern WebServer server;
+extern int newBrightness;  // Declaration for brightness control variable
 
 // Shared Functions
 void fastLEDInit();
