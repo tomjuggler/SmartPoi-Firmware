@@ -1,50 +1,32 @@
-#include <Arduino.h>
-#include <LittleFS.h>
-#include <WiFi.h>
-#include <DNSServer.h>
-#include <WebServer.h>
-#include <EEPROM.h>
-#include <WiFiUdp.h>
-#include <FastLED.h>
+#include "Globals.h"
+#include "UDPHandler.h"
+#include "Initialize.h"
+#include "ColourPalette.h"
+#include "ShowLittleFSImage.h"
+#include "TimeFunc.h"
 
-// Function prototypes
-void handleUDP();
-void showLittleFSImage();
-void funColourJam();
-void fastLEDInit();
-void fastLEDIndicate();
-void fastLEDIndicateFast();
-void eepromBrightnessChooser(uint8_t address);
-void eepromRouterOptionChooser(uint8_t address);
-void eepromWifiModeChooser(uint8_t address);
-void eepromPatternChooser(uint8_t address);
-void eepromReadChannelAndAddress(uint8_t channelAddr, uint8_t dAddr, uint8_t aAddr, uint8_t bAddr, uint8_t cAddr);
-void littleFSLoadSettings();
-void checkFilesInSetup();
-void ChangePatternPeriodically();
-void sendTestMessage();
-
-// Move global variables
-File fsUploadFile;
+// Global Variable Definitions
 CRGB leds[NUM_LEDS];
+WiFiUDP Udp;
+DNSServer dnsServer;
+WebServer server(80);
+
+// Additional global variables
+File fsUploadFile;
 File f;
 File a;
 File settings;
-boolean auxillary = false;
-int newBrightness = 20;
-const int maxPX = 10368;
-uint8_t message1Data[maxPX];
+bool auxillary = false;
+int newBrightness = DEFAULT_BRIGHTNESS;
+uint8_t message1Data[MAX_PX];
 int pxDown = NUM_PX;
 int pxAcross = pxDown;
-const byte DNS_PORT = 53;
 IPAddress apIP(192, 168, 1, 1);
 IPAddress apIPauxillary(192, 168, 1, 78);
-DNSServer dnsServer;
 int status = WL_IDLE_STATUS;
 char apName[] = "Smart_Poi7";
 char apPass[] = "SmartOne";
 int apChannel = 1;
-int keyIndex = 0;
 IPAddress ipSubnet(255, 255, 255, 0);
 IPAddress ipGateway(192, 168, 8, 1);
 IPAddress ipGatewayauxillary(192, 168, 1, 1);
@@ -53,10 +35,7 @@ uint8_t addrNumA = 192;
 uint8_t addrNumB = 168;
 uint8_t addrNumC = 8;
 uint8_t addrNumD = 78;
-const unsigned int localPort = 2390;
 byte packetBuffer[255];
-const size_t bufferSize = 1024;
-WiFiUDP Udp;
 String responseHTML;
 String content;
 int statusCode;
@@ -64,15 +43,15 @@ unsigned long previousMillis = 0;
 unsigned long previousMillis2 = 0;
 unsigned long previousMillis3 = 0;
 long interval = 5000;
-boolean checkit = false;
-boolean channelChange = false;
-boolean savingToSpiffs = false;
+bool checkit = false;
+bool channelChange = false;
+bool savingToSpiffs = false;
 unsigned long previousFlashy = 0;
 const long intervalBetweenFlashy = 5;
-boolean black = true;
+bool black = true;
 int state = 0;
-boolean upDown = true;
-boolean lines = true;
+bool upDown = true;
+bool lines = true;
 #define UPDATES_PER_SECOND 30000
 CRGBPalette16 currentPalette;
 TBlendType currentBlending = NOBLEND;
@@ -85,7 +64,7 @@ int patternChooser = 2;
 int pattern = 2;
 int wifiModeChooser = 1;
 int imageChooser = 1;
-boolean preloaded = false;
+bool preloaded = false;
 int byteCounter = 0;
 IPAddress tmpGateway(192, 168, 8, 1);
 IPAddress tmpIP(192, 168, 8, 77);
@@ -100,9 +79,9 @@ String images = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
   String bin = "/a.bin";
 #endif
 int uploadCounter = 1;
-boolean wifiEventDetect = false;
-boolean start = true;
-boolean routerOption = false;
+bool wifiEventDetect = false;
+bool start = true;
+bool routerOption = false;
 volatile byte X;
 volatile byte Y;
 volatile byte R1;
