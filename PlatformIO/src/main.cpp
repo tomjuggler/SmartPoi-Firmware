@@ -137,16 +137,6 @@ void setup() {
 
 #ifdef PLATFORM_ESP32
   bool result = LittleFS.begin(true);
-  if (!result) {
-    Serial.println("Failed to mount LittleFS, attempting to format...");
-    LittleFS.format();
-    result = LittleFS.begin(true);
-    if (!result) {
-      Serial.println("Failed to format LittleFS");
-    } else {
-      Serial.println("LittleFS formatted successfully");
-    }
-  }
 #else
   bool result = LittleFS.begin();
 #endif
@@ -155,6 +145,7 @@ void setup() {
   checkFilesInSetup();
   fastLEDIndicate();
   Udp.begin(localPort);
+  webServerSetupLogic(apName, apPass);
 }
 
 void loop() {
