@@ -1,7 +1,6 @@
 #include "Globals.h"
 #include "UDPHandler.h"
 #include "Initialize.h"
-#include "Initialize.h"
 #include "ColourPalette.h"
 #include "ShowLittleFSImage.h"
 #include "TimeFunc.h"
