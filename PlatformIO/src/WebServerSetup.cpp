@@ -2,6 +2,13 @@
 #include "Globals.h"
 #include <Arduino.h>
 
+// Add platform-specific server declaration
+#if defined(PLATFORM_ESP32)
+  extern WebServer server;
+#elif defined(PLATFORM_ESP8266)
+  extern ESP8266WebServer server;
+#endif
+
 // Helper functions
 bool checkFileSpace(size_t fileSize) {
   size_t totalSpace = LittleFS.totalBytes();
