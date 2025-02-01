@@ -4,12 +4,17 @@
 #include "ColourPalette.h"
 #include "ShowLittleFSImage.h"
 #include "TimeFunc.h"
+#include "WebServerSetup.h"
 
 // Global Variable Definitions
 CRGB leds[NUM_LEDS];
 WiFiUDP Udp;
 DNSServer dnsServer;
-WebServer server(80);
+#if defined(PLATFORM_ESP32)
+  WebServer server(80);
+#else
+  ESP8266WebServer server(80);
+#endif
 
 // Additional global variables
 File fsUploadFile;
@@ -23,9 +28,9 @@ int pxDown = NUM_PX;
 int pxAcross = pxDown;
 IPAddress apIP(192, 168, 1, 1);
 IPAddress apIPauxillary(192, 168, 1, 78);
-int status = WL_IDLE_STATUS;
-char apName[] = "Smart_Poi7";
-char apPass[] = "SmartOne";
+int status = WiFi.status();
+const char* apName = "Smart_Poi7";
+const char* apPass = "SmartOne";
 int apChannel = 1;
 IPAddress ipSubnet(255, 255, 255, 0);
 IPAddress ipGateway(192, 168, 8, 1);
@@ -144,7 +149,7 @@ void setup() {
   littleFSLoadSettings();
   checkFilesInSetup();
   fastLEDIndicate();
-  Udp.begin(localPort);
+  Udp.begin(LOCAL_PORT);
   webServerSetupLogic(apName, apPass);
 }
 
