@@ -1,3 +1,5 @@
+#include <WiFi.h>
+#include <EEPROM.h>
 #include "Globals.h"
 #include "UDPHandler.h"
 #include "Initialize.h"
@@ -100,8 +102,10 @@ volatile int len;
 // Platform detection
 #if defined(ESP32)
   #define PLATFORM_ESP32
+  #include <EEPROM.h>  // Add this line
 #elif defined(ESP8266)
   #define PLATFORM_ESP8266
+  #include <EEPROM.h>  // Add this line
 #else
   #error "Unsupported platform"
 #endif
