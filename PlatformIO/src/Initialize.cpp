@@ -2,6 +2,12 @@
 #include "Globals.h"
 #include <Arduino.h>
 #include <LittleFS.h>
+#include <EEPROM.h>
+#if defined(PLATFORM_ESP32)
+  #include <WiFi.h>
+#elif defined(PLATFORM_ESP8266)
+  #include <ESP8266WiFi.h>
+#endif
 
 void eepromBrightnessChooser(int addr) {
     int readBRTeprom = EEPROM.read(addr);

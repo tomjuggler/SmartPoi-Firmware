@@ -75,6 +75,15 @@ extern IPAddress ipSubnet;
 extern const char* apName;
 extern const char* apPass;
 
+// WiFi Mode Constants
+#if defined(PLATFORM_ESP32)
+  #define WIFI_STA WIFI_MODE_STA
+  #define WIFI_AP WIFI_MODE_AP
+#elif defined(PLATFORM_ESP8266)
+  #define WIFI_STA STATION_MODE
+  #define WIFI_AP SOFTAP_MODE
+#endif
+
 // Shared Functions
 void fastLEDInit();
 void fastLEDIndicate();
