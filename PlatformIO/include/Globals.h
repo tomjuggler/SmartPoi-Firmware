@@ -53,6 +53,11 @@ constexpr int DEFAULT_BRIGHTNESS = 20;
 // Global Extern Variables
 extern CRGB leds[NUM_LEDS];
 extern WiFiUDP Udp;
+#if defined(PLATFORM_ESP32)
+  #include <DNSServer.h>
+#elif defined(PLATFORM_ESP8266)
+  #include <DNSServer.h>
+#endif
 extern DNSServer dnsServer;
 extern int newBrightness;  // Declaration for brightness control variable
 extern bool routerOption;  // Declaration for router configuration flag
