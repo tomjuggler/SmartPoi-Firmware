@@ -7,8 +7,8 @@ void eepromBrightnessChooser(int addr) {
     int readBRTeprom = EEPROM.read(addr);
     newBrightness = readBRTeprom;
     if(newBrightness > 254 || newBrightness < 1) {
-        EEPROM.write(15, 20);
-        newBrightness = 20;
+        EEPROM.write(15, DEFAULT_BRIGHTNESS);
+        newBrightness = DEFAULT_BRIGHTNESS;
     }
     FastLED.setBrightness(newBrightness);
     FastLED.showColor(CRGB::Black);
@@ -82,6 +82,10 @@ void littleFSLoadSettings() {
 
 void checkFilesInSetup() {
     File root = LittleFS.open("/");
+    if (!root) {
+        return;
+    }
+    
     File file = root.openNextFile();
     while (file) {
         size_t fileSize = file.size();
@@ -94,7 +98,9 @@ void checkFilesInSetup() {
             }
         }
         file.close();
+        file = root.openNextFile();
     }
+    root.close();
 }
 
 void wifiChooser(char router_array[], char pwd_array[]) {

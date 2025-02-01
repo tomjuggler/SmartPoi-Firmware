@@ -44,6 +44,24 @@ extern WebServer server;
 extern int newBrightness;  // Declaration for brightness control variable
 extern bool routerOption;  // Declaration for router configuration flag
 extern int wifiModeChooser;  // Declaration for WiFi mode selection
+extern int patternChooser;
+extern int pattern;
+extern int apChannel;
+extern int addrNumA;
+extern int addrNumB;
+extern int addrNumC;
+extern int addrNumD;
+extern bool auxillary;
+extern File settings;
+extern String Field;
+extern size_t maxPX;
+extern IPAddress apIP;
+extern IPAddress apIPauxillary;
+extern IPAddress ipGatewayauxillary;
+extern IPAddress ipSubnet;
+extern const char* apName;
+extern const char* apPass;
+extern WiFiMulti WiFiMulti;
 
 // Shared Functions
 void fastLEDInit();
