@@ -55,8 +55,10 @@ extern CRGB leds[NUM_LEDS];
 extern WiFiUDP Udp;
 #if defined(PLATFORM_ESP32)
   #include <DNSServer.h>
+  extern WebServer server;
 #elif defined(PLATFORM_ESP8266)
   #include <DNSServer.h>
+  extern ESP8266WebServer server;
 #endif
 extern DNSServer dnsServer;
 extern WiFiUDP Udp;
