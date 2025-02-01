@@ -1,7 +1,7 @@
 #include "ColourPalette.h"
 #include "Globals.h"
 
-const CRGBPalette16 myRedWhiteBluePalette_p PROGMEM =
+const TProgmemPalette16 myRedWhiteBluePalette_p PROGMEM =
 {
   CRGB::Red,
   CRGB::Gray,
@@ -178,7 +178,7 @@ void ChangeStripesPeriodically()
       SetupVariablePalette(CRGB::Green, CRGB::Black, CRGB::Blue, CRGB::Black);
     }
     if ( secondHand == 59)  {
-      setting++;
+      setting = static_cast<int>(setting) + 1;
       if (setting > 3) {
         setting = 1;
       }
@@ -188,7 +188,7 @@ void ChangeStripesPeriodically()
 
 void ChangePaletteEveryTime()
 {
-  paletteVar++;
+  paletteVar = static_cast<int>(paletteVar) + 1;
   if ( paletteVar == 1)   {
     SetupVariablePalette(CRGB::Red, CRGB::Gray, CRGB::Blue, CRGB::Black);
   }
