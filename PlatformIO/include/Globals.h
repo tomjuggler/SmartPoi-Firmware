@@ -3,12 +3,26 @@
 
 #include <Arduino.h>
 #include <LittleFS.h>
-#include <WiFi.h>
-#include <DNSServer.h>
-#include <WebServer.h>
-#include <EEPROM.h>
 #include <WiFiUdp.h>
 #include <FastLED.h>
+
+#ifdef PLATFORM_ESP32
+  #include <WiFi.h>
+  #include <DNSServer.h>
+  #include <WebServer.h>
+  #include <EEPROM.h>
+  #include <WiFiMulti.h>
+  WebServer server(80);
+  WiFiMulti WiFiMulti;
+#else
+  #include <ESP8266WiFi.h>
+  #include <DNSServer.h>
+  #include <ESP8266WebServer.h>
+  #include <EEPROM.h>
+  #include <ESP8266WiFiMulti.h>
+  ESP8266WebServer server(80);
+  ESP8266WiFiMulti WiFiMulti;
+#endif
 
 // Configuration Constants
 constexpr int NUM_LEDS = 37;
@@ -40,7 +54,6 @@ constexpr int DEFAULT_BRIGHTNESS = 20;
 extern CRGB leds[NUM_LEDS];
 extern WiFiUDP Udp;
 extern DNSServer dnsServer;
-extern WebServer server;
 extern int newBrightness;  // Declaration for brightness control variable
 extern bool routerOption;  // Declaration for router configuration flag
 extern int wifiModeChooser;  // Declaration for WiFi mode selection
@@ -61,7 +74,6 @@ extern IPAddress ipGatewayauxillary;
 extern IPAddress ipSubnet;
 extern const char* apName;
 extern const char* apPass;
-extern WiFiMulti WiFiMulti;
 
 // Shared Functions
 void fastLEDInit();
