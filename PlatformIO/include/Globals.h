@@ -65,6 +65,8 @@ extern int wifiModeChooser;  // Declaration for WiFi mode selection
 extern int patternChooser;
 extern int pattern;
 extern int apChannel;
+extern int imageToUse;
+extern unsigned long previousMillis3;
 extern uint8_t addrNumA;
 extern uint8_t addrNumB;
 extern uint8_t addrNumC;

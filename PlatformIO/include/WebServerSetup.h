@@ -2,6 +2,8 @@
 #define WEBSERVERSETUP_H
 
 #include "Globals.h"
+#include <WebServer.h>
+#include <HTTP_Method.h>
 
 // Handler declarations
 void handleGetPixels();
