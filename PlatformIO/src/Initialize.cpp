@@ -5,8 +5,12 @@
 #include <EEPROM.h>
 #if defined(PLATFORM_ESP32)
   #include <WiFi.h>
+  WebServer server(80);
+  WiFiMulti WiFiMulti;
 #elif defined(PLATFORM_ESP8266)
   #include <ESP8266WiFi.h>
+  ESP8266WebServer server(80);
+  ESP8266WiFiMulti WiFiMulti;
 #endif
 
 void eepromBrightnessChooser(int addr) {
