@@ -7,8 +7,6 @@
   #include <WiFi.h>
   #include <WebServer.h>
   #include <WiFiMulti.h>
-  WebServer server(80);
-  WiFiMulti WiFiMulti;
 #elif defined(PLATFORM_ESP8266)
   #include <ESP8266WiFi.h>
   #include <ESP8266WebServer.h>
