@@ -12,11 +12,6 @@
 CRGB leds[NUM_LEDS];
 WiFiUDP Udp;
 DNSServer dnsServer;
-#if defined(PLATFORM_ESP32)
-  WebServer server(80);
-#else
-  ESP8266WebServer server(80);
-#endif
 
 // Additional global variables
 File fsUploadFile;
@@ -60,9 +55,6 @@ int state = 0;
 bool upDown = true;
 bool lines = true;
 #define UPDATES_PER_SECOND 30000
-CRGBPalette16 currentPalette;
-TBlendType currentBlending = NOBLEND;
-int paletteVar = 1;
 int motionSpeed = 1;
 int maxStartIndex = 70;
 int minStartIndex = 0;
@@ -99,16 +91,6 @@ volatile unsigned long currentMillis2 = millis();
 volatile int packetSize;
 volatile int len;
 
-// Platform detection
-#if defined(ESP32)
-  #define PLATFORM_ESP32
-  #include <EEPROM.h>  // Add this line
-#elif defined(ESP8266)
-  #define PLATFORM_ESP8266
-  #include <EEPROM.h>  // Add this line
-#else
-  #error "Unsupported platform"
-#endif
 
 // LED configuration
 #ifdef PLATFORM_ESP32

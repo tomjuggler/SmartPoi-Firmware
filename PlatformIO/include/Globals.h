@@ -59,6 +59,7 @@ extern WiFiUDP Udp;
   #include <DNSServer.h>
 #endif
 extern DNSServer dnsServer;
+extern WiFiUDP Udp;
 extern int newBrightness;  // Declaration for brightness control variable
 extern bool routerOption;  // Declaration for router configuration flag
 extern int wifiModeChooser;  // Declaration for WiFi mode selection

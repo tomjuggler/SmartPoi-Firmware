@@ -5,6 +5,7 @@
 
 extern CRGBPalette16 currentPalette;
 extern TBlendType currentBlending;
+extern int paletteVar;
 extern volatile int setting;
 extern bool lines;
 extern bool upDown;
