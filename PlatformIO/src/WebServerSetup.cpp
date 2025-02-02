@@ -1,6 +1,7 @@
 #include "WebServerSetup.h"
 #include "Globals.h"
 #include <Arduino.h>
+#include <EEPROM.h> // Add this line at the top
 
 // Add platform-specific server declaration
 #if defined(PLATFORM_ESP32)
@@ -235,9 +236,9 @@ void handleIntervalChange() {
   String newInterval = server.arg("interval");
   if (newInterval.length() > 0) {
     int tmp = newInterval.toInt();
-    interval = (tmp < 1) ? 500 : 
-              (tmp > 1800) ? 1800 * 1000 : 
-              tmp * 1000;
+    interval = (tmp < 1) ? 500L : 
+              (tmp > 1800) ? 1800L * 1000L : 
+              tmp * 1000L;
     server.send(200, "application/json", "{\"Success\":\" your interval is set \"}");
   } else {
     server.send(404, "application/json", "{\"Error\":\"404 not found\"}");
@@ -316,7 +317,7 @@ void handleGeneralSettings() {
 void webServerSetupLogic(String router, String pass) {
   // Add HTML content handling
   File html = LittleFS.open("/site.htm", "r");
-  String responseHTML = "";
+  responseHTML = "";
   if (html) {
     while (html.available()) {
       responseHTML += (char)html.read();
