@@ -36,7 +36,6 @@ uint8_t addrNumA = 192;
 uint8_t addrNumB = 168;
 uint8_t addrNumC = 8;
 uint8_t addrNumD = 78;
-byte packetBuffer[255];
 String responseHTML;
 String content;
 int statusCode;
@@ -86,9 +85,7 @@ volatile byte R1;
 volatile byte G1;
 volatile byte M1;
 volatile unsigned long currentMillis = millis();
-volatile unsigned long currentMillis2 = millis();
 volatile int packetSize;
-volatile int len;
 
 
 // LED configuration
