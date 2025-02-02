@@ -147,6 +147,10 @@ void wifiChooser(char router_array[], char pwd_array[]) {
     }
 }
 
+void handleAllServers() {
+    dnsServer.processNextRequest();
+    server.handleClient();
+}
 void fastLEDIndicate() {
     if (wifiModeChooser == 1) {
         CRGB color = auxillary ? CRGB::Red : CRGB::Blue;

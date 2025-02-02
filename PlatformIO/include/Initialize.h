@@ -12,6 +12,7 @@ void eepromReadChannelAndAddress(int addr1, int addr2, int addr3, int addr4, int
 void littleFSLoadSettings();
 void checkFilesInSetup();
 void wifiChooser(char router_array[], char pwd_array[]);
+void handleAllServers();
 void fastLEDIndicate();
 void fastLEDIndicateFast();
 

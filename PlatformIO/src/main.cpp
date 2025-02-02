@@ -1,8 +1,8 @@
 #include <WiFi.h>
 #include <EEPROM.h>
+#include "Initialize.h"
 #include "Globals.h"
 #include "UDPHandler.h"
-#include "Initialize.h"
 #include "ColourPalette.h"
 #include "ShowLittleFSImage.h"
 #include "TimeFunc.h"
@@ -139,8 +139,7 @@ void setup() {
 }
 
 void loop() {
-  dnsServer.processNextRequest();
-  server.handleClient();
+  handleAllServers();
   ChangePatternPeriodically();
 
   currentMillis = millis();
