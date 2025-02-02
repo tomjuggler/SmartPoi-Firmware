@@ -1,6 +1,21 @@
 #include "UDPHandler.h"
 #include "Globals.h"
 
+// UDP Handler Variables
+unsigned long currentMillis2 = 0;
+unsigned long previousMillis2 = 0;
+constexpr int interval = 1000;  // 1 second default interval
+bool checkit = false;
+int len = 0;
+uint8_t packetBuffer[255] = {0};
+uint8_t Y = 0;
+int state = 0;
+int X = 0;
+uint8_t R1 = 0;
+uint8_t G1 = 0;
+uint8_t M1 = 0;
+bool channelChange = false;
+
 void handleUDP() {
     if (currentMillis2 - previousMillis2 > interval * 2) {
         previousMillis2 = currentMillis2;
