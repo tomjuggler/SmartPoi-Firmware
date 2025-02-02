@@ -174,7 +174,144 @@ void handleOptions() {
   server.send(204);
 }
 
-// Add implementations for other handlers here...
+// Route handler implementations
+void handleRouterSettings() {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  server.sendHeader("Access-Control-Allow-Credentials", "true");
+  
+  String onRouter = server.arg("router");
+  if (onRouter.length() > 0) {
+    EEPROM.write(100, 0);
+    EEPROM.commit();
+    int newRouter = onRouter.toInt();
+    routerOption = (newRouter == 1);
+    EEPROM.write(100, newRouter);
+    server.send(200, "application/json", "{\"Success\":\" your pattern is set \"}");
+  } else {
+    server.send(404, "application/json", "{\"Error\":\"404 not found\"}");
+  }
+  EEPROM.commit();
+  FastLED.showColor(CRGB::Black);
+}
+
+void handlePatternSettings() {
+  Serial.print("pattern change requested: ");
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  server.sendHeader("Access-Control-Allow-Credentials", "true");
+  
+  String onAddress = server.arg("patternChooserChange");
+  if (onAddress.length() > 0) {
+    int newPatt = onAddress.toInt();
+    Serial.println(newPatt);
+    patternChooser = newPatt;
+    EEPROM.write(10, newPatt);
+    EEPROM.commit();
+    
+    if (newPatt < 6 && newPatt > 0) {
+      pattern = patternChooser;
+      EEPROM.write(11, newPatt);
+      EEPROM.commit();
+    }
+    else if (newPatt == 7) {
+      FastLED.showColor(CRGB::Black);
+      pattern = patternChooser;
+    }
+    server.send(200, "application/json", "{\"Success\":\" your pattern is set \"}");
+  } else {
+    server.send(404, "application/json", "{\"Error\":\"404 not found\"}");
+  }
+}
+
+void handleIntervalChange() {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  server.sendHeader("Access-Control-Allow-Credentials", "true");
+  
+  String newInterval = server.arg("interval");
+  if (newInterval.length() > 0) {
+    int tmp = newInterval.toInt();
+    interval = (tmp < 1) ? 500 : 
+              (tmp > 1800) ? 1800 * 1000 : 
+              tmp * 1000;
+    server.send(200, "application/json", "{\"Success\":\" your interval is set \"}");
+  } else {
+    server.send(404, "application/json", "{\"Error\":\"404 not found\"}");
+  }
+}
+
+void handleBrightness() {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  server.sendHeader("Access-Control-Allow-Credentials", "true");
+  
+  String onNewBRT = server.arg("brt");
+  if (onNewBRT.length() > 0) {
+    newBrightness = constrain(onNewBRT.toInt(), 20, 255);
+    FastLED.setBrightness(newBrightness);
+    FastLED.showColor(CRGB::Black);
+    EEPROM.write(15, newBrightness);
+    EEPROM.commit();
+    server.send(200, "application/json", "{\"Success\":\" your brightness is set \"}");
+  } else {
+    server.send(404, "application/json", "{\"Error\":\"404 not found\"}");
+  }
+}
+
+void handleGeneralSettings() {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  server.sendHeader("Access-Control-Allow-Credentials", "true");
+
+  // Handle settings file
+  File settings = LittleFS.open("/settings.txt", "w");
+  if (settings) {
+    settings.print(server.arg("ssid") + "\n" + server.arg("pwd"));
+    settings.close();
+  }
+
+  // Handle channel setting
+  String onChannel = server.arg("channel");
+  if (onChannel.length() > 0) {
+    int newChannel = onChannel.toInt();
+    EEPROM.write(13, newChannel);
+    EEPROM.commit();
+  }
+
+  // Handle address settings
+  String addresses[] = {"addressA", "addressB", "addressC"};
+  int eepromAddrs[] = {16, 17, 18};
+  for (int i = 0; i < 3; i++) {
+    String arg = server.arg(addresses[i]);
+    if (arg.length() > 0) {
+      EEPROM.write(eepromAddrs[i], arg.toInt());
+      EEPROM.commit();
+    }
+  }
+
+  // Handle pattern chooser
+  String patternArg = server.arg("patternChooserChange");
+  if (patternArg.length() > 0) {
+    int newPatt = patternArg.toInt();
+    patternChooser = newPatt;
+    EEPROM.write(10, newPatt);
+    EEPROM.commit();
+    
+    if (newPatt < 6 && newPatt > 0) {
+      pattern = patternChooser;
+      EEPROM.write(11, newPatt);
+      EEPROM.commit();
+    }
+  }
+
+  server.send(200, "application/json", "{\"Success\":\"Settings updated\"}");
+}
 
 void webServerSetupLogic(String router, String pass) {
   // Add HTML content handling
