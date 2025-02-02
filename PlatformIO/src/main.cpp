@@ -17,7 +17,16 @@ File fsUploadFile;
 File f;
 File a;
 File settings;
-// UDP Handler variables (already defined below)
+// UDP Handler variables
+unsigned long currentMillis2 = 0;
+int state = 0;
+uint8_t packetBuffer[255] = {0};
+int len = 0;
+uint8_t Y = 0;
+int X = 0;
+uint8_t R1 = 0;
+uint8_t G1 = 0;
+uint8_t M1 = 0;
 bool auxillary = false;
 int newBrightness = DEFAULT_BRIGHTNESS;
 uint8_t message1Data[MAX_PX];
