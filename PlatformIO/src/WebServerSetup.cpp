@@ -78,23 +78,99 @@ void handleReturnSettings() {
 
 // File management handlers
 void handleFileList() {
-  // TODO: Implement directory listing
+  String output = "[";
+  File dir = LittleFS.open("/");
+  File entry = dir.openNextFile();
+  while(entry) {
+    if(output != "[") output += ',';
+    output += "{\"name\":\"";
+    output += entry.name();
+    output += "\",\"size\":";
+    output += entry.size();
+    output += ",\"type\":\"";
+    output += (entry.isDirectory() ? "dir" : "file");
+    output += "\"}";
+    entry = dir.openNextFile();
+  }
+  output += "]";
+  server.send(200, "application/json", output);
 }
 
 void handleFileRead() {
-  // TODO: Implement file reading
+  String path = server.arg("path");
+  if(path.endsWith("/")) path += "index.htm";
+  
+  String contentType = getContentType(path);
+  File file = LittleFS.open(path, "r");
+  
+  if(file) {
+    server.streamFile(file, contentType);
+    file.close();
+  } else {
+    server.send(404, "text/plain", "File not found");
+  }
 }
 
 void handleFileCreate() {
-  // TODO: Implement file creation
+  String path = server.arg("path");
+  if(path.isEmpty()) {
+    server.send(400, "text/plain", "Bad request");
+    return;
+  }
+  
+  if(LittleFS.exists(path)) {
+    server.send(409, "text/plain", "File exists");
+    return;
+  }
+  
+  File file = LittleFS.open(path, "w");
+  if(file) {
+    file.close();
+    server.send(200, "text/plain", "Created");
+  } else {
+    server.send(500, "text/plain", "Create failed");
+  }
 }
 
 void handleFileDelete() {
-  // TODO: Implement file deletion
+  String path = server.arg("path");
+  if(path.isEmpty()) {
+    server.send(400, "text/plain", "Bad request");
+    return;
+  }
+  
+  if(!LittleFS.remove(path)) {
+    server.send(500, "text/plain", "Delete failed");
+    return;
+  }
+  
+  server.send(200, "text/plain", "Deleted");
 }
 
 void handleFileUpload() {
-  // TODO: Implement file upload handling
+  HTTPUpload& upload = server.upload();
+  if(upload.status == UPLOAD_FILE_START) {
+    if(!checkFileSpace(upload.contentLength)) {
+      upload.status = UPLOAD_FILE_ABORTED;
+      server.send(507, "text/plain", "Insufficient storage");
+      return;
+    }
+    fsUploadFile = LittleFS.open(upload.filename, "w");
+  } else if(upload.status == UPLOAD_FILE_WRITE) {
+    if(fsUploadFile) fsUploadFile.write(upload.buf, upload.currentSize);
+  } else if(upload.status == UPLOAD_FILE_END) {
+    if(fsUploadFile) {
+      fsUploadFile.close();
+      server.send(200, "text/plain", "Upload complete");
+    }
+  }
+}
+
+void handleOptions() {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  server.send(204);
 }
 
 // Add implementations for other handlers here...
@@ -103,14 +179,23 @@ void webServerSetupLogic(String router, String pass) {
   server.on("/get-pixels", HTTP_GET, handleGetPixels);
   server.on("/resetimagetouse", HTTP_GET, handleResetImageToUse);
   server.on("/returnsettings", HTTP_GET, handleReturnSettings);
+  server.on("/options", HTTP_OPTIONS, handleOptions);
   
   server.on("/list", HTTP_GET, handleFileList);
   server.on("/edit", HTTP_GET, handleFileRead);
   server.on("/edit", HTTP_PUT, handleFileCreate);
   server.on("/edit", HTTP_DELETE, handleFileDelete);
-  server.on("/edit", HTTP_POST, [](){}, handleFileUpload);
+  server.on("/edit", HTTP_POST, 
+    []() { server.send(200, "text/plain", ""); },
+    handleFileUpload
+  );
   
-  // Add remaining route handlers...
+  server.onNotFound([]() {
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+    server.send(404, "text/plain", "Not found");
+  });
   
   server.begin();
 }
