@@ -14,6 +14,7 @@
   #include <WiFiMulti.h>
   extern WebServer server;
   extern WiFiMulti WiFiMulti;
+  extern DNSServer dnsServer;
 #elif defined(PLATFORM_ESP8266)
   #include <ESP8266WiFi.h>
   #include <DNSServer.h>
@@ -22,6 +23,7 @@
   #include <ESP8266WiFiMulti.h>
   extern ESP8266WebServer server;
   extern ESP8266WiFiMulti WiFiMulti;
+  extern DNSServer dnsServer;
 #endif
 
 // Configuration Constants
@@ -53,14 +55,6 @@ constexpr int DEFAULT_BRIGHTNESS = 20;
 // Global Extern Variables
 extern CRGB leds[NUM_LEDS];
 extern WiFiUDP Udp;
-#if defined(PLATFORM_ESP32)
-  #include <DNSServer.h>
-  extern WebServer server;
-#elif defined(PLATFORM_ESP8266)
-  #include <DNSServer.h>
-  extern ESP8266WebServer server;
-#endif
-extern DNSServer dnsServer;
 extern WiFiUDP Udp;
 extern int newBrightness;  // Declaration for brightness control variable
 extern bool routerOption;  // Declaration for router configuration flag

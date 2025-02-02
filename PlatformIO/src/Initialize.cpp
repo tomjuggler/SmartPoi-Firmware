@@ -7,14 +7,18 @@
   #include <WiFi.h>
   #include <WebServer.h>
   #include <WiFiMulti.h>
+  #include <DNSServer.h>
   WebServer server(80);
-  WiFiMulti WiFiMulti;  // Add WiFiMulti instance declaration for ESP32
+  WiFiMulti WiFiMulti;  
+  DNSServer dnsServer;
 #elif defined(PLATFORM_ESP8266)
   #include <ESP8266WiFi.h>
   #include <ESP8266WebServer.h>
   #include <ESP8266WiFiMulti.h>
+  #include <DNSServer.h>
   ESP8266WebServer server(80);
   ESP8266WiFiMulti WiFiMulti;
+  DNSServer dnsServer;
 #endif
 
 void eepromBrightnessChooser(int addr) {

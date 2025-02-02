@@ -11,7 +11,6 @@
 // Global Variable Definitions
 CRGB leds[NUM_LEDS];
 WiFiUDP Udp;
-DNSServer dnsServer;
 
 // Additional global variables
 File fsUploadFile;
