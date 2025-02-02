@@ -168,34 +168,74 @@ void handleFileUpload() {
 
 void handleOptions() {
   server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
   server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  server.sendHeader("Access-Control-Allow-Credentials", "true");
   server.send(204);
 }
 
 // Add implementations for other handlers here...
 
 void webServerSetupLogic(String router, String pass) {
-  server.on("/get-pixels", HTTP_GET, handleGetPixels);
-  server.on("/resetimagetouse", HTTP_GET, handleResetImageToUse);
-  server.on("/returnsettings", HTTP_GET, handleReturnSettings);
-  server.on("/options", HTTP_OPTIONS, handleOptions);
+  // Add HTML content handling
+  File html = LittleFS.open("/site.htm", "r");
+  String responseHTML = "";
+  if (html) {
+    while (html.available()) {
+      responseHTML += (char)html.read();
+    }
+    html.close();
+  }
+
+  // Update server routes
+  server.on("/router", HTTP_GET, handleRouterSettings);
+  server.on("/pattern", HTTP_GET, handlePatternSettings);
+  server.on("/intervalChange", HTTP_GET, handleIntervalChange);
+  server.on("/brightness", HTTP_GET, handleBrightness);
+  server.on("/setting", HTTP_GET, handleGeneralSettings);
   
+  // Add missing routes
+  server.on("/resetimagetouse", HTTP_GET, []() {
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+    server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+    server.sendHeader("Access-Control-Allow-Credentials", "true");
+    imageToUse = 0;
+    previousMillis3 = millis();
+    server.send(200, "text/plain", "");
+  });
+
+  server.on("/returnsettings", HTTP_GET, []() {
+    File settings = LittleFS.open("/settings.txt", "r");
+    String content = settings.readStringUntil('\n') + "," +
+                    settings.readStringUntil('\n') + "," +
+                    String(apChannel) + "," +
+                    String(addrNumA) + "," +
+                    String(addrNumB) + "," +
+                    String(addrNumC) + "," +
+                    String(addrNumD) + "," +
+                    String(patternChooser);
+    settings.close();
+    server.send(200, "text/html", content);
+  });
+
+  // Update notFound handler to match original
+  server.onNotFound([]() {
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+    server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+    server.sendHeader("Access-Control-Allow-Credentials", "true");
+    server.send(200, "text/html", responseHTML);
+  });
+
+  // Keep existing setup
+  server.on("/get-pixels", HTTP_GET, handleGetPixels);
+  server.on("/options", HTTP_OPTIONS, handleOptions);
   server.on("/list", HTTP_GET, handleFileList);
   server.on("/edit", HTTP_GET, handleFileRead);
   server.on("/edit", HTTP_PUT, handleFileCreate);
   server.on("/edit", HTTP_DELETE, handleFileDelete);
-  server.on("/edit", HTTP_POST, 
-    []() { server.send(200, "text/plain", ""); },
-    handleFileUpload
-  );
-  
-  server.onNotFound([]() {
-    server.sendHeader("Access-Control-Allow-Origin", "*");
-    server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
-    server.send(404, "text/plain", "Not found");
-  });
+  server.on("/edit", HTTP_POST, []() {}, handleFileUpload);
   
   server.begin();
 }
