@@ -17,18 +17,7 @@ File fsUploadFile;
 File f;
 File a;
 File settings;
-unsigned long currentMillis2 = 0;
-unsigned long previousMillis2 = 0;
-bool checkit = false;
-int len = 0;
-uint8_t packetBuffer[255] = {0};
-uint8_t Y = 0;
-int state = 0;
-int X = 0;
-uint8_t R1 = 0;
-uint8_t G1 = 0;
-uint8_t M1 = 0;
-bool channelChange = false;
+// UDP Handler variables (already defined below)
 bool auxillary = false;
 int newBrightness = DEFAULT_BRIGHTNESS;
 uint8_t message1Data[MAX_PX];
@@ -61,7 +50,6 @@ bool savingToSpiffs = false;
 unsigned long previousFlashy = 0;
 const long intervalBetweenFlashy = 5;
 bool black = true;
-int state = 0;
 bool upDown = true;
 bool lines = true;
 #define UPDATES_PER_SECOND 30000
