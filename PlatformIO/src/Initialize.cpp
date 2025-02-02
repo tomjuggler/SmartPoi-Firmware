@@ -22,6 +22,8 @@ ESP8266WiFiMulti WiFiMulti;
 DNSServer dnsServer;
 #endif
 
+#define LED_APA102 true
+
 void eepromBrightnessChooser(int addr)
 {
     int readBRTeprom = EEPROM.read(addr);
@@ -194,13 +196,9 @@ void fastLEDInit()
 #ifdef LED_APA102
     FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, BGR>(leds, NUM_LEDS); // DATA_RATE_MHZ(8)
 #else
-    //  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
-#ifdef PLATFORM_ESP32
-    FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
-#else
-    FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
+    FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
 #endif
-#endif
+
 
     FastLED.setBrightness(newBrightness); // should be low figure here, for startup battery saving...
 
