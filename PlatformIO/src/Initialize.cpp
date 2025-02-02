@@ -11,6 +11,7 @@
 WebServer server(80);
 WiFiMulti WiFiMulti;
 DNSServer dnsServer;
+
 #elif defined(PLATFORM_ESP8266)
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
@@ -126,7 +127,7 @@ void checkFilesInSetup()
     while (file)
     {
         size_t fileSize = file.size();
-        if (fileSize > maxPX)
+        if (fileSize > MAX_PX)
         {
             LittleFS.remove(file.name());
         }

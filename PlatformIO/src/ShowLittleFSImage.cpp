@@ -11,7 +11,7 @@ void showLittleFSImage() {
     } else {
         size_t size = a.size();
         
-        if (size > maxPX) {
+        if (size > MAX_PX) {
             FastLED.showColor(CRGB::Blue);
             imageToUse++;
         } else {
