@@ -79,11 +79,11 @@ int uploadCounter = 1;
 bool wifiEventDetect = false;
 bool start = true;
 bool routerOption = false;
-volatile byte X;
-volatile byte Y;
-volatile byte R1;
-volatile byte G1;
-volatile byte M1;
+volatile int X;     // Changed from byte to int
+volatile byte Y;    // No change (byte = uint8_t)
+volatile byte R1;   // No change
+volatile byte G1;   // No change
+volatile byte M1;   // No change
 volatile unsigned long currentMillis = millis();
 volatile int packetSize;
 
