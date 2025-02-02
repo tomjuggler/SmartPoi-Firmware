@@ -1,18 +1,25 @@
 #ifndef WEBSERVERSETUP_H
 #define WEBSERVERSETUP_H
 
-// Add these extern declarations
+#include <Arduino.h>
+#include "Globals.h"
+
+// Platform-specific server header
+#if defined(PLATFORM_ESP32)
+  #include <WebServer.h>
+#elif defined(PLATFORM_ESP8266)
+  #include <ESP8266WebServer.h>
+#endif
+
+// External declarations
 extern String responseHTML;
+extern File fsUploadFile;
 extern int imageToUse;
 extern unsigned long previousMillis3;
 extern uint8_t addrNumA, addrNumB, addrNumC, addrNumD;
 extern int patternChooser;
-extern int apChannel;
+extern int apChannel; 
 extern long interval;
-
-#include "Globals.h"
-#include <WebServer.h>
-#include <HTTP_Method.h>
 
 // Handler declarations
 void handleGetPixels();

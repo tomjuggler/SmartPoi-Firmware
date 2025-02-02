@@ -151,7 +151,7 @@ void handleFileDelete() {
 void handleFileUpload() {
   HTTPUpload& upload = server.upload();
   if(upload.status == UPLOAD_FILE_START) {
-    if(!checkFileSpace(upload.contentLength)) {
+    if(!checkFileSpace(upload.totalSize)) {
       upload.status = UPLOAD_FILE_ABORTED;
       server.send(507, "text/plain", "Insufficient storage");
       return;
