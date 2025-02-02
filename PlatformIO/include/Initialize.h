@@ -13,6 +13,7 @@ void littleFSLoadSettings();
 void checkFilesInSetup();
 void wifiChooser(char router_array[], char pwd_array[]);
 void handleAllServers();
+void fastLEDInit();
 void fastLEDIndicate();
 void fastLEDIndicateFast();
 

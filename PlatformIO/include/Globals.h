@@ -89,8 +89,8 @@ extern const char* apPass;
 #endif
 
 // Shared Functions
-void fastLEDInit();
-void fastLEDIndicate();
-void fastLEDIndicateFast();
+// void fastLEDInit();
+// void fastLEDIndicate();
+// void fastLEDIndicateFast();
 
 #endif
