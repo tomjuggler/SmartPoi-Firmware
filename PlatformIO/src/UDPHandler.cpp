@@ -1,5 +1,6 @@
 #include "UDPHandler.h"
 #include "Globals.h"
+#include <EEPROM.h>  // Required for EEPROM operations
 
 // UDP Handler Variables
 unsigned long currentMillis2 = 0;
@@ -21,7 +22,7 @@ void handleUDP() {
         previousMillis2 = currentMillis2;
         checkit = true;
     }
-    previousMillis = currentMillis;
+    previousMillis2 = currentMillis2;  // Use locally declared timing variables
     state = 0;
 
     len = Udp.read(packetBuffer, 255);
