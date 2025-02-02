@@ -17,6 +17,18 @@ File fsUploadFile;
 File f;
 File a;
 File settings;
+unsigned long currentMillis2 = 0;
+unsigned long previousMillis2 = 0;
+bool checkit = false;
+int len = 0;
+uint8_t packetBuffer[255] = {0};
+uint8_t Y = 0;
+int state = 0;
+int X = 0;
+uint8_t R1 = 0;
+uint8_t G1 = 0;
+uint8_t M1 = 0;
+bool channelChange = false;
 bool auxillary = false;
 int newBrightness = DEFAULT_BRIGHTNESS;
 uint8_t message1Data[MAX_PX];
@@ -79,11 +91,6 @@ int uploadCounter = 1;
 bool wifiEventDetect = false;
 bool start = true;
 bool routerOption = false;
-volatile int X;     // Changed from byte to int
-volatile byte Y;    // No change (byte = uint8_t)
-volatile byte R1;   // No change
-volatile byte G1;   // No change
-volatile byte M1;   // No change
 volatile unsigned long currentMillis = millis();
 volatile int packetSize;
 

@@ -55,7 +55,6 @@ constexpr int DEFAULT_BRIGHTNESS = 20;
 // Global Extern Variables
 extern CRGB leds[NUM_LEDS];
 extern WiFiUDP Udp;
-extern WiFiUDP Udp;
 extern int newBrightness;  // Declaration for brightness control variable
 extern bool routerOption;  // Declaration for router configuration flag
 extern int wifiModeChooser;  // Declaration for WiFi mode selection

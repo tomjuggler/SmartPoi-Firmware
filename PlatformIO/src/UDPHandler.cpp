@@ -3,19 +3,19 @@
 #include <EEPROM.h>  // Required for EEPROM operations
 
 // UDP Handler Variables
-extern unsigned long currentMillis2 = 0;
-extern unsigned long previousMillis2 = 0;
+extern unsigned long currentMillis2;
+extern unsigned long previousMillis2;
 constexpr int interval = 1000;  // 1 second default interval
-extern bool checkit = false;
-extern int len = 0;
-extern uint8_t packetBuffer[255] = {0};
-extern uint8_t Y = 0;
-extern int state = 0;
-extern int X = 0;
-extern uint8_t R1 = 0;
-extern uint8_t G1 = 0;
-extern uint8_t M1 = 0;
-extern bool channelChange = false;
+extern bool checkit;
+extern int len;
+extern uint8_t packetBuffer[255];
+extern uint8_t Y;
+extern int state;
+extern int X;
+extern uint8_t R1;
+extern uint8_t G1;
+extern uint8_t M1;
+extern bool channelChange;
 
 void handleUDP() {
     if (currentMillis2 - previousMillis2 > interval * 2) {
