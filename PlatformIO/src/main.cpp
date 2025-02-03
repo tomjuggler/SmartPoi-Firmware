@@ -141,6 +141,7 @@ void setup() {
 
 void loop() {
   handleAllServers();
+  handleDNSServer();
   ChangePatternPeriodically();
 
   currentMillis = millis();

@@ -7,8 +7,10 @@
 // Platform-specific server header
 #if defined(PLATFORM_ESP32)
   #include <WebServer.h>
+  #include <DNSServer.h>
 #elif defined(PLATFORM_ESP8266)
   #include <ESP8266WebServer.h>
+  #include <DNSServer.h>
 #endif
 
 // External declarations
@@ -22,6 +24,7 @@ extern int apChannel;
 extern long interval;
 
 // Handler declarations
+void handleAllServers();
 void handleGetPixels();
 void handleOptions();
 void handleFileRead();

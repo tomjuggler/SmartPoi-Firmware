@@ -5,10 +5,15 @@
 
 // Add platform-specific server declaration
 #if defined(PLATFORM_ESP32)
-  extern WebServer server;
+  WebServer server(80);
 #elif defined(PLATFORM_ESP8266)
-  extern ESP8266WebServer server;
+  ESP8266WebServer server(80);
 #endif
+
+void handleAllServers()
+{
+    server.handleClient();
+}
 
 // Helper functions
 bool checkFileSpace(size_t fileSize) {

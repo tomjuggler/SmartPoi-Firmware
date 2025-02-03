@@ -11,13 +11,8 @@ void eepromReadChannelAndAddress(int addr1, int addr2, int addr3, int addr4, int
 void littleFSLoadSettings();
 void checkFilesInSetup();
 void wifiChooser(char router_array[], char pwd_array[]);
-void handleAllServers();
+void handleDNSServer();
 void fastLEDInit();
 void fastLEDIndicate();
 void fastLEDIndicateFast();
-#if defined(PLATFORM_ESP32)
-extern WebServer server;
-#elif defined(PLATFORM_ESP8266)
-extern ESP8266WebServer server;
-#endif
 #endif

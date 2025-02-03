@@ -8,7 +8,7 @@
 #include <WebServer.h>
 #include <WiFiMulti.h>
 #include <DNSServer.h>
-WebServer server(80);
+// WebServer server(80); //moved to WEbServerSetup
 WiFiMulti WiFiMulti;
 DNSServer dnsServer;
 
@@ -17,7 +17,7 @@ DNSServer dnsServer;
 #include <ESP8266WebServer.h>
 #include <ESP8266WiFiMulti.h>
 #include <DNSServer.h>
-ESP8266WebServer server(80);
+// ESP8266WebServer server(80);
 ESP8266WiFiMulti WiFiMulti;
 DNSServer dnsServer;
 #endif
@@ -182,10 +182,8 @@ void wifiChooser(char router_array[], char pwd_array[])
     }
 }
 
-void handleAllServers()
-{
+void handleDNSServer(){
     dnsServer.processNextRequest();
-    server.handleClient();
 }
 
 void fastLEDInit()
