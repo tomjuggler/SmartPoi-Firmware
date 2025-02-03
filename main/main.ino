@@ -165,7 +165,7 @@ int minStartIndex = 0;
 volatile int setting = 2;
 
 int patternChooser = 2;
-int pattern = 2;
+int pattern = 1;
 int wifiModeChooser = 1;
 int imageChooser = 1;
 boolean preloaded = false;

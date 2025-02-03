@@ -3,3 +3,6 @@ main/.vscode/*
 docs/*
 Doxyfile
 .aider*
+utilities/*
+PlatformIO/.gitignore
+PlatformIO/.vscode/*
