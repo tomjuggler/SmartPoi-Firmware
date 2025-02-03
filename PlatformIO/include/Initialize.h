@@ -2,7 +2,6 @@
 #define INITIALIZE_H
 
 #include "Globals.h"
-
 void eepromBrightnessChooser(int addr);
 void eepromRouterOptionChooser(int addr);
 void eepromWifiModeChooser(int addr);
@@ -16,5 +15,9 @@ void handleAllServers();
 void fastLEDInit();
 void fastLEDIndicate();
 void fastLEDIndicateFast();
-
+#if defined(PLATFORM_ESP32)
+extern WebServer server;
+#elif defined(PLATFORM_ESP8266)
+extern ESP8266WebServer server;
+#endif
 #endif
