@@ -374,7 +374,7 @@ void webServerSetupLogic(String router, String pass) {
   // Keep existing setup
   server.on("/get-pixels", HTTP_GET, handleGetPixels);
   server.on("/options", HTTP_OPTIONS, handleOptions);
-  server.on("/list", HTTP_GET, handleFileList);
+  server.on("/list", HTTP_GET, handleFileList); //TODO: The error message [E][WebServer.cpp:793] _handleRequest() specifically indicates the ESP web server received a request for an unregistered path. Double-check your route registration order and handler function availability.
   server.on("/edit", HTTP_GET, handleFileRead);
   server.on("/edit", HTTP_PUT, handleFileCreate);
   server.on("/edit", HTTP_DELETE, handleFileDelete);
