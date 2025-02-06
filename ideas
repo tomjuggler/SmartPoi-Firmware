@@ -35,8 +35,109 @@ eeprom:		addrNumC	77
 		
 		
 		
+UPDATES: 
+ESP8266 code: 
+Dir dir = LittleFS.openDir(path);
+  path = String();
 
+  String output = "[";
+  while (dir.next())
+  {
+    File entry = dir.openFile("r");
+    if (output != "[")
+      output += ',';
+    bool isDir = false;
+    output += "{\"type\":\"";
+    output += (isDir) ? "dir" : "file";
+    output += "\",\"name\":\"";
+    output += String(entry.name());
+    output += "\"}";
+    entry.close();
+ESP32 code: 
+File root = LittleFS.open(path);
+String output = "[";
+File file = root.openNextFile();
 
-		
+while (file)
+{
+  if (output != "[") output += ',';
+  output += "{\"type\":\"";
+  output += (file.isDirectory()) ? "dir" : "file";
+  output += "\",\"name\":\"";
+  output += String(file.name());
+  output += "\"}";
+  file = root.openNextFile();
+
+ESP8266 code: 
+size_t getTotalSpace()
+{
+    FSInfo fs_info;
+    LittleFS.info(fs_info);
+    return fs_info.totalBytes;
+}
+
+/**
+ * @brief Get the remaining space in LittleFS (ESP8266)
+ *
+ * @return size_t Remaining space in bytes
+ */
+size_t getRemainingSpace()
+{
+    FSInfo fs_info;
+    LittleFS.info(fs_info);
+    return fs_info.totalBytes - fs_info.usedBytes;
+}
+
+/**
+ * @brief Get the used space in LittleFS (ESP8266)
+ *
+ * @return size_t Used space in bytes
+ */
+size_t getUsedSpace()
+{
+    FSInfo fs_info;
+    LittleFS.info(fs_info);
+    return fs_info.usedBytes;
+}
+ESP32 code: 
+size_t getTotalSpace()
+{
+    return LittleFS.totalBytes();
+}
+
+/**
+ * @brief Get the remaining space in LittleFS (ESP8266)
+ *
+ * @return size_t Remaining space in bytes
+ */
+size_t getRemainingSpace()
+{
+    return LittleFS.totalBytes() - LittleFS.usedBytes();
+}
+
+/**
+ * @brief Get the used space in LittleFS (ESP8266)
+ *
+ * @return size_t Used space in bytes
+ */
+size_t getUsedSpace()
+{
+    return LittleFS.usedBytes();
+}
+
+ESP8266 code: 
+bool checkFileSpace(size_t fileSize)
+{
+  // Get total available space on LittleFS
+  FSInfo fs_info;
+  LittleFS.info(fs_info);
+  size_t totalSpace = fs_info.totalBytes;
+  size_t availableSpace = fs_info.usedBytes;
+ESP32 code: 
+bool checkFileSpace(size_t fileSize)
+{
+  // Get total available space on LittleFS
+  size_t totalSpace = LittleFS.totalBytes();
+  size_t availableSpace = LittleFS.usedBytes();	
 		
 		
