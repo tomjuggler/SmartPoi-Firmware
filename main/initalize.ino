@@ -351,46 +351,49 @@ void littleFSLoadSettings()
  */
 void checkFilesInSetup()
 {
+#ifdef ESP8266
+  Dir dir = LittleFS.openDir("/");
+  while (dir.next()) {
+    String fileName = dir.fileName();
+    File file = dir.openFile("r");
+#else
   File root = LittleFS.open("/");
   File file = root.openNextFile();
-
-  while (file)
-  {
+  while (file) {
     String fileName = file.name();
+#endif
 
-    // Check file size
+    // Common code for both platforms
     size_t fileSize = file.size();
     Serial.print("Checking file: ");
     Serial.print(fileName);
     Serial.print(" - Size: ");
     Serial.println(fileSize);
 
-    // If file size exceeds maxPX, delete it
-    if (fileSize > maxPX)
-    {
+    if (fileSize > maxPX) {
       Serial.print("File too large. Deleting: ");
       Serial.println(fileName);
       LittleFS.remove(fileName);
-    }
-    else
-    {
-      // Try to read a small portion of the file to detect corruption
+    } else {
       uint8_t buffer[10];
-      if (file.read(buffer, sizeof(buffer)) != sizeof(buffer))
-      {
-        // File might be corrupted, unable to read
+      if (file.read(buffer, sizeof(buffer)) != sizeof(buffer)) {
         Serial.print("Corrupted file detected. Deleting: ");
         Serial.println(fileName);
         LittleFS.remove(fileName);
-      }
-      else
-      {
+      } else {
         Serial.println("File is valid.");
       }
     }
-
     file.close();
-  }
+
+#ifdef ESP8266
+  } // end while dir.next()
+#else
+  file = root.openNextFile();
+  } // end while file
+  root.close();
+#endif
+
   size_t remainingSpace = getRemainingSpace();
   Serial.print("Space remaining on disk: ");
   Serial.println(remainingSpace);
