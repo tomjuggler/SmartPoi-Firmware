@@ -33,9 +33,15 @@ void handleGetPixels()
 
 bool checkFileSpace(size_t fileSize)
 {
-  // Get total available space on LittleFS
+#ifdef ESP8266
+  FSInfo fs_info;
+  LittleFS.info(fs_info);
+  size_t totalSpace = fs_info.totalBytes;
+  size_t availableSpace = fs_info.usedBytes;
+#elif defined(ESP32)
   size_t totalSpace = LittleFS.totalBytes();
   size_t availableSpace = LittleFS.usedBytes();
+#endif
 
   // Calculate maximum allowed file size
   size_t maxAllowedSize = totalSpace - maxPX - 1024; // reserve 24,000 bytes and some extra buffer
@@ -222,27 +228,35 @@ void clearArray()
  */
 size_t getTotalSpace()
 {
+#ifdef ESP8266
+    FSInfo fs_info;
+    LittleFS.info(fs_info);
+    return fs_info.totalBytes;
+#elif defined(ESP32)
     return LittleFS.totalBytes();
+#endif
 }
 
-/**
- * @brief Get the remaining space in LittleFS (ESP8266)
- *
- * @return size_t Remaining space in bytes
- */
 size_t getRemainingSpace()
 {
+#ifdef ESP8266
+    FSInfo fs_info;
+    LittleFS.info(fs_info);
+    return fs_info.totalBytes - fs_info.usedBytes;
+#elif defined(ESP32)
     return LittleFS.totalBytes() - LittleFS.usedBytes();
+#endif
 }
 
-/**
- * @brief Get the used space in LittleFS (ESP8266)
- *
- * @return size_t Used space in bytes
- */
 size_t getUsedSpace()
 {
+#ifdef ESP8266
+    FSInfo fs_info;
+    LittleFS.info(fs_info);
+    return fs_info.usedBytes;
+#elif defined(ESP32)
     return LittleFS.usedBytes();
+#endif
 }
 
 
@@ -519,14 +533,25 @@ void handleFileList()
   }
 
   String path = server.arg("dir");
-  // Serial.println("handleFileList: " + path);
+#ifdef ESP8266
+  Dir dir = LittleFS.openDir(path);
+  String output = "[";
+  while(dir.next()) {
+    File entry = dir.openFile("r");
+    if(output != "[") output += ',';
+    output += "{\"type\":\"";
+    output += (entry.isDirectory()) ? "dir" : "file";
+    output += "\",\"name\":\"";
+    output += String(entry.name());
+    output += "\"}";
+    entry.close();
+  }
+#elif defined(ESP32)
   File root = LittleFS.open(path);
   String output = "[";
   File file = root.openNextFile();
-  
-  while (file)
-  {
-    if (output != "[") output += ',';
+  while(file) {
+    if(output != "[") output += ',';
     output += "{\"type\":\"";
     output += (file.isDirectory()) ? "dir" : "file";
     output += "\",\"name\":\"";
@@ -534,6 +559,7 @@ void handleFileList()
     output += "\"}";
     file = root.openNextFile();
   }
+#endif
 
   output += "]";
 
