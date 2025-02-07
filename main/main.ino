@@ -60,8 +60,8 @@ File fsUploadFile;
 
 int newBrightness = 20; // setting 20 for battery and so white is not too much! This is re-set on startup, for safety and battery
 #ifdef PLATFORM_ESP32
-  #define DATA_PIN 1    // GPIO1 for ESP32
-  #define CLOCK_PIN 13  // GPIO13 for ESP32
+  #define DATA_PIN 4    // 1 for ESP32S3
+  #define CLOCK_PIN 5  // 13 for ESP32S3
 #else
   #define DATA_PIN D2   // D2 for D1Mini, 2 for ESP-01
   #define CLOCK_PIN D1  // D1 for D1Mini, 0 for ESP-01
