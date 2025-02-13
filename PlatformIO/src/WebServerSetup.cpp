@@ -109,6 +109,10 @@ void handleResetImageToUse() {
 }
 
 void handleReturnSettings() {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  server.sendHeader("Access-Control-Allow-Credentials", "true");
   File settings = LittleFS.open("/settings.txt", "r");
   String settingsSSID = settings.readStringUntil('\n');
   String settingsPASS = settings.readStringUntil('\n');
@@ -176,13 +180,20 @@ void handleFileRead() {
     server.send(500, "text/plain", "BAD ARGS");
     return;
   }
-
-  String path = server.arg("file");
-  String contentType = getContentType(path);
   
+  #ifdef ESP8266
+  String path = server.arg("file");
+  #elif defined(ESP32)
+  String path = "/" + server.arg("file"); //TODO: is this for ESP32 only? It works - test on ESP8266 to confirm
+  #endif
+  String contentType = getContentType(path);
+
+  // Serial.print("handleFileRead for file: ");
+  // Serial.println(path);
+
   if(LittleFS.exists(path)) {
     File file = LittleFS.open(path, "r");
-    server.streamFile(file, contentType);
+    size_t sent = server.streamFile(file, contentType);
     file.close();
   } else {
     server.send(404, "text/plain", "File not found");
@@ -190,6 +201,10 @@ void handleFileRead() {
 }
 
 void handleFileCreate() {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  server.sendHeader("Access-Control-Allow-Credentials", "true");
   String path = server.arg("path");
   if(path.isEmpty()) {
     server.send(400, "text/plain", "Bad request");
@@ -211,6 +226,10 @@ void handleFileCreate() {
 }
 
 void handleFileDelete() {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  server.sendHeader("Access-Control-Allow-Credentials", "true");
   String path = server.arg("path");
   if(path.isEmpty()) {
     server.send(400, "text/plain", "Bad request");
