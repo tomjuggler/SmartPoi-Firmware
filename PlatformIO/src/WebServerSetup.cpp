@@ -35,18 +35,19 @@ String formatBytes(size_t bytes) {
 
 String getContentType(String filename) {
   if(server.hasArg("download")) return "application/octet-stream";
-  else if(filename.endsWith(".htm")) return "text/html";
-  else if(filename.endsWith(".html")) return "text/html";
-  else if(filename.endsWith(".css")) return "text/css";
-  else if(filename.endsWith(".js")) return "application/javascript";
-  else if(filename.endsWith(".png")) return "image/png";
-  else if(filename.endsWith(".gif")) return "image/gif";
-  else if(filename.endsWith(".jpg")) return "image/jpeg";
-  else if(filename.endsWith(".ico")) return "image/x-icon";
-  else if(filename.endsWith(".xml")) return "text/xml";
-  else if(filename.endsWith(".pdf")) return "application/x-pdf";
-  else if(filename.endsWith(".zip")) return "application/x-zip";
-  else if(filename.endsWith(".gz")) return "application/x-gzip";
+  if(filename.endsWith(".htm"))  return "text/html";
+  if(filename.endsWith(".html")) return "text/html";
+  if(filename.endsWith(".css"))  return "text/css";
+  if(filename.endsWith(".js"))   return "application/javascript";
+  if(filename.endsWith(".png"))  return "image/png";
+  if(filename.endsWith(".gif"))  return "image/gif";
+  if(filename.endsWith(".jpg"))  return "image/jpeg";
+  if(filename.endsWith(".ico"))  return "image/x-icon";
+  if(filename.endsWith(".xml"))  return "text/xml";
+  if(filename.endsWith(".pdf"))  return "application/x-pdf";
+  if(filename.endsWith(".zip"))  return "application/x-zip";
+  if(filename.endsWith(".gz"))   return "application/x-gzip";
+  if(filename.endsWith(".bin"))  return "application/octet-stream";
   return "text/plain";
 }
 
@@ -84,32 +85,65 @@ void handleReturnSettings() {
 
 // File management handlers
 void handleFileList() {
-  String output = "[";
-  File dir = LittleFS.open("/");
-  File entry = dir.openNextFile();
-  while(entry) {
-    if(output != "[") output += ',';
-    output += "{\"name\":\"";
-    output += entry.name();
-    output += "\",\"size\":";
-    output += entry.size();
-    output += ",\"type\":\"";
-    output += (entry.isDirectory() ? "dir" : "file");
-    output += "\"}";
-    entry = dir.openNextFile();
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  server.sendHeader("Access-Control-Allow-Credentials", "true");
+
+  if (!server.hasArg("dir")) {
+    server.send(500, "text/plain", "BAD ARGS");
+    return;
   }
+
+  String path = server.arg("dir");
+  String output = "[";
+
+#ifdef ESP8266
+  Dir dir = LittleFS.openDir(path);
+  while(dir.next()) {
+    File entry = dir.openFile("r");
+    if(output != "[") output += ',';
+    output += "{\"type\":\"";
+    output += (entry.isDirectory() ? "dir" : "file");
+    output += "\",\"name\":\"";
+    output += String(entry.name());
+    output += "\"}";
+    entry.close();
+  }
+#elif defined(ESP32)
+  File root = LittleFS.open(path);
+  File file = root.openNextFile();
+  while(file) {
+    if(output != "[") output += ',';
+    output += "{\"type\":\"";
+    output += (file.isDirectory() ? "dir" : "file");
+    output += "\",\"name\":\"";
+    output += String(file.name());
+    output += "\"}";
+    file = root.openNextFile();
+  }
+#endif
+
   output += "]";
   server.send(200, "application/json", output);
 }
 
 void handleFileRead() {
-  String path = server.arg("path");
-  if(path.endsWith("/")) path += "index.htm";
-  
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  server.sendHeader("Access-Control-Allow-Credentials", "true");
+
+  if (!server.hasArg("file")) {
+    server.send(500, "text/plain", "BAD ARGS");
+    return;
+  }
+
+  String path = server.arg("file");
   String contentType = getContentType(path);
-  File file = LittleFS.open(path, "r");
   
-  if(file) {
+  if(LittleFS.exists(path)) {
+    File file = LittleFS.open(path, "r");
     server.streamFile(file, contentType);
     file.close();
   } else {
@@ -155,20 +189,54 @@ void handleFileDelete() {
 
 void handleFileUpload() {
   HTTPUpload& upload = server.upload();
+  static size_t fileSize = 0;
+
   if(upload.status == UPLOAD_FILE_START) {
-    if(!checkFileSpace(upload.totalSize)) {
-      upload.status = UPLOAD_FILE_ABORTED;
-      server.send(507, "text/plain", "Insufficient storage");
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+    server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+    server.sendHeader("Access-Control-Allow-Credentials", "true");
+
+    String filename = upload.filename;
+    if (!filename.startsWith("/")) filename = "/" + filename;
+    
+    // Validate filename format
+    if (filename.length() != 6 || images.indexOf(filename[1]) == -1) {
+      server.send(400, "text/plain", "Invalid filename");
       return;
     }
-    fsUploadFile = LittleFS.open(upload.filename, "w");
-  } else if(upload.status == UPLOAD_FILE_WRITE) {
+
+    fileSize = 0;
+    fsUploadFile = LittleFS.open(filename, "w");
+  } 
+  else if(upload.status == UPLOAD_FILE_WRITE) {
+    fileSize += upload.currentSize;
+    
+    if (!checkFileSpace(fileSize) || fileSize > MAX_PX || fileSize > getRemainingSpace()) {
+      if(fsUploadFile) {
+        fsUploadFile.close();
+        LittleFS.remove(upload.filename);
+      }
+      server.send(507, "text/plain", "File size exceeds limit");
+      return;
+    }
+    
     if(fsUploadFile) fsUploadFile.write(upload.buf, upload.currentSize);
-  } else if(upload.status == UPLOAD_FILE_END) {
+  } 
+  else if(upload.status == UPLOAD_FILE_END) {
     if(fsUploadFile) {
       fsUploadFile.close();
       server.send(200, "text/plain", "Upload complete");
     }
+    fileSize = 0;
+  }
+  else if(upload.status == UPLOAD_FILE_ABORTED) {
+    if(fsUploadFile) {
+      fsUploadFile.close();
+      LittleFS.remove(upload.filename);
+    }
+    server.send(500, "text/plain", "Upload aborted");
+    fileSize = 0;
   }
 }
 
@@ -330,15 +398,24 @@ void webServerSetupLogic(String router, String pass) {
     html.close();
   }
 
-  // Update server routes
+  // Register routes first
+  server.on("/list", HTTP_GET, handleFileList);
+  server.on("/edit", HTTP_GET, handleFileRead);
+  server.on("/edit", HTTP_PUT, handleFileCreate);
+  server.on("/edit", HTTP_DELETE, handleFileDelete);
+  server.on("/edit", HTTP_POST, []() {}, handleFileUpload);
+  server.on("/get-pixels", HTTP_GET, handleGetPixels);
+  server.on("/options", HTTP_OPTIONS, handleOptions);
+  server.on("/resetimagetouse", HTTP_GET, handleResetImageToUse);
+  server.on("/returnsettings", HTTP_GET, handleReturnSettings);
   server.on("/router", HTTP_GET, handleRouterSettings);
   server.on("/pattern", HTTP_GET, handlePatternSettings);
   server.on("/intervalChange", HTTP_GET, handleIntervalChange);
   server.on("/brightness", HTTP_GET, handleBrightness);
   server.on("/setting", HTTP_GET, handleGeneralSettings);
-  
-  // Add missing routes
-  server.on("/resetimagetouse", HTTP_GET, []() {
+
+  // Set notFound handler last
+  server.onNotFound([]() {
     server.sendHeader("Access-Control-Allow-Origin", "*");
     server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
     server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
