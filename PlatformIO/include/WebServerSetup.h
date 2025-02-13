@@ -24,6 +24,10 @@ extern int apChannel;
 extern long interval;
 
 // Handler declarations
+size_t getTotalSpace();
+size_t getRemainingSpace();
+size_t getUsedSpace();
+String formatBytes(size_t bytes);
 void handleAllServers();
 void handleGetPixels();
 void handleOptions();

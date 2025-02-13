@@ -22,6 +22,44 @@ bool checkFileSpace(size_t fileSize) {
   return (fileSize <= maxAllowedSize);
 }
 
+/**
+ * @brief Get the total space in LittleFS (ESP8266)
+ *
+ * @return size_t Total space in bytes
+ */
+size_t getTotalSpace()
+{
+#ifdef ESP8266
+    FSInfo fs_info;
+    LittleFS.info(fs_info);
+    return fs_info.totalBytes;
+#elif defined(ESP32)
+    return LittleFS.totalBytes();
+#endif
+}
+
+size_t getRemainingSpace()
+{
+#ifdef ESP8266
+    FSInfo fs_info;
+    LittleFS.info(fs_info);
+    return fs_info.totalBytes - fs_info.usedBytes;
+#elif defined(ESP32)
+    return LittleFS.totalBytes() - LittleFS.usedBytes();
+#endif
+}
+
+size_t getUsedSpace()
+{
+#ifdef ESP8266
+    FSInfo fs_info;
+    LittleFS.info(fs_info);
+    return fs_info.usedBytes;
+#elif defined(ESP32)
+    return LittleFS.usedBytes();
+#endif
+}
+
 String formatBytes(size_t bytes) {
   const char* suffixes[] = {"B", "KB", "MB", "GB"};
   uint8_t i = 0;
