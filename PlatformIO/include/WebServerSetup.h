@@ -22,6 +22,7 @@ extern uint8_t addrNumA, addrNumB, addrNumC, addrNumD;
 extern int patternChooser;
 extern int apChannel; 
 extern long interval;
+extern uint8_t message1Data[MAX_PX];
 
 // Handler declarations
 size_t getTotalSpace();

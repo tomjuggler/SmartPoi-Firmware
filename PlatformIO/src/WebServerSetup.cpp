@@ -184,7 +184,7 @@ void handleFileRead() {
   #ifdef ESP8266
   String path = server.arg("file");
   #elif defined(ESP32)
-  String path = "/" + server.arg("file"); //TODO: is this for ESP32 only? It works - test on ESP8266 to confirm
+  String path = "/" + server.arg("file"); //TODO: is this for ESP32 only? It works - test on ESP8266 to confirm - could be only S3? 
   #endif
   String contentType = getContentType(path);
 
@@ -243,8 +243,16 @@ void handleFileDelete() {
   
   server.send(200, "text/plain", "Deleted");
 }
+// test function to clear memory while uploading.
+void clearArray()
+{
+  memset(message1Data, 0, sizeof(message1Data));
+}
 
-void handleFileUpload() {
+void handleFileUpload() { //todo: cors error? 
+  Serial.print("handleFileUpload for file");
+  clearArray();
+  
   HTTPUpload& upload = server.upload();
   static size_t fileSize = 0;
 
@@ -253,10 +261,9 @@ void handleFileUpload() {
     server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
     server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
     server.sendHeader("Access-Control-Allow-Credentials", "true");
-
     String filename = upload.filename;
     if (!filename.startsWith("/")) filename = "/" + filename;
-    
+    Serial.println(filename);
     // Validate filename format
     if (filename.length() != 6 || images.indexOf(filename[1]) == -1) {
       server.send(400, "text/plain", "Invalid filename");
@@ -483,6 +490,10 @@ void webServerSetupLogic(String router, String pass) {
   });
 
   server.on("/returnsettings", HTTP_GET, []() {
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+    server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+    server.sendHeader("Access-Control-Allow-Credentials", "true");
     File settings = LittleFS.open("/settings.txt", "r");
     String content = settings.readStringUntil('\n') + "," +
                     settings.readStringUntil('\n') + "," +
