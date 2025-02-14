@@ -8,3 +8,6 @@ PlatformIO/.pio/*
 image.bin
 utilities/venv/*
 main/build/*
+make_gource.sh
+make_gource_all_branches.sh
+*.mp4
