@@ -16,3 +16,20 @@ PlatformIO version is still under development and not working 100%
 
 
 
+## CODE AUDIT Feb 2025 (branch: PlatformIO_ESP32_2025): 
+- much testing needed as this branch will be replacing main branch soon. 
+
+ARDUINO: 
+- ESP-01: Compiles, untested - *not supported*
+- D1 Mini: Compiles. Everything works - *supported until end 2025*
+- ESP32 C3: Compiles. LittleFS Upload seems to work but "Failed to open file for reading"
+- ESP32 S3: Compiles. LittleFS Upload seems to work but "Failed to open file for reading"
+
+Most ESP8266 and ESP32 boards *should* work.
+
+### 2026: Complete switch to PlatformIO
+- due to Magic Poi coming out, there will no longer be the option to support Arduino IDE version after the end of this year. 
+- hopefully the project will be completely stable by then anyway. Plus it's open source, have fun. 
+
+##NOTES: 
+- ESP32 C3 please use CDC enable (enables Serial ouput for debugging)
