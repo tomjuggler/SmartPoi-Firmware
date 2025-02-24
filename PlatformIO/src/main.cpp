@@ -94,8 +94,8 @@ volatile int packetSize;
 
 // LED configuration
 #ifdef PLATFORM_ESP32
-  #define DATA_PIN 1 // 4 on C3 1 on S3
-  #define CLOCK_PIN 13 // 5 on C3 13 on S3
+  #define DATA_PIN 4 // 4 on C3 1 on S3
+  #define CLOCK_PIN 5 // 5 on C3 13 on S3
 #else
   #define DATA_PIN D2
   #define CLOCK_PIN D1
