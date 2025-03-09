@@ -12,7 +12,7 @@
   #include <WebServer.h>
   #include <EEPROM.h>
   #include <WiFiMulti.h>
-  extern WebServer server;
+  extern WebServer poiserver;
   extern WiFiMulti WiFiMulti;
   extern DNSServer dnsServer;
 #elif defined(PLATFORM_ESP8266)
@@ -21,7 +21,7 @@
   #include <ESP8266WebServer.h>
   #include <EEPROM.h>
   #include <ESP8266WiFiMulti.h>
-  extern ESP8266WebServer server;
+  extern ESP8266WebServer poiserver;
   extern ESP8266WiFiMulti WiFiMulti;
   extern DNSServer dnsServer;
 #endif
@@ -45,8 +45,8 @@ constexpr int DEFAULT_BRIGHTNESS = 20;
 
 // LED configuration - todo: duplicated in main.cpp, why??
 #ifdef PLATFORM_ESP32
-  #define DATA_PIN 4 // 4 on C3 1 on S3
-  #define CLOCK_PIN 5 // 5 on C3 13 on S3
+  #define DATA_PIN 1 // 4 on C3 1 on S3
+  #define CLOCK_PIN 13 // 5 on C3 13 on S3
 #else
   #define DATA_PIN D2
   #define CLOCK_PIN D1

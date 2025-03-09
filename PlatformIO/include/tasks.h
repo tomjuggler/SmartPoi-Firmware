@@ -1,4 +1,5 @@
 #include <ElegantOTA.h>
+#include <LittleFS.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 

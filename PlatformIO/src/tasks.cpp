@@ -1,10 +1,28 @@
 #include "tasks.h"
-
+#include "LittleFS.h"
 
 extern AsyncWebServer server;
 
 unsigned long ota_progress_millis = 0;
+TaskHandle_t elegantOTATaskHandle = NULL;
 
+// server code:
+String loadIndexHtml() {
+  if (!LittleFS.begin()) {
+    Serial.println("An error occurred while mounting LittleFS");
+    return "Error loading page";
+  }
+
+  File file = LittleFS.open("/index.html", "r");
+  if (!file) {
+    Serial.println("Failed to open index.html");
+    return "Error loading page";
+  }
+
+  String content = file.readString();
+  file.close();
+  return content;
+}
 
 void onOTAStart()
 {
@@ -63,7 +81,7 @@ void elegantOTATask(void *pvParameters)
 {
   // setup part for Server and ElegantOTA - runs once:
 
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+  server.on("/elegant", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200, "text/html", loadIndexHtml());
   });
 

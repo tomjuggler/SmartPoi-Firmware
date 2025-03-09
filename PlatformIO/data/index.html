@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>Magic Poi Control</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f0f0f0;
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    p {
+      background-color: #ffe6e6;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    ul {
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Control Magic Poi</h1>
+  <p><strong>NOT WORKING RIGHT NOW TEST ONLY!</strong></p>
+  <p><strong>Clicking buttons 1-4 will disable physical buttons operation on the poi. Click on "RESUME PHYSICAL BUTTONS" to re-enable them.</strong></p>
+  <button onclick="fetch('/button1')" style="background-color: #4CAF50;">Button 1 mode switch</button>
+  <button onclick="fetch('/button2')" style="background-color: #008CBA;">Button 1 LONG PRESS does nothing</button>
+  <button onclick="fetch('/button3')" style="background-color: #f44336;">Button 2 use SHARED images</button>
+  <button onclick="fetch('/button4')" style="background-color: #555555;">Button 2 LONG PRESS use USER images</button>
+  <button onclick="fetch('/button5')" style="background-color: #e7e7e7; color: black;">RESUME PHYSICAL BUTTONS</button>
+  <h3>Modes Available:</h3>
+  <ul>
+    <li>Download and save SHARED files, then display (set by button 2 SHORT PRESS)</li>
+    <li>Stream shared files (one downloaded in background while displaying another. Once complete it's displayed and next download starts)</li>
+    <li>Download and save USER files (set by button 2 LONG PRESS) (default on startup for testing)</li>
+  </ul>
+</body>
+</html>
