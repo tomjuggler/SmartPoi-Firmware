@@ -1,0 +1,86 @@
+#include "tasks.h"
+
+
+extern AsyncWebServer server;
+
+unsigned long ota_progress_millis = 0;
+
+
+void onOTAStart()
+{
+  // Log when OTA has started
+  Serial.println("OTA update started!");
+  // <Add your own code here>
+}
+
+void onOTAProgress(size_t current, size_t final)
+{
+  // Log every 1 second
+  if (millis() - ota_progress_millis > 1000)
+  {
+    ota_progress_millis = millis();
+    Serial.printf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
+  }
+}
+
+void onOTAEnd(bool success)
+{
+  // Log when OTA has finished
+  if (success)
+  {
+    Serial.println("OTA update finished successfully!");
+  }
+  else
+  {
+    Serial.println("There was an error during OTA update!");
+  }
+  // <Add your own code here>
+}
+
+/////////////////////////////////////////////// end elegantOTA code //////////////////////////////////////
+
+/**
+ * @brief Sets up ElegantOTA task for WiFi firmware updates and Server
+ */
+void setupElegantOTATask()
+{
+  xTaskCreatePinnedToCore(
+      elegantOTATask,        // Task function
+      "Elegant OTA Task",    // Name of the task
+      4096,                  // Stack size (in words, not bytes)
+      NULL,                  // Task input parameter
+      3,                     // Priority of the task
+      &elegantOTATaskHandle, // Task handle
+      0                      // Core where the task should run (core 1)
+  );
+}
+
+/**
+ * @brief Periodically checks for WiFi firmware updates and handles Web Server
+ * @details Server handling also happens here
+ */
+void elegantOTATask(void *pvParameters)
+{
+  // setup part for Server and ElegantOTA - runs once:
+
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(200, "text/html", loadIndexHtml());
+  });
+
+  // ... other server routes ...
+
+  server.begin();
+  ElegantOTA.begin(&server); // Start ElegantOTA
+
+  // ElegantOTA callbacks
+  ElegantOTA.onStart(onOTAStart);
+  ElegantOTA.onProgress(onOTAProgress);
+  ElegantOTA.onEnd(onOTAEnd);
+
+  // loop handling ElegantOTA:
+  for (;;)
+  {
+    ElegantOTA.loop(); // OTA updates: see https://randomnerdtutorials.com/esp32-ota-over-the-air-vs-code/ for usage
+     vTaskDelay(100 / portTICK_PERIOD_MS); // Yield to other tasks
+  }
+}

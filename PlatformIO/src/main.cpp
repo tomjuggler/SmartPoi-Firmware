@@ -7,10 +7,12 @@
 #include "ShowLittleFSImage.h"
 #include "TimeFunc.h"
 #include "WebServerSetup.h"
+#include "tasks.h"
 
 // Global Variable Definitions
 CRGB leds[NUM_LEDS];
 WiFiUDP Udp;
+AsyncWebServer server(80);  // Create the web server instance
 
 // Additional global variables
 File fsUploadFile;
@@ -137,6 +139,7 @@ void setup() {
   fastLEDIndicate();
   Udp.begin(LOCAL_PORT);
   webServerSetupLogic(apName, apPass);
+  setupElegantOTATask();  // Start the OTA task - todo: is this going to conflict with my own webserver above???
 }
 
 void loop() {
