@@ -90,7 +90,7 @@ extern IPAddress ipGatewayauxillary;
 extern IPAddress ipSubnet;
 extern const char* apName;
 extern const char* apPass;
-extern const String images; 
+extern String images; 
 
 // WiFi Mode Constants
 #if defined(PLATFORM_ESP32)

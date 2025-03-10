@@ -11,3 +11,4 @@ main/build/*
 make_gource.sh
 make_gource_all_branches.sh
 *.mp4
+PlatformIO/unused/*

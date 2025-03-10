@@ -2,12 +2,7 @@
 #include "Globals.h"
 #include "LittleFS.h"
 
-#if defined(PLATFORM_ESP32)
-  AsyncWebServer server(80);
-#elif defined(PLATFORM_ESP8266)
-  ESP8266WebServer poiserver(80); // Maintain original name for compatibility
-  AsyncWebServer server(80);
-#endif
+
 extern long interval;
 #include <EEPROM.h>
 #include <FastLED.h>
@@ -102,6 +97,23 @@ String loadSiteHtml() {
   }
 
   File file = LittleFS.open("/site.htm", "r");
+  if (!file) {
+    Serial.println("Failed to open index.html");
+    return "Error loading page";
+  }
+
+  String content = file.readString();
+  file.close();
+  return content;
+}
+
+String loadIndexHtml() {
+  if (!LittleFS.begin()) {
+    Serial.println("An error occurred while mounting LittleFS");
+    return "Error loading page";
+  }
+
+  File file = LittleFS.open("/index.html", "r");
   if (!file) {
     Serial.println("Failed to open index.html");
     return "Error loading page";
@@ -469,7 +481,7 @@ void elegantOTATask(void *pvParameters)
     request->send(200, "text/html", loadSiteHtml());
   });
 
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+  server.on("/elegant", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200, "text/html", loadIndexHtml());
   });
   
@@ -494,6 +506,14 @@ void elegantOTATask(void *pvParameters)
     }
   });
 
+  server.on("/edit", HTTP_POST, [](AsyncWebServerRequest *request) {
+    if(request->hasArg("path")) {
+      handleFileuPLOAD(request);
+    } else {
+      request->send(400, "text/plain", "Missing path parameter");
+    }
+  });
+
   server.on("/edit", HTTP_DELETE, [](AsyncWebServerRequest *request) {
     if(request->hasArg("path")) {
       handleFileDelete(request);
@@ -503,7 +523,13 @@ void elegantOTATask(void *pvParameters)
   });
 
   server.on("/get-pixels", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(200, "text/plain", String(NUM_PX));
+    AsyncResponseStream* response = request->beginResponseStream("text/plain");
+    response->addHeader("Access-Control-Allow-Origin", "*");
+    response->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+    response->addHeader("Access-Control-Allow-Headers", "Content-Type");
+    response->addHeader("Access-Control-Allow-Credentials", "true");
+    response->print(String(NUM_PX));
+    request->send(response);
   });
 
   server.on("/options", HTTP_OPTIONS, [](AsyncWebServerRequest *request) {
@@ -519,7 +545,13 @@ void elegantOTATask(void *pvParameters)
   server.on("/resetimagetouse", HTTP_GET, [](AsyncWebServerRequest *request) {
     imageToUse = 0;
     previousMillis3 = millis();
-    request->send(200, "text/plain", "");
+    AsyncResponseStream* response = request->beginResponseStream("text/plain");
+    response->addHeader("Access-Control-Allow-Origin", "*");
+    response->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+    response->addHeader("Access-Control-Allow-Headers", "Content-Type");
+    response->addHeader("Access-Control-Allow-Credentials", "true");
+    response->print("");
+    request->send(response);
   });
 
   server.on("/returnsettings", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -555,6 +587,22 @@ void elegantOTATask(void *pvParameters)
     request->send(response);
   });
 
+  server.on("/pattern", HTTP_GET, [](AsyncWebServerRequest *request) {
+    handlePatternSettings(request);
+  });
+
+  server.on("/intervalChange", HTTP_GET, [](AsyncWebServerRequest *request) {
+    handleIntervalChange(request);
+  });
+
+  server.on("/brightness", HTTP_GET, [](AsyncWebServerRequest *request) {
+    handleBrightness(request);
+  });
+
+  server.on("/setting", HTTP_GET, [](AsyncWebServerRequest *request) {
+    handleGeneralSettings(request);
+  });
+  
   server.begin();
   ElegantOTA.begin(&server); // Start ElegantOTA
 

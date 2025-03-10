@@ -8,7 +8,7 @@
 
 String getContentType(String filename);
 bool checkFileSpace(size_t fileSize);
-
+extern uint8_t message1Data[MAX_PX];
 // Forward declarations
 class AsyncWebServerRequest;
 
