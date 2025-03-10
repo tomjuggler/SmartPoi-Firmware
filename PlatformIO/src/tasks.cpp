@@ -1,6 +1,7 @@
 #include "tasks.h"
 #include "Globals.h"
 #include "LittleFS.h"
+extern long interval;
 #include <EEPROM.h>
 #include <FastLED.h>
 
@@ -82,12 +83,19 @@ void onOTAEnd(bool success)
 }
 
 void handlePatternSettings(AsyncWebServerRequest* request) {
+  AsyncResponseStream* response = request->beginResponseStream("application/json");
+  response->addHeader("Access-Control-Allow-Origin", "*");
+  response->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+  response->addHeader("Access-Control-Allow-Headers", "Content-Type");
+  response->addHeader("Access-Control-Allow-Credentials", "true");
+  
   if(request->hasArg("patternChooserChange")) {
     int newPatt = request->arg("patternChooserChange").toInt();
     
-    // Add null check
     if(newPatt < 0 || newPatt > 7) {
-        request->send(400, "application/json", "{\"Error\":\"Invalid pattern\"}");
+        response->setCode(400);
+        response->print("{\"Error\":\"Invalid pattern\"}");
+        request->send(response);
         return;
     }
     
@@ -103,20 +111,14 @@ void handlePatternSettings(AsyncWebServerRequest* request) {
       pattern = patternChooser;
     }
     
-    EEPROM.commit();  // Add explicit commit
-    request->sendHeader("Access-Control-Allow-Origin", "*");
-    request->sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
-    request->sendHeader("Access-Control-Allow-Headers", "Content-Type");
-    request->sendHeader("Access-Control-Allow-Credentials", "true");
-    request->send(200, "application/json", "{\"Success\":\"Pattern set\"}");
+    EEPROM.commit();
+    response->setCode(200);
+    response->print("{\"Success\":\"Pattern set\"}");
+  } else {
+    response->setCode(400);
+    response->print("{\"Error\":\"Missing parameter\"}");
   }
-  else {
-    request->sendHeader("Access-Control-Allow-Origin", "*");
-    request->sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
-    request->sendHeader("Access-Control-Allow-Headers", "Content-Type");
-    request->sendHeader("Access-Control-Allow-Credentials", "true");
-    request->send(400, "application/json", "{\"Error\":\"Missing parameter\"}");
-  }
+  request->send(response);
 }
 
 void handleRouterSettings(AsyncWebServerRequest* request) {
@@ -171,6 +173,12 @@ void handleBrightness(AsyncWebServerRequest* request) {
 
 // File operations handlers
 void handleFileList(AsyncWebServerRequest *request) {
+  AsyncResponseStream* response = request->beginResponseStream("application/json");
+  response->addHeader("Access-Control-Allow-Origin", "*");
+  response->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+  response->addHeader("Access-Control-Allow-Headers", "Content-Type");
+  response->addHeader("Access-Control-Allow-Credentials", "true");
+  
   String path = request->hasArg("dir") ? request->arg("dir") : "/";
   String output = "[";
   
@@ -186,11 +194,9 @@ void handleFileList(AsyncWebServerRequest *request) {
     file = root.openNextFile();
   }
   output += "]";
-  request->sendHeader("Access-Control-Allow-Origin", "*");
-  request->sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
-  request->sendHeader("Access-Control-Allow-Headers", "Content-Type");
-  request->sendHeader("Access-Control-Allow-Credentials", "true");
-  request->send(200, "application/json", output);
+  
+  response->print(output);
+  request->send(response);
 }
 
 void handleFileRead(AsyncWebServerRequest *request) {
@@ -315,6 +321,12 @@ void elegantOTATask(void *pvParameters)
   });
 
   server.on("/returnsettings", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncResponseStream* response = request->beginResponseStream("text/html");
+    response->addHeader("Access-Control-Allow-Origin", "*");
+    response->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+    response->addHeader("Access-Control-Allow-Headers", "Content-Type");
+    response->addHeader("Access-Control-Allow-Credentials", "true");
+    
     File settings = LittleFS.open("/settings.txt", "r");
     String content = settings.readStringUntil('\n') + "," + 
                     settings.readStringUntil('\n') + "," + 
@@ -325,7 +337,8 @@ void elegantOTATask(void *pvParameters)
                     String(addrNumD) + "," + 
                     String(patternChooser);
     settings.close();
-    request->send(200, "text/html", content);
+    response->print(content);
+    request->send(response);
   });
 
   // Add notFound handler
