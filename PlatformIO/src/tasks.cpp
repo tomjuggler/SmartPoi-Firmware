@@ -104,9 +104,17 @@ void handlePatternSettings(AsyncWebServerRequest* request) {
     }
     
     EEPROM.commit();  // Add explicit commit
+    request->sendHeader("Access-Control-Allow-Origin", "*");
+    request->sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+    request->sendHeader("Access-Control-Allow-Headers", "Content-Type");
+    request->sendHeader("Access-Control-Allow-Credentials", "true");
     request->send(200, "application/json", "{\"Success\":\"Pattern set\"}");
   }
   else {
+    request->sendHeader("Access-Control-Allow-Origin", "*");
+    request->sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+    request->sendHeader("Access-Control-Allow-Headers", "Content-Type");
+    request->sendHeader("Access-Control-Allow-Credentials", "true");
     request->send(400, "application/json", "{\"Error\":\"Missing parameter\"}");
   }
 }
@@ -118,6 +126,10 @@ void handleRouterSettings(AsyncWebServerRequest* request) {
     EEPROM.write(100, newRouter);
     EEPROM.commit();
     FastLED.showColor(CRGB::Black);
+    request->sendHeader("Access-Control-Allow-Origin", "*");
+    request->sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+    request->sendHeader("Access-Control-Allow-Headers", "Content-Type");
+    request->sendHeader("Access-Control-Allow-Credentials", "true");
     request->send(200, "application/json", "{\"Success\":\"Router mode set\"}");
   } else {
     request->send(400, "application/json", "{\"Error\":\"Missing parameter\"}");
@@ -130,6 +142,10 @@ void handleIntervalChange(AsyncWebServerRequest* request) {
     interval = (tmp < 1) ? 500L : 
               (tmp > 1800) ? 1800L * 1000L : 
               tmp * 1000L;
+    request->sendHeader("Access-Control-Allow-Origin", "*");
+    request->sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+    request->sendHeader("Access-Control-Allow-Headers", "Content-Type");
+    request->sendHeader("Access-Control-Allow-Credentials", "true");
     request->send(200, "application/json", "{\"Success\":\"Interval updated\"}");
   } else {
     request->send(400, "application/json", "{\"Error\":\"Missing parameter\"}");
@@ -143,6 +159,10 @@ void handleBrightness(AsyncWebServerRequest* request) {
     FastLED.show();
     EEPROM.write(15, newBrightness);
     EEPROM.commit();
+    request->sendHeader("Access-Control-Allow-Origin", "*");
+    request->sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+    request->sendHeader("Access-Control-Allow-Headers", "Content-Type");
+    request->sendHeader("Access-Control-Allow-Credentials", "true");
     request->send(200, "application/json", "{\"Success\":\"Brightness updated\"}");
   } else {
     request->send(400, "application/json", "{\"Error\":\"Missing parameter\"}");
@@ -166,6 +186,10 @@ void handleFileList(AsyncWebServerRequest *request) {
     file = root.openNextFile();
   }
   output += "]";
+  request->sendHeader("Access-Control-Allow-Origin", "*");
+  request->sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+  request->sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  request->sendHeader("Access-Control-Allow-Credentials", "true");
   request->send(200, "application/json", output);
 }
 
@@ -192,6 +216,10 @@ void handleFileCreate(AsyncWebServerRequest *request) {
   
   File file = LittleFS.open(path, "w");
   file.close();
+  request->sendHeader("Access-Control-Allow-Origin", "*");
+  request->sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+  request->sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  request->sendHeader("Access-Control-Allow-Credentials", "true");
   request->send(200, "text/plain", "Created");
 }
 
@@ -207,6 +235,10 @@ void handleFileDelete(AsyncWebServerRequest *request) {
     return;
   }
   
+  request->sendHeader("Access-Control-Allow-Origin", "*");
+  request->sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+  request->sendHeader("Access-Control-Allow-Headers", "Content-Type");
+  request->sendHeader("Access-Control-Allow-Credentials", "true");
   request->send(200, "text/plain", "Deleted");
 }
 
@@ -298,6 +330,10 @@ void elegantOTATask(void *pvParameters)
 
   // Add notFound handler
   server.onNotFound([](AsyncWebServerRequest *request) {
+    request->sendHeader("Access-Control-Allow-Origin", "*");
+    request->sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+    request->sendHeader("Access-Control-Allow-Headers", "Content-Type");
+    request->sendHeader("Access-Control-Allow-Credentials", "true");
     request->send(404, "text/plain", "Not found");
   });
 
