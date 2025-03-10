@@ -34,6 +34,29 @@ bool checkFileSpace(size_t fileSize) {
   return (fileSize <= maxAllowedSize);
 }
 
+size_t getTotalSpace() {
+  return LittleFS.totalBytes();
+}
+
+size_t getRemainingSpace() {
+  return LittleFS.totalBytes() - LittleFS.usedBytes();
+}
+
+size_t getUsedSpace() {
+  return LittleFS.usedBytes();
+}
+
+String formatBytes(size_t bytes) {
+  const char* suffixes[] = {"B", "KB", "MB", "GB"};
+  uint8_t i = 0;
+  double dblBytes = bytes;
+  while(dblBytes >= 1024 && i < 3) {
+    dblBytes /= 1024;
+    i++;
+  }
+  return String(dblBytes, 2) + suffixes[i];
+}
+
 // server code:
 String loadIndexHtml() {
   if (!LittleFS.begin()) {
@@ -280,11 +303,60 @@ void handleFileDelete(AsyncWebServerRequest *request) {
   request->send(response);
 }
 
+void handleGeneralSettings(AsyncWebServerRequest* request) {
+  AsyncResponseStream* response = request->beginResponseStream("application/json");
+  response->addHeader("Access-Control-Allow-Origin", "*");
+  response->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+  response->addHeader("Access-Control-Allow-Headers", "Content-Type");
+  response->addHeader("Access-Control-Allow-Credentials", "true");
+
+  // Handle settings.txt
+  File settings = LittleFS.open("/settings.txt", "w");
+  if (settings) {
+    settings.print(request->arg("ssid") + "\n" + request->arg("pwd"));
+    settings.close();
+  }
+
+  // Channel setting
+  if(request->hasArg("channel")) {
+    int newChannel = request->arg("channel").toInt();
+    EEPROM.write(13, newChannel);
+  }
+
+  // Address settings
+  const String addresses[] = {"addressA", "addressB", "addressC"};
+  const int eepromAddrs[] = {16, 17, 18};
+  for(int i=0; i<3; i++) {
+    if(request->hasArg(addresses[i])) {
+      EEPROM.write(eepromAddrs[i], request->arg(addresses[i]).toInt());
+    }
+  }
+
+  // Pattern chooser
+  if(request->hasArg("patternChooserChange")) {
+    int newPatt = request->arg("patternChooserChange").toInt();
+    patternChooser = newPatt;
+    EEPROM.write(10, newPatt);
+    
+    if(newPatt > 0 && newPatt < 6) {
+      pattern = patternChooser;
+      EEPROM.write(11, newPatt);
+    }
+  }
+
+  EEPROM.commit();
+  response->setCode(200);
+  response->print("{\"Success\":\"Settings updated\"}");
+  request->send(response);
+}
+
 void handleFileUpload(AsyncWebServerRequest* request, const String& filename, size_t index, uint8_t* data, size_t len, bool final) {
     static File fsUploadFile;
     static size_t totalSize = 0;
+    static uint8_t message1Data[MAX_PX]; // File buffer
     
     if(!index) {
+        memset(message1Data, 0, sizeof(message1Data)); // Clear buffer
         totalSize = 0;
         if(!checkFileSpace(request->contentLength()) || 
            request->contentLength() > MAX_PX || 
@@ -381,7 +453,12 @@ void elegantOTATask(void *pvParameters)
   });
 
   server.on("/options", HTTP_OPTIONS, [](AsyncWebServerRequest *request) {
-    request->send(204);
+    AsyncResponseStream* response = request->beginResponseStream("text/plain");
+    response->addHeader("Access-Control-Allow-Origin", "*");
+    response->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+    response->addHeader("Access-Control-Allow-Headers", "Content-Type");
+    response->addHeader("Access-Control-Allow-Credentials", "true");
+    request->send(response);
   });
 
   // Existing migrated routes (keep these):
