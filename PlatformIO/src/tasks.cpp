@@ -422,9 +422,11 @@ void handleFileUpload(AsyncWebServerRequest *request, const String& filename, si
         clearArray();
         totalFileSize = 0;
         
+        // Create a new variable instead of modifying const parameter
+        String fullPath = "/" + filename;
+        
         // Validate filename format
-        filename = "/" + filename; // Ensure leading slash
-        if (filename.length() != 6 || images.indexOf(filename[1]) == -1) {
+        if (fullPath.length() != 6 || images.indexOf(fullPath[1]) == -1) {
             request->send(400, "text/plain", "Invalid filename");
             return;
         }
@@ -438,7 +440,7 @@ void handleFileUpload(AsyncWebServerRequest *request, const String& filename, si
         }
 
         // Attempt to open file
-        fsUploadFile = LittleFS.open(filename, "w");
+        fsUploadFile = LittleFS.open(fullPath, "w");
         if(!fsUploadFile) {
             request->send(500, "text/plain", "Upload failed");
             return;
@@ -535,8 +537,8 @@ void elegantOTATask(void *pvParameters)
       response->addHeader("Access-Control-Allow-Credentials", "true");
       request->send(response);
     },
-    NULL,  // Body handler
-    handleFileUpload // Upload handler
+    handleFileUpload,  // Upload handler (4th param)
+    NULL               // Body handler (5th param)
   );
 
   server.on("/edit", HTTP_DELETE, [](AsyncWebServerRequest *request) {
