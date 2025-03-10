@@ -288,6 +288,11 @@ void handleFileList(AsyncWebServerRequest *request) {
 }
 
 void handleFileRead(AsyncWebServerRequest *request) {
+  AsyncResponseStream* response = request->beginResponseStream("text/plain");
+  response->addHeader("Access-Control-Allow-Origin", "*");
+  response->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+  response->addHeader("Access-Control-Allow-Headers", "Content-Type");
+  response->addHeader("Access-Control-Allow-Credentials", "true");
 #ifdef ESP32
   String path = "/" + request->arg("file"); // ESP32 needs leading slash
 #else
@@ -505,6 +510,9 @@ void elegantOTATask(void *pvParameters)
   server.on("/elegant", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200, "text/html", loadIndexHtml());
   });
+
+  //NOTE: handled by ElegantOTA:
+  // "/update" *OTA UPDATE
   
   // Migrated routes from WebServerSetup.cpp
   server.on("/list", HTTP_GET, [](AsyncWebServerRequest *request) {
