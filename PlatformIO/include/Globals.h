@@ -12,7 +12,7 @@
   #include <WebServer.h>
   #include <EEPROM.h>
   #include <WiFiMulti.h>
-  extern WebServer poiserver;
+  // extern WebServer poiserver;
   extern WiFiMulti WiFiMulti;
   extern DNSServer dnsServer;
 #elif defined(PLATFORM_ESP8266)
