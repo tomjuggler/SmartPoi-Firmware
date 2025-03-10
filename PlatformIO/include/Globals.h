@@ -31,7 +31,7 @@ constexpr int NUM_LEDS = 37;
 constexpr int NUM_PX = 36;
 constexpr int DNS_PORT = 53;
 constexpr unsigned int LOCAL_PORT = 2390;
-constexpr int MAX_PX = 10368;
+constexpr int MAX_PX = 12240;
 constexpr int DEFAULT_BRIGHTNESS = 20;
 
 // Platform detection
