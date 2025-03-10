@@ -288,11 +288,6 @@ void handleFileList(AsyncWebServerRequest *request) {
 }
 
 void handleFileRead(AsyncWebServerRequest *request) {
-  AsyncResponseStream* response = request->beginResponseStream("text/plain");
-  response->addHeader("Access-Control-Allow-Origin", "*");
-  response->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
-  response->addHeader("Access-Control-Allow-Headers", "Content-Type");
-  response->addHeader("Access-Control-Allow-Credentials", "true");
 #ifdef ESP32
   String path = "/" + request->arg("file"); // ESP32 needs leading slash
 #else
@@ -300,9 +295,23 @@ void handleFileRead(AsyncWebServerRequest *request) {
 #endif
 
   if(LittleFS.exists(path)) {
-    request->send(LittleFS, path, getContentType(path));
+    // Create response with file contents AND headers
+    AsyncWebServerResponse* response = request->beginResponse(LittleFS, path, getContentType(path));
+    response->addHeader("Access-Control-Allow-Origin", "*");
+    response->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+    response->addHeader("Access-Control-Allow-Headers", "Content-Type");
+    response->addHeader("Access-Control-Allow-Credentials", "true");
+    request->send(response);
   } else {
-    request->send(404, "text/plain", "File not found");
+    // Create error response with headers
+    AsyncResponseStream* response = request->beginResponseStream("text/plain");
+    response->addHeader("Access-Control-Allow-Origin", "*");
+    response->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+    response->addHeader("Access-Control-Allow-Headers", "Content-Type");
+    response->addHeader("Access-Control-Allow-Credentials", "true");
+    response->setCode(404);
+    response->print("File not found");
+    request->send(response);
   }
 }
 
