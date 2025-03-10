@@ -80,12 +80,12 @@ void setupElegantOTATask()
 void elegantOTATask(void *pvParameters)
 {
   // setup part for Server and ElegantOTA - runs once:
-
+  //todo: update to use server routes from WebServerSetup.cpp - async web server in SmartPoi!!
   server.on("/elegant", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200, "text/html", loadIndexHtml());
   });
 
-  // ... other server routes ...
+  // ... TODO: other server routes - migrate from WebServerSetup.cpp! ...
 
   server.begin();
   ElegantOTA.begin(&server); // Start ElegantOTA
