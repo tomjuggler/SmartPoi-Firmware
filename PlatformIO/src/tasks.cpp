@@ -3,6 +3,23 @@
 
 extern AsyncWebServer server;
 
+String getContentType(String filename) {
+  if(filename.endsWith(".htm")) return "text/html";
+  if(filename.endsWith(".html")) return "text/html";
+  if(filename.endsWith(".css")) return "text/css";
+  if(filename.endsWith(".js")) return "application/javascript";
+  if(filename.endsWith(".png")) return "image/png";
+  if(filename.endsWith(".gif")) return "image/gif";
+  if(filename.endsWith(".jpg")) return "image/jpeg";
+  if(filename.endsWith(".ico")) return "image/x-icon";
+  if(filename.endsWith(".xml")) return "text/xml";
+  if(filename.endsWith(".pdf")) return "application/x-pdf";
+  if(filename.endsWith(".zip")) return "application/x-zip";
+  if(filename.endsWith(".gz")) return "application/x-gzip";
+  if(filename.endsWith(".bin")) return "application/octet-stream";
+  return "text/plain";
+}
+
 unsigned long ota_progress_millis = 0;
 TaskHandle_t elegantOTATaskHandle = NULL;
 
@@ -53,6 +70,29 @@ void onOTAEnd(bool success)
     Serial.println("There was an error during OTA update!");
   }
   // <Add your own code here>
+}
+
+void handlePatternSettings(AsyncWebServerRequest* request) {
+  if(request->hasArg("patternChooserChange")) {
+    int newPatt = request->arg("patternChooserChange").toInt();
+    patternChooser = newPatt;
+    EEPROM.write(10, newPatt);
+    
+    if(newPatt > 0 && newPatt < 6) {
+      pattern = patternChooser;
+      EEPROM.write(11, newPatt);
+    }
+    else if(newPatt == 7) {
+      FastLED.showColor(CRGB::Black);
+      pattern = patternChooser;
+    }
+    
+    EEPROM.commit();
+    request->send(200, "application/json", "{\"Success\":\"Pattern set\"}");
+  }
+  else {
+    request->send(400, "application/json", "{\"Error\":\"Missing parameter\"}");
+  }
 }
 
 /////////////////////////////////////////////// end elegantOTA code //////////////////////////////////////
