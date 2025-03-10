@@ -24,6 +24,29 @@ String getContentType(String filename) {
   return "text/plain";
 }
 
+String getContentType(String filename) {
+  if(filename.endsWith(".htm")) return "text/html";
+  if(filename.endsWith(".html")) return "text/html";
+  if(filename.endsWith(".css")) return "text/css";
+  if(filename.endsWith(".js")) return "application/javascript";
+  if(filename.endsWith(".png")) return "image/png";
+  if(filename.endsWith(".gif")) return "image/gig";
+  if(filename.endsWith(".jpg")) return "image/jpeg";
+  if(filename.endsWith(".ico")) return "image/x-icon";
+  if(filename.endsWith(".xml")) return "text/xml";
+  if(filename.endsWith(".pdf")) return "application/x-pdf";
+  if(filename.endsWith(".zip")) return "application/x-zip";
+  if(filename.endsWith(".gz")) return "application/x-gzip";
+  if(filename.endsWith(".bin")) return "application/octet-stream";
+  return "text/plain";
+}
+
+bool checkFileSpace(size_t fileSize) {
+  size_t totalSpace = LittleFS.totalBytes();
+  size_t maxAllowedSize = totalSpace - MAX_PX - 1024;
+  return (fileSize <= maxAllowedSize);
+}
+
 unsigned long ota_progress_millis = 0;
 TaskHandle_t elegantOTATaskHandle = NULL;
 
@@ -277,6 +300,45 @@ void handleFileDelete(AsyncWebServerRequest *request) {
   response->setCode(200);
   response->print("Deleted");
   request->send(response);
+}
+
+void handleFileUpload(AsyncWebServerRequest* request, const String& filename, size_t index, uint8_t* data, size_t len, bool final) {
+    static File fsUploadFile;
+    static size_t totalSize = 0;
+    
+    if(!index) {
+        totalSize = 0;
+        if(!checkFileSpace(request->contentLength()) || 
+           request->contentLength() > MAX_PX || 
+           request->contentLength() > LittleFS.totalBytes() - LittleFS.usedBytes()) {
+            request->send(507, "text/plain", "File size exceeds limit");
+            return;
+        }
+        
+        // Add filename validation logic here
+        String fname = filename;
+        if (!fname.startsWith("/")) fname = "/" + fname;
+        if (fname.length() != 6 || images.indexOf(fname[1]) == -1) {
+            request->send(400, "text/plain", "Invalid filename");
+            return;
+        }
+        
+        fsUploadFile = LittleFS.open(fname, "w");
+        if(!fsUploadFile) {
+            request->send(500, "text/plain", "Upload failed");
+            return;
+        }
+    }
+    
+    if(len) {
+        fsUploadFile.write(data, len);
+        totalSize += len;
+    }
+    
+    if(final) {
+        fsUploadFile.close();
+        request->send(200, "text/plain", "Upload complete");
+    }
 }
 
 /////////////////////////////////////////////// end elegantOTA code //////////////////////////////////////
