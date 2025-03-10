@@ -1,6 +1,13 @@
 #include "tasks.h"
 #include "Globals.h"
 #include "LittleFS.h"
+
+#if defined(PLATFORM_ESP32)
+  AsyncWebServer server(80);
+#elif defined(PLATFORM_ESP8266)
+  ESP8266WebServer poiserver(80); // Maintain original name for compatibility
+  AsyncWebServer server(80);
+#endif
 extern long interval;
 #include <EEPROM.h>
 #include <FastLED.h>
@@ -34,16 +41,46 @@ bool checkFileSpace(size_t fileSize) {
   return (fileSize <= maxAllowedSize);
 }
 
+/**
+ * @brief Get the total space in LittleFS
+ * @return size_t Total space in bytes
+ */
 size_t getTotalSpace() {
-  return LittleFS.totalBytes();
+#ifdef ESP8266
+    FSInfo fs_info;
+    LittleFS.info(fs_info);
+    return fs_info.totalBytes;
+#elif defined(ESP32)
+    return LittleFS.totalBytes();
+#endif
 }
 
+/**
+ * @brief Get the remaining space in LittleFS
+ * @return size_t Remaining space in bytes
+ */
 size_t getRemainingSpace() {
-  return LittleFS.totalBytes() - LittleFS.usedBytes();
+#ifdef ESP8266
+    FSInfo fs_info;
+    LittleFS.info(fs_info);
+    return fs_info.totalBytes - fs_info.usedBytes;
+#elif defined(ESP32)
+    return LittleFS.totalBytes() - LittleFS.usedBytes();
+#endif
 }
 
+/**
+ * @brief Get the used space in LittleFS
+ * @return size_t Used space in bytes
+ */
 size_t getUsedSpace() {
-  return LittleFS.usedBytes();
+#ifdef ESP8266
+    FSInfo fs_info;
+    LittleFS.info(fs_info);
+    return fs_info.usedBytes;
+#elif defined(ESP32)
+    return LittleFS.usedBytes();
+#endif
 }
 
 String formatBytes(size_t bytes) {
@@ -58,13 +95,13 @@ String formatBytes(size_t bytes) {
 }
 
 // server code:
-String loadIndexHtml() {
+String loadSiteHtml() {
   if (!LittleFS.begin()) {
     Serial.println("An error occurred while mounting LittleFS");
     return "Error loading page";
   }
 
-  File file = LittleFS.open("/index.html", "r");
+  File file = LittleFS.open("/site.htm", "r");
   if (!file) {
     Serial.println("Failed to open index.html");
     return "Error loading page";
@@ -239,7 +276,12 @@ void handleFileList(AsyncWebServerRequest *request) {
 }
 
 void handleFileRead(AsyncWebServerRequest *request) {
+#ifdef ESP32
+  String path = "/" + request->arg("file"); // ESP32 needs leading slash
+#else
   String path = request->arg("file");
+#endif
+
   if(LittleFS.exists(path)) {
     request->send(LittleFS, path, getContentType(path));
   } else {
@@ -350,13 +392,21 @@ void handleGeneralSettings(AsyncWebServerRequest* request) {
   request->send(response);
 }
 
+void clearArray() {
+  memset(message1Data, 0, sizeof(message1Data));
+}
+
+/**
+ * @brief Handles file uploads with platform-specific path handling
+ * @note Contains ESP32-specific path prefix logic
+ * @todo Verify CORS handling for upload endpoint
+ */
 void handleFileUpload(AsyncWebServerRequest* request, const String& filename, size_t index, uint8_t* data, size_t len, bool final) {
     static File fsUploadFile;
     static size_t totalSize = 0;
-    static uint8_t message1Data[MAX_PX]; // File buffer
     
     if(!index) {
-        memset(message1Data, 0, sizeof(message1Data)); // Clear buffer
+        clearArray(); // Use dedicated clear function
         totalSize = 0;
         if(!checkFileSpace(request->contentLength()) || 
            request->contentLength() > MAX_PX || 
@@ -415,7 +465,11 @@ void setupElegantOTATask()
  */
 void elegantOTATask(void *pvParameters)
 {
-  server.on("/elegant", HTTP_GET, [](AsyncWebServerRequest *request) {
+  server.on("/site", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(200, "text/html", loadSiteHtml());
+  });
+
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200, "text/html", loadIndexHtml());
   });
   
