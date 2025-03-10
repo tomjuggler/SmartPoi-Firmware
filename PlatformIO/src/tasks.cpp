@@ -1,5 +1,8 @@
 #include "tasks.h"
+#include "Globals.h"
 #include "LittleFS.h"
+#include <EEPROM.h>
+#include <FastLED.h>
 
 extern AsyncWebServer server;
 
@@ -22,6 +25,12 @@ String getContentType(String filename) {
 
 unsigned long ota_progress_millis = 0;
 TaskHandle_t elegantOTATaskHandle = NULL;
+
+bool checkFileSpace(size_t fileSize) {
+  size_t totalSpace = LittleFS.totalBytes();
+  size_t maxAllowedSize = totalSpace - MAX_PX - 1024;
+  return (fileSize <= maxAllowedSize);
+}
 
 // server code:
 String loadIndexHtml() {
@@ -75,6 +84,13 @@ void onOTAEnd(bool success)
 void handlePatternSettings(AsyncWebServerRequest* request) {
   if(request->hasArg("patternChooserChange")) {
     int newPatt = request->arg("patternChooserChange").toInt();
+    
+    // Add null check
+    if(newPatt < 0 || newPatt > 7) {
+        request->send(400, "application/json", "{\"Error\":\"Invalid pattern\"}");
+        return;
+    }
+    
     patternChooser = newPatt;
     EEPROM.write(10, newPatt);
     
@@ -87,10 +103,48 @@ void handlePatternSettings(AsyncWebServerRequest* request) {
       pattern = patternChooser;
     }
     
-    EEPROM.commit();
+    EEPROM.commit();  // Add explicit commit
     request->send(200, "application/json", "{\"Success\":\"Pattern set\"}");
   }
   else {
+    request->send(400, "application/json", "{\"Error\":\"Missing parameter\"}");
+  }
+}
+
+void handleRouterSettings(AsyncWebServerRequest* request) {
+  if(request->hasArg("router")) {
+    int newRouter = request->arg("router").toInt();
+    routerOption = (newRouter == 1);
+    EEPROM.write(100, newRouter);
+    EEPROM.commit();
+    FastLED.showColor(CRGB::Black);
+    request->send(200, "application/json", "{\"Success\":\"Router mode set\"}");
+  } else {
+    request->send(400, "application/json", "{\"Error\":\"Missing parameter\"}");
+  }
+}
+
+void handleIntervalChange(AsyncWebServerRequest* request) {
+  if(request->hasArg("interval")) {
+    long tmp = request->arg("interval").toInt();
+    interval = (tmp < 1) ? 500L : 
+              (tmp > 1800) ? 1800L * 1000L : 
+              tmp * 1000L;
+    request->send(200, "application/json", "{\"Success\":\"Interval updated\"}");
+  } else {
+    request->send(400, "application/json", "{\"Error\":\"Missing parameter\"}");
+  }
+}
+
+void handleBrightness(AsyncWebServerRequest* request) {
+  if(request->hasArg("brt")) {
+    newBrightness = constrain(request->arg("brt").toInt(), 20, 255);
+    FastLED.setBrightness(newBrightness);
+    FastLED.show();
+    EEPROM.write(15, newBrightness);
+    EEPROM.commit();
+    request->send(200, "application/json", "{\"Success\":\"Brightness updated\"}");
+  } else {
     request->send(400, "application/json", "{\"Error\":\"Missing parameter\"}");
   }
 }
