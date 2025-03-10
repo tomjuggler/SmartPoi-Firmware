@@ -47,3 +47,7 @@ void handleRouterSettings(AsyncWebServerRequest* request);
 void handlePatternSettings(AsyncWebServerRequest* request);
 void handleIntervalChange(AsyncWebServerRequest* request);
 void handleBrightness(AsyncWebServerRequest* request);
+void handleFileList(AsyncWebServerRequest* request);
+void handleFileRead(AsyncWebServerRequest* request);
+void handleFileCreate(AsyncWebServerRequest* request);
+void handleFileDelete(AsyncWebServerRequest* request);

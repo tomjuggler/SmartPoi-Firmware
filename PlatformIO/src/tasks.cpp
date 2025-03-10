@@ -149,6 +149,67 @@ void handleBrightness(AsyncWebServerRequest* request) {
   }
 }
 
+// File operations handlers
+void handleFileList(AsyncWebServerRequest *request) {
+  String path = request->hasArg("dir") ? request->arg("dir") : "/";
+  String output = "[";
+  
+  File root = LittleFS.open(path);
+  File file = root.openNextFile();
+  while(file) {
+    if(output != "[") output += ',';
+    output += "{\"type\":\"";
+    output += (file.isDirectory() ? "dir" : "file");
+    output += "\",\"name\":\"";
+    output += String(file.name());
+    output += "\"}";
+    file = root.openNextFile();
+  }
+  output += "]";
+  request->send(200, "application/json", output);
+}
+
+void handleFileRead(AsyncWebServerRequest *request) {
+  String path = request->arg("file");
+  if(LittleFS.exists(path)) {
+    request->send(LittleFS, path, getContentType(path));
+  } else {
+    request->send(404, "text/plain", "File not found");
+  }
+}
+
+void handleFileCreate(AsyncWebServerRequest *request) {
+  String path = request->arg("path");
+  if(path.isEmpty()) {
+    request->send(400, "text/plain", "Bad request");
+    return;
+  }
+  
+  if(LittleFS.exists(path)) {
+    request->send(409, "text/plain", "File exists");
+    return;
+  }
+  
+  File file = LittleFS.open(path, "w");
+  file.close();
+  request->send(200, "text/plain", "Created");
+}
+
+void handleFileDelete(AsyncWebServerRequest *request) {
+  String path = request->arg("path");
+  if(path.isEmpty()) {
+    request->send(400, "text/plain", "Bad request");
+    return;
+  }
+  
+  if(!LittleFS.remove(path)) {
+    request->send(500, "text/plain", "Delete failed");
+    return;
+  }
+  
+  request->send(200, "text/plain", "Deleted");
+}
+
 /////////////////////////////////////////////// end elegantOTA code //////////////////////////////////////
 
 /**
@@ -173,13 +234,72 @@ void setupElegantOTATask()
  */
 void elegantOTATask(void *pvParameters)
 {
-  // setup part for Server and ElegantOTA - runs once:
-  //todo: update to use server routes from WebServerSetup.cpp - async web server in SmartPoi!!
   server.on("/elegant", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200, "text/html", loadIndexHtml());
   });
+  
+  // Migrated routes from WebServerSetup.cpp
+  server.on("/list", HTTP_GET, [](AsyncWebServerRequest *request) {
+    handleFileList(request);
+  });
 
-  // ... TODO: other server routes - migrate from WebServerSetup.cpp! ...
+  server.on("/edit", HTTP_GET, [](AsyncWebServerRequest *request) {
+    if(request->hasArg("file")) {
+      handleFileRead(request);
+    } else {
+      request->send(400, "text/plain", "Missing file parameter");
+    }
+  });
+
+  server.on("/edit", HTTP_PUT, [](AsyncWebServerRequest *request) {
+    if(request->hasArg("path")) {
+      handleFileCreate(request);
+    } else {
+      request->send(400, "text/plain", "Missing path parameter");
+    }
+  });
+
+  server.on("/edit", HTTP_DELETE, [](AsyncWebServerRequest *request) {
+    if(request->hasArg("path")) {
+      handleFileDelete(request);
+    } else {
+      request->send(400, "text/plain", "Missing path parameter");
+    }
+  });
+
+  server.on("/get-pixels", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(200, "text/plain", String(NUM_PX));
+  });
+
+  server.on("/options", HTTP_OPTIONS, [](AsyncWebServerRequest *request) {
+    request->send(204);
+  });
+
+  // Existing migrated routes (keep these):
+  server.on("/resetimagetouse", HTTP_GET, [](AsyncWebServerRequest *request) {
+    imageToUse = 0;
+    previousMillis3 = millis();
+    request->send(200, "text/plain", "");
+  });
+
+  server.on("/returnsettings", HTTP_GET, [](AsyncWebServerRequest *request) {
+    File settings = LittleFS.open("/settings.txt", "r");
+    String content = settings.readStringUntil('\n') + "," + 
+                    settings.readStringUntil('\n') + "," + 
+                    String(apChannel) + "," + 
+                    String(addrNumA) + "," + 
+                    String(addrNumB) + "," + 
+                    String(addrNumC) + "," + 
+                    String(addrNumD) + "," + 
+                    String(patternChooser);
+    settings.close();
+    request->send(200, "text/html", content);
+  });
+
+  // Add notFound handler
+  server.onNotFound([](AsyncWebServerRequest *request) {
+    request->send(404, "text/plain", "Not found");
+  });
 
   server.begin();
   ElegantOTA.begin(&server); // Start ElegantOTA
