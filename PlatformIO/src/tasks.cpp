@@ -24,28 +24,6 @@ String getContentType(String filename) {
   return "text/plain";
 }
 
-String getContentType(String filename) {
-  if(filename.endsWith(".htm")) return "text/html";
-  if(filename.endsWith(".html")) return "text/html";
-  if(filename.endsWith(".css")) return "text/css";
-  if(filename.endsWith(".js")) return "application/javascript";
-  if(filename.endsWith(".png")) return "image/png";
-  if(filename.endsWith(".gif")) return "image/gig";
-  if(filename.endsWith(".jpg")) return "image/jpeg";
-  if(filename.endsWith(".ico")) return "image/x-icon";
-  if(filename.endsWith(".xml")) return "text/xml";
-  if(filename.endsWith(".pdf")) return "application/x-pdf";
-  if(filename.endsWith(".zip")) return "application/x-zip";
-  if(filename.endsWith(".gz")) return "application/x-gzip";
-  if(filename.endsWith(".bin")) return "application/octet-stream";
-  return "text/plain";
-}
-
-bool checkFileSpace(size_t fileSize) {
-  size_t totalSpace = LittleFS.totalBytes();
-  size_t maxAllowedSize = totalSpace - MAX_PX - 1024;
-  return (fileSize <= maxAllowedSize);
-}
 
 unsigned long ota_progress_millis = 0;
 TaskHandle_t elegantOTATaskHandle = NULL;
