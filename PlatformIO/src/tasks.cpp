@@ -413,43 +413,62 @@ void clearArray() {
  * @note Contains ESP32-specific path prefix logic
  * @todo Verify CORS handling for upload endpoint
  */
-void handleFileUpload(AsyncWebServerRequest* request, const String& filename, size_t index, uint8_t* data, size_t len, bool final) {
+void handleFileUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
     static File fsUploadFile;
-    static size_t totalSize = 0;
-    
-    if(!index) {
-        clearArray(); // Use dedicated clear function
-        totalSize = 0;
-        if(!checkFileSpace(request->contentLength()) || 
-           request->contentLength() > MAX_PX || 
-           request->contentLength() > LittleFS.totalBytes() - LittleFS.usedBytes()) {
-            request->send(507, "text/plain", "File size exceeds limit");
-            return;
-        }
+    static size_t totalFileSize = 0;
+
+    if(!index) { // Start of upload
+        // Clear memory and reset tracking
+        clearArray();
+        totalFileSize = 0;
         
-        // Add filename validation logic here
-        String fname = filename;
-        if (!fname.startsWith("/")) fname = "/" + fname;
-        if (fname.length() != 6 || images.indexOf(fname[1]) == -1) {
+        // Validate filename format
+        filename = "/" + filename; // Ensure leading slash
+        if (filename.length() != 6 || images.indexOf(filename[1]) == -1) {
             request->send(400, "text/plain", "Invalid filename");
             return;
         }
-        
-        fsUploadFile = LittleFS.open(fname, "w");
+
+        // Check remaining space before opening file
+        size_t remainingSpace = getRemainingSpace();
+        if(request->contentLength() > remainingSpace || 
+           request->contentLength() > MAX_PX) {
+            request->send(507, "text/plain", "File size exceeds limit");
+            return;
+        }
+
+        // Attempt to open file
+        fsUploadFile = LittleFS.open(filename, "w");
         if(!fsUploadFile) {
             request->send(500, "text/plain", "Upload failed");
             return;
         }
     }
-    
-    if(len) {
+
+    // Write received data
+    if(len > 0 && fsUploadFile) {
+        // Check cumulative size during write
+        totalFileSize += len;
+        if(totalFileSize > MAX_PX || 
+           totalFileSize > getRemainingSpace()) {
+            fsUploadFile.close();
+            LittleFS.remove(filename);
+            request->send(507, "text/plain", "File size exceeds limit");
+            return;
+        }
+        
         fsUploadFile.write(data, len);
-        totalSize += len;
     }
-    
-    if(final) {
+
+    // Finalize upload
+    if(final && fsUploadFile) {
         fsUploadFile.close();
         request->send(200, "text/plain", "Upload complete");
+    }
+    
+    // Handle aborted uploads
+    if(!final && !fsUploadFile) {
+        request->send(500, "text/plain", "Upload aborted");
     }
 }
 
@@ -506,13 +525,18 @@ void elegantOTATask(void *pvParameters)
     }
   });
 
-  server.on("/edit", HTTP_POST, [](AsyncWebServerRequest *request) {
-    if(request->hasArg("path")) {
-      handleFileuPLOAD(request);
-    } else {
-      request->send(400, "text/plain", "Missing path parameter");
-    }
-  });
+  server.on("/edit", HTTP_POST, 
+    [](AsyncWebServerRequest *request) {
+      // Handle preflight response
+      AsyncWebServerResponse *response = request->beginResponse(200, "text/plain");
+      response->addHeader("Access-Control-Allow-Origin", "*");
+      response->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+      response->addHeader("Access-Control-Allow-Headers", "Content-Type");
+      response->addHeader("Access-Control-Allow-Credentials", "true");
+      request->send(response);
+    },
+    handleFileUpload
+  );
 
   server.on("/edit", HTTP_DELETE, [](AsyncWebServerRequest *request) {
     if(request->hasArg("path")) {
