@@ -413,7 +413,7 @@ void clearArray() {
  * @note Contains ESP32-specific path prefix logic
  * @todo Verify CORS handling for upload endpoint
  */
-void handleFileUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
+void handleFileUpload(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final) {
     static File fsUploadFile;
     static size_t totalFileSize = 0;
 
@@ -535,7 +535,8 @@ void elegantOTATask(void *pvParameters)
       response->addHeader("Access-Control-Allow-Credentials", "true");
       request->send(response);
     },
-    handleFileUpload
+    NULL,  // Body handler
+    handleFileUpload // Upload handler
   );
 
   server.on("/edit", HTTP_DELETE, [](AsyncWebServerRequest *request) {
