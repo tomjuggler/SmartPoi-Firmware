@@ -19,10 +19,10 @@ void ChangePatternPeriodically()
     {
       imageToUse = minImages;
     }
-    Serial.print("Changed to image: ");
-    Serial.print(imageToUse);
-    Serial.print(" Pattern: ");
-    Serial.println(pattern);
+    // Serial.print("Changed to image: ");
+    // Serial.print(imageToUse);
+    // Serial.print(" Pattern: ");
+    // Serial.println(pattern);
   }
   yield();
 }
