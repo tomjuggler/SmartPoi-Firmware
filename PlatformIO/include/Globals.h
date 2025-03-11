@@ -27,11 +27,11 @@
 #endif
 
 // Configuration Constants
-constexpr int NUM_LEDS = 37;
-constexpr int NUM_PX = 36;
+// constexpr int NUM_LEDS = 37;
+// constexpr int NUM_PX = 36;
 constexpr int DNS_PORT = 53;
 constexpr unsigned int LOCAL_PORT = 2390;
-constexpr int MAX_PX = 12240;
+// constexpr int MAX_PX = 12240;
 constexpr int DEFAULT_BRIGHTNESS = 20;
 
 // Platform detection
@@ -44,13 +44,14 @@ constexpr int DEFAULT_BRIGHTNESS = 20;
 #endif
 
 // LED configuration - todo: duplicated in main.cpp, why??
-#ifdef PLATFORM_ESP32
-  #define DATA_PIN 4 // 4 on C3 1 on S3
-  #define CLOCK_PIN 5 // 5 on C3 13 on S3
-#else
-  #define DATA_PIN D2
-  #define CLOCK_PIN D1
-#endif
+// todo: remove this - moved to -D in Platformio.ini
+// #ifdef PLATFORM_ESP32
+//   #define DATA_PIN 4 // 4 on C3 1 on S3
+//   #define CLOCK_PIN 5 // 5 on C3 13 on S3
+// #else
+//   #define DATA_PIN D2
+//   #define CLOCK_PIN D1
+// #endif
 
 // Global Extern Variables
 extern CRGB leds[NUM_LEDS];
