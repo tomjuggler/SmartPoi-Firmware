@@ -191,14 +191,14 @@ void fastLEDInit()
 
 ////////////////////////////////////////////////Fast LED Setup: ////////////////////////////////////////////////////////////////////////////////////////////////
 // APA102 or WS2812 now defined in platformio.ini. #define LED_APA102=false to change to WS2812
-FastLED.addLeds<APA102, 4, 5, BGR>(leds, 37);
-// #ifdef LED_APA102
-//     // For APA102/SK9822 LEDs
-//     FastLED.addLeds<APA102, 4, 5, BGR>(leds, 37);
-// #else
-//     // For WS2812/NeoPixel LEDs
-//     FastLED.addLeds<NEOPIXEL, 4>(leds, 37);
-// #endif
+
+#ifdef LED_APA102
+    // For APA102/SK9822 LEDs
+    FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, BGR>(leds, NUM_LEDS);
+#else
+    // For WS2812/NeoPixel LEDs
+    FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
+#endif
 
     FastLED.setBrightness(newBrightness); // should be low figure here, for startup battery saving...
 

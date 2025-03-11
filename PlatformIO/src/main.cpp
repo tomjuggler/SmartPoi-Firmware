@@ -107,6 +107,14 @@ volatile int packetSize;
 // #define NUM_LEDS 37
 // #define NUM_PX 36
 
+// #ifdef PLATFORM_ESP32
+//   constexpr int DATA_PIN = DATAPIN;
+//   constexpr int CLOCK_PIN = CLOCKPIN;
+// #else
+//   constexpr int DATA_PIN = DATAPIN;
+//   constexpr int CLOCK_PIN = CLOCKPIN;
+// #endif
+
 void setup() {
   digitalWrite(CLOCK_PIN, LOW);
   digitalWrite(DATA_PIN, LOW);

@@ -29,9 +29,12 @@
 // Configuration Constants
 // constexpr int NUM_LEDS = 37;
 // constexpr int NUM_PX = 36;
+constexpr int NUM_LEDS = NUMLEDS;
+constexpr int NUM_PX = NUMPX;
 constexpr int DNS_PORT = 53;
 constexpr unsigned int LOCAL_PORT = 2390;
 // constexpr int MAX_PX = 12240;
+constexpr int MAX_PX = MAXPX;
 constexpr int DEFAULT_BRIGHTNESS = 20;
 
 // Platform detection
@@ -52,6 +55,15 @@ constexpr int DEFAULT_BRIGHTNESS = 20;
 //   #define DATA_PIN D2
 //   #define CLOCK_PIN D1
 // #endif
+
+#ifdef PLATFORM_ESP32
+  constexpr int DATA_PIN = DATAPIN;
+  constexpr int CLOCK_PIN = CLOCKPIN;
+#else
+  constexpr int DATA_PIN = DATAPIN;
+  constexpr int CLOCK_PIN = CLOCKPIN;
+#endif
+
 
 // Global Extern Variables
 extern CRGB leds[NUM_LEDS];
