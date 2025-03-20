@@ -27,13 +27,11 @@
 #endif
 
 // Configuration Constants
-// constexpr int NUM_LEDS = 37;
-// constexpr int NUM_PX = 36;
-constexpr int NUM_LEDS = NUMLEDS;
-constexpr int NUM_PX = NUMPX;
+constexpr int NUM_LEDS = NUMLEDS; //from platformio.ini
+constexpr int NUM_PX = NUMPX; //from platformio.ini
 constexpr int DNS_PORT = 53;
 constexpr unsigned int LOCAL_PORT = 2390;
-// constexpr int MAX_PX = 12240;
+// constexpr int MAX_PX = 12240; //moved to platformio.ini
 constexpr int MAX_PX = MAXPX;
 constexpr int DEFAULT_BRIGHTNESS = 20;
 
@@ -45,16 +43,6 @@ constexpr int DEFAULT_BRIGHTNESS = 20;
 #else
   #error "Unsupported platform"
 #endif
-
-// LED configuration - todo: duplicated in main.cpp, why??
-// todo: remove this - moved to -D in Platformio.ini
-// #ifdef PLATFORM_ESP32
-//   #define DATA_PIN 4 // 4 on C3 1 on S3
-//   #define CLOCK_PIN 5 // 5 on C3 13 on S3
-// #else
-//   #define DATA_PIN D2
-//   #define CLOCK_PIN D1
-// #endif
 
 #ifdef PLATFORM_ESP32
   constexpr int DATA_PIN = DATAPIN;
@@ -80,7 +68,7 @@ extern uint8_t addrNumA;
 extern uint8_t addrNumB;
 extern uint8_t addrNumC;
 extern uint8_t addrNumD;
-extern bool auxillary;
+// extern bool auxillary; //moved to platformio.ini
 extern File settings;
 extern String Field;
 extern size_t maxPX;

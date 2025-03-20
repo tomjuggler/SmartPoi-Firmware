@@ -29,7 +29,7 @@ int X = 0;
 uint8_t R1 = 0;
 uint8_t G1 = 0;
 uint8_t M1 = 0;
-bool auxillary = false;
+// bool auxillary = false; //moved to platformio.ini
 int newBrightness = DEFAULT_BRIGHTNESS;
 uint8_t message1Data[MAX_PX];
 int pxDown = NUM_PX;
