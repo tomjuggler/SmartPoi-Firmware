@@ -78,7 +78,7 @@ boolean auxillary = false; // true for second (auxillary) poi - auxillary don't 
 /////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////TYPE OF LED's to use///////////////////////////////////////
-#define LED_APA102 //comment this line to use WS2812, uncomment for APA102
+// #define LED_APA102 //comment this line to use WS2812, uncomment for APA102
 ///////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////HOW MANY PIXELS? - 2 variables to edit-  //////////////////
@@ -86,7 +86,7 @@ boolean auxillary = false; // true for second (auxillary) poi - auxillary don't 
 //#define NUM_LEDS 37
 // #define NUM_LEDS 61
 //   #define NUM_LEDS 73
-#define NUM_LEDS 37
+// #define NUM_LEDS 37
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
@@ -94,7 +94,7 @@ CRGB leds[NUM_LEDS];
 //#define NUM_PX 36
 // #define NUM_PX 60
 //   #define NUM_PX 72
-#define NUM_PX 36
+// #define NUM_PX 36
 
 // 24000 is too large - oom error, 120x200
 // const int maxPX = 20736 // 144x144 - very large, may be unstable?
