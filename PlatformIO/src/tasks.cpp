@@ -512,9 +512,25 @@ void setupElegantOTATask()
  */
 void elegantOTATask(void *pvParameters)
 {
-  server.on("/site", HTTP_GET, [](AsyncWebServerRequest *request) {
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200, "text/html", loadSiteHtml());
   });
+
+  server.on("/site", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->redirect("/"); // Default alternative
+  });
+
+  server.on("/generate_204", HTTP_GET, [](AsyncWebServerRequest *request) {                                                                               
+    request->redirect("/");  // Android captive portal check                                                                                              
+  });                                                                                                                                                     
+                                                                                                                                                          
+  server.on("/hotspot-detect.html", HTTP_GET, [](AsyncWebServerRequest *request) {                                                                        
+    request->redirect("/");  // Apple captive portal check                                                                                                
+  });                                                                                                                                                     
+                                                                                                                                                          
+  server.on("/connectivity-check.html", HTTP_GET, [](AsyncWebServerRequest *request) {                                                                    
+    request->redirect("/");  // Windows/Linux captive portal check                                                                                        
+  }); 
 
   server.on("/elegant", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200, "text/html", loadIndexHtml());
@@ -619,16 +635,17 @@ void elegantOTATask(void *pvParameters)
     request->send(response);
   });
 
-  // Add notFound handler
+  // notFound handler (for captive portal)
   server.onNotFound([](AsyncWebServerRequest *request) {
     AsyncResponseStream* response = request->beginResponseStream("text/plain");
     response->addHeader("Access-Control-Allow-Origin", "*");
     response->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
     response->addHeader("Access-Control-Allow-Headers", "Content-Type");
     response->addHeader("Access-Control-Allow-Credentials", "true");
-    response->setCode(404);
-    response->print("Not found");
-    request->send(response);
+    // response->setCode(404);
+    // response->print("Not found");
+    // request->send(response);
+    request->redirect("/");
   });
 
   server.on("/pattern", HTTP_GET, [](AsyncWebServerRequest *request) {
