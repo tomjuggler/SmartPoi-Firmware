@@ -94,28 +94,11 @@ volatile unsigned long currentMillis = millis();
 volatile int packetSize;
 
 
-// LED configuration
-// todo: remove this - moved to -D in Platformio.ini
-// #ifdef PLATFORM_ESP32
-//   #define DATA_PIN 4 // 4 on C3 1 on S3
-//   #define CLOCK_PIN 5 // 5 on C3 13 on S3
-// #else
-//   #define DATA_PIN D2
-//   #define CLOCK_PIN D1
-// #endif
 
-// #define NUM_LEDS 37
-// #define NUM_PX 36
-
-// #ifdef PLATFORM_ESP32
-//   constexpr int DATA_PIN = DATAPIN;
-//   constexpr int CLOCK_PIN = CLOCKPIN;
-// #else
-//   constexpr int DATA_PIN = DATAPIN;
-//   constexpr int CLOCK_PIN = CLOCKPIN;
-// #endif
 
 void setup() {
+  // pinMode(DATA_PIN, OUTPUT);
+  // pinMode(CLOCK_PIN, OUTPUT);
   digitalWrite(CLOCK_PIN, LOW);
   digitalWrite(DATA_PIN, LOW);
   fastLEDInit();
