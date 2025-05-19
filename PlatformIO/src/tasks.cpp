@@ -574,6 +574,16 @@ void elegantOTATask(void *pvParameters)
     NULL               // Body handler (5th param)
   );
 
+  // Add specific OPTIONS handler for DELETE preflight on /edit
+  server.on("/edit", HTTP_OPTIONS, [](AsyncWebServerRequest *request) {
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/plain");
+    response->addHeader("Access-Control-Allow-Origin", "*");
+    response->addHeader("Access-Control-Allow-Methods", "DELETE, OPTIONS");
+    response->addHeader("Access-Control-Allow-Headers", "Content-Type");
+    response->addHeader("Access-Control-Allow-Credentials", "true");
+    request->send(response);
+  });
+
   server.on("/edit", HTTP_DELETE, [](AsyncWebServerRequest *request) {
     if(request->hasArg("path")) {
       handleFileDelete(request);
