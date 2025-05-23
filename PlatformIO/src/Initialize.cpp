@@ -169,9 +169,14 @@ void wifiChooser(char router_array[], char pwd_array[])
     {
         WiFi.mode(WIFI_STA);
         WiFiMulti.addAP(router_array, pwd_array);
+        Serial.print("Connecting to: ");
+        Serial.println(router_array);
+        Serial.print("Attempt: ");
         byte wifiConnectAttemptCount = 0;
         while (WiFiMulti.run() != WL_CONNECTED)
         {
+            Serial.print(int(wifiConnectAttemptCount));
+            Serial.print(", ");
             wifiConnectAttemptCount++;
             if (wifiConnectAttemptCount > 18)
             {
