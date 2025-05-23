@@ -662,6 +662,10 @@ void elegantOTATask(void *pvParameters)
     handlePatternSettings(request);
   });
 
+  server.on("/router", HTTP_GET, [](AsyncWebServerRequest *request) {
+    handleRouterSettings(request);
+  });
+
   server.on("/intervalChange", HTTP_GET, [](AsyncWebServerRequest *request) {
     handleIntervalChange(request);
   });
