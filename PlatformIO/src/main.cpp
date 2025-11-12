@@ -97,8 +97,8 @@ volatile int packetSize;
 
 
 void setup() {
-  // pinMode(DATA_PIN, OUTPUT);
-  // pinMode(CLOCK_PIN, OUTPUT);
+  pinMode(DATA_PIN, OUTPUT);
+  pinMode(CLOCK_PIN, OUTPUT);
   digitalWrite(CLOCK_PIN, LOW);
   digitalWrite(DATA_PIN, LOW);
   fastLEDInit();
