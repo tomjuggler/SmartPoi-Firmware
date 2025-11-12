@@ -200,7 +200,7 @@ void fastLEDInit()
 ////////////////////////////////////////////////Fast LED Setup: ////////////////////////////////////////////////////////////////////////////////////////////////
 // APA102 or WS2812 now defined in platformio.ini. #define LED_APA102=false to change to WS2812
 
-#ifdef LED_APA102
+#if LED_APA102
     // For APA102/SK9822 LEDs
     FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, BGR>(leds, NUM_LEDS);
 #else
