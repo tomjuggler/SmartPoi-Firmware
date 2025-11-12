@@ -149,8 +149,9 @@ void checkFilesInSetup()
 
 void wifiChooser(char router_array[], char pwd_array[])
 {
-    WiFi.setTxPower(WIFI_POWER_8_5dBm);  // for ESP32 C3 Super Mini - helps WiFi be more reliable! 
-
+    #if C_THREE
+        WiFi.setTxPower(WIFI_POWER_8_5dBm);  // for ESP32 C3 Super Mini - helps WiFi be more reliable! 
+    #endif
     if (wifiModeChooser == 1)
     {
         if (auxillary)
