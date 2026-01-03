@@ -111,13 +111,13 @@ uint8_t addrNumC = 8;
 uint8_t addrNumD = 78;
 
 ////////////////////////////////////// UDP CODE OPTIONAL: ///////////////////////////////////////////////////////////////////////////
-// const unsigned int localPort = 2390; // local port to listen on
+const unsigned int localPort = 2390; // local port to listen on
 
-// byte packetBuffer[NUM_PX]; // buffer to hold incoming packet
-// // char  ReplyBuffer[] = "acknowledged";       // a string to send back
-// const size_t bufferSize = 1024; // Adjust buffer size as needed
+byte packetBuffer[NUM_PX]; // buffer to hold incoming packet
+// char  ReplyBuffer[] = "acknowledged";       // a string to send back
+const size_t bufferSize = 1024; // Adjust buffer size as needed
 
-// WiFiUDP Udp;
+WiFiUDP Udp;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -131,8 +131,8 @@ int statusCode;
 
 ////////////////////////////////////////////////////////UDP CODE OPTIONAL: //////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////setup timer: ////////////////////////////////////////////////////////////////
-// unsigned long previousMillis = 0; // will store last time LED was updated
-// unsigned long previousMillis2 = 0;
+unsigned long previousMillis = 0; // will store last time LED was updated
+unsigned long previousMillis2 = 0;
 /////////////////////////////////////////////////////////////////////////////////
 unsigned long previousMillis3 = 0;
 long interval = 5000; // after this interval switch over to internal
@@ -262,21 +262,21 @@ void setup()
   fastLEDIndicate(); // indicates AP (Auxillary: Red, Main: Blue) or STA mode (Green)
 
   /////// UDP OPTIONAL ///////////
-  // Udp.begin(localPort);
+  Udp.begin(localPort);
   
   
 }
 
-// volatile byte X;
-// volatile byte Y;
-// volatile byte R1;
-// volatile byte G1;
-// volatile byte M1;
+volatile byte X;
+volatile byte Y;
+volatile byte R1;
+volatile byte G1;
+volatile byte M1;
 
-// volatile unsigned long currentMillis = millis();
-// volatile unsigned long currentMillis2 = millis();
-// volatile int packetSize;
-// volatile int len;
+volatile unsigned long currentMillis = millis();
+volatile unsigned long currentMillis2 = millis();
+volatile int packetSize;
+volatile int len;
 ////////////////////////////////
 /**
  * @brief Main loop function, called repeatedly after setup.
@@ -355,6 +355,14 @@ void loop()
 
   switch (pattern)
   {
+  case 0:
+    currentMillis2 = millis();
+    packetSize = Udp.parsePacket();
+    if (packetSize)
+    {
+      handleUDP();
+    }
+    break;
   case 1:
   {
     funColourJam();
