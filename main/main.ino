@@ -183,6 +183,11 @@ int maxImages = 52; // how many can we have? 50 is enough for big poi, memory wi
 int minImages = 0;  // start of block - change according to pattern!
 // Below is a hack! Needs a better address system. Not doing upgrade for SmartPoi, MagicPoi can have any number of files with any filename, depending on Flash size. 
 String images = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; 
+String images2 = "abcde";
+String images3 = "fghij";
+String images4 = "klmnopqrst";
+String images5 = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+String currentImages = images;
 String bin = "a.bin";                                                             
 
 int uploadCounter = 1;
@@ -236,6 +241,16 @@ void setup()
   ///////////////////////////////////////////////////////LittleFS: /////////////////////////////////////////////////////////
   // always use this to "mount" the filesystem
   bool result = LittleFS.begin();
+  // Update current images for the initial pattern
+  if (!updateCurrentImagesForPattern(pattern)) {
+    // No files available for this pattern, switch to pattern 1
+    pattern = 1;
+    patternChooser = 1;
+    EEPROM.write(10, 1);
+    EEPROM.write(11, 1);
+    EEPROM.commit();
+    updateCurrentImagesForPattern(pattern);
+  }
   String router;
 
   // The following is related to router settings (using AP mode currently)
@@ -346,33 +361,41 @@ void loop()
   // more options for patterns and spiffs loading here
   case 2:
   {
-    minImages = 0; // start of block
-    maxImages = 4; // end of block
-    bin.setCharAt(0, images.charAt(imageToUse));
+    // Ensure imageToUse is within bounds of currentImages
+    if (imageToUse >= currentImages.length()) {
+      imageToUse = 0;
+    }
+    bin.setCharAt(0, currentImages.charAt(imageToUse));
     showLittleFSImage();
     break;
   }
   case 3:
   {
-    minImages = 5;  // start of block
-    maxImages = 10; // end of block
-    bin.setCharAt(0, images.charAt(imageToUse));
+    // Ensure imageToUse is within bounds of currentImages
+    if (imageToUse >= currentImages.length()) {
+      imageToUse = 0;
+    }
+    bin.setCharAt(0, currentImages.charAt(imageToUse));
     showLittleFSImage();
     break;
   }
   case 4:
   {
-    minImages = 11; // start of block
-    maxImages = 20; // end of block
-    bin.setCharAt(0, images.charAt(imageToUse));
+    // Ensure imageToUse is within bounds of currentImages
+    if (imageToUse >= currentImages.length()) {
+      imageToUse = 0;
+    }
+    bin.setCharAt(0, currentImages.charAt(imageToUse));
     showLittleFSImage();
     break;
   }
   case 5:
   {
-    minImages = 0;  // start of block
-    maxImages = 62; // end of block
-    bin.setCharAt(0, images.charAt(imageToUse));
+    // Ensure imageToUse is within bounds of currentImages
+    if (imageToUse >= currentImages.length()) {
+      imageToUse = 0;
+    }
+    bin.setCharAt(0, currentImages.charAt(imageToUse));
     showLittleFSImage();
     break;
   }
@@ -382,6 +405,73 @@ void loop()
     Serial.print(">");
     FastLED.delay(100);
     yield();
+    break;
+  }
+  case 8:
+  case 9:
+  case 10:
+  case 11:
+  case 12:
+  case 13:
+  case 14:
+  case 15:
+  case 16:
+  case 17:
+  case 18:
+  case 19:
+  case 20:
+  case 21:
+  case 22:
+  case 23:
+  case 24:
+  case 25:
+  case 26:
+  case 27:
+  case 28:
+  case 29:
+  case 30:
+  case 31:
+  case 32:
+  case 33:
+  case 34:
+  case 35:
+  case 36:
+  case 37:
+  case 38:
+  case 39:
+  case 40:
+  case 41:
+  case 42:
+  case 43:
+  case 44:
+  case 45:
+  case 46:
+  case 47:
+  case 48:
+  case 49:
+  case 50:
+  case 51:
+  case 52:
+  case 53:
+  case 54:
+  case 55:
+  case 56:
+  case 57:
+  case 58:
+  case 59:
+  case 60:
+  case 61:
+  case 62:
+  case 63:
+  case 64:
+  case 65:
+  case 66:
+  case 67:
+  case 68:
+  case 69:
+  {
+    bin.setCharAt(0, currentImages.charAt(0));
+    showLittleFSImage();
     break;
   }
   default:
@@ -401,4 +491,73 @@ void loop()
   ///////////////////////////////////// End optional UDP code //////////////////////////////////////////////////////////////////////////
 
   yield(); // give WiFi and other processor processes time to work
+}
+
+bool updateCurrentImagesForPattern(int pattern) {
+  String tempImages;
+
+  switch(pattern) {
+    case 2:
+      tempImages = images2;
+      break;
+    case 3:
+      tempImages = images3;
+      break;
+    case 4:
+      tempImages = images4;
+      break;
+    case 5:
+      tempImages = images5;
+      break;
+    default:
+      // For patterns 8+, use single character from images
+      if(pattern >= 8 && pattern <= 69) {
+        tempImages = String(images.charAt(pattern - 8));
+        // Check if the file actually exists
+        String testBin = bin;
+        int binIndex = (testBin.charAt(0) == '/') ? 1 : 0;
+        testBin.setCharAt(binIndex, tempImages.charAt(0));
+        if(LittleFS.exists(testBin)) {
+          // For single character patterns, set min/max to 0
+          currentImages = tempImages;
+          minImages = 0;
+          maxImages = 0;
+          return true;
+        } else {
+          // File doesn't exist
+          return false;
+        }
+      } else {
+        tempImages = currentImages; // Keep current
+        return true;
+      }
+  }
+
+  // Check if any files exist for this pattern and build filtered list
+  bool anyFileExists = false;
+  String testBin = bin;
+  int binIndex = (testBin.charAt(0) == '/') ? 1 : 0;
+  String filteredImages = "";
+
+  for(int i = 0; i < tempImages.length(); i++) {
+    testBin.setCharAt(binIndex, tempImages.charAt(i));
+    if(LittleFS.exists(testBin)) {
+      anyFileExists = true;
+      filteredImages += tempImages.charAt(i);
+    }
+  }
+
+  if(anyFileExists) {
+    currentImages = filteredImages;
+    minImages = 0;
+    maxImages = currentImages.length() - 1;
+    // Reset imageToUse if it's out of bounds
+    if (imageToUse >= currentImages.length()) {
+      imageToUse = 0;
+    }
+    return true;
+  } else {
+    // No files available, return false to indicate pattern should be switched
+    return false;
+  }
 }
