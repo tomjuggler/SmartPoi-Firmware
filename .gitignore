@@ -6,3 +6,12 @@ Doxyfile
 utilities/*
 PlatformIO/.gitignore
 PlatformIO/.vscode/*
+.pio*
+main/build/*
+PlatformIO.zip
+make_gource.sh
+smartpoi_gource_36px.mp4
+smartpoi_gource_2018.mp4
+smartpoi_gource_PlatformIO.mp4
+image.bin
+context.txt
