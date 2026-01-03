@@ -197,6 +197,9 @@ boolean start = true;
 
 boolean routerOption = false;
 
+
+bool updateCurrentImagesForPattern(int pattern);
+
 /**
  * @brief Setup function, called once at program start.
  *
@@ -402,8 +405,7 @@ void loop()
   case 7:
   {
     // do nothing - new option for use during uploading
-    Serial.print(">");
-    FastLED.delay(100);
+    FastLED.showColor(CRGB::Black);
     yield();
     break;
   }
