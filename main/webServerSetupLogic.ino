@@ -1,3 +1,4 @@
+bool updateCurrentImagesForPattern(int pattern);
 
 /**
  * @brief Handles requests to get the number of pixels.
@@ -392,6 +393,9 @@ void handleFileUpload()
       fsUploadFile.close();
     }
 
+    // Update current images for the current pattern after file upload
+    updateCurrentImagesForPattern(pattern);
+
     // Reset upload counter and file size tracker
     uploadCounter = 1;
     fileSize = 0;
@@ -729,40 +733,56 @@ void webServerSetupLogic(String router, String pass)
               {
                 int newPatt = onAddress.toInt();
                 Serial.println(newPatt);
-                patternChooser = newPatt; // change on poi as well as saving
+                
+                if(newPatt < 0 || newPatt > 62) {
+                    content = "{\"Error\":\"Invalid pattern\"}";
+                    statusCode = 400;
+                    server.send(statusCode, "application/json", content);
+                    return;
+                }
+                
+                patternChooser = newPatt;
                 EEPROM.write(10, newPatt);
-                EEPROM.commit();
-                if (newPatt < 6 && newPatt > 0)
-                {
+                
+                if(newPatt > 0 && newPatt < 6) {
                   pattern = patternChooser;
                   EEPROM.write(11, newPatt);
-                  EEPROM.commit();
+                  // Update currentImages for the new pattern
+                  if (!updateCurrentImagesForPattern(newPatt)) {
+                    // No files available for this pattern, switch to pattern 1
+                    pattern = 1;
+                    patternChooser = 1;
+                    EEPROM.write(10, 1);
+                    EEPROM.write(11, 1);
+                  }
                 }
-                else if (newPatt == 7) // pattern option which does nothing - for uploading
-                {
-                  // black, this could take a while, so save power? Also an indicator...
+                else if(newPatt == 7) {
                   FastLED.showColor(CRGB::Black);
                   pattern = patternChooser;
-                  // don't save pattern here
+                } else {
+                  pattern = patternChooser;
+                  // For patterns 8+, update currentImages and verify file exists
+                  if (pattern >= 8 && pattern <= 69) {
+                    if (!updateCurrentImagesForPattern(pattern)) {
+                      // File doesn't exist for this pattern, switch to pattern 1
+                      pattern = 1;
+                      patternChooser = 1;
+                      EEPROM.write(10, 1);
+                      EEPROM.write(11, 1);
+                    }
+                  }
                 }
-                else
-                {
-                  yield();
-                  // do something here??
-                }
-                content = "{\"Success\":\" your pattern is set \"}";
+                
+                EEPROM.commit();
+                content = "{\"Success\":\"Pattern set\"}";
                 statusCode = 200;
-
-                // Send the response
                 server.send(statusCode, "application/json", content);
               }
               else
               {
                 Serial.println("error");
-                content = "{\"Error\":\"404 not found\"}";
-                statusCode = 404;
-
-                // Send the error response
+                content = "{\"Error\":\"Missing parameter\"}";
+                statusCode = 400;
                 server.send(statusCode, "application/json", content);
               } // nothing
             });
@@ -987,26 +1007,45 @@ void webServerSetupLogic(String router, String pass)
               if (onAddress.length() > 0)
               {
                 int newPatt = onAddress.toInt();
-                patternChooser = newPatt; // change on poi as well as saving
-                EEPROM.write(10, newPatt);
-                EEPROM.commit();
-                if (newPatt < 6 && newPatt > 0)
-                {
-                  pattern = patternChooser;
-                  EEPROM.write(11, newPatt);
+                
+                if(newPatt >= 0 && newPatt <= 62) {
+                  patternChooser = newPatt;
+                  EEPROM.write(10, newPatt);
                   EEPROM.commit();
-                }
-                else if (newPatt == 7) // pattern option which does nothing - for uploading
-                {
-                  // black, this could take a while, so save power? Also an indicator...
-                  FastLED.showColor(CRGB::Black);
-                  pattern = patternChooser;
-                  // don't save pattern here
-                }
-                else
-                {
-                  yield();
-                  // do something here??
+                  
+                  if(newPatt > 0 && newPatt < 6) {
+                    pattern = patternChooser;
+                    EEPROM.write(11, newPatt);
+                    EEPROM.commit();
+                    // Update currentImages for the new pattern
+                    if (!updateCurrentImagesForPattern(newPatt)) {
+                      // No files available for this pattern, switch to pattern 1
+                      pattern = 1;
+                      patternChooser = 1;
+                      EEPROM.write(10, 1);
+                      EEPROM.commit();
+                      EEPROM.write(11, 1);
+                      EEPROM.commit();
+                    }
+                  }
+                  else if(newPatt == 7) {
+                    FastLED.showColor(CRGB::Black);
+                    pattern = patternChooser;
+                  } else {
+                    pattern = patternChooser;
+                    // For patterns 8+, update currentImages and verify file exists
+                    if (pattern >= 8 && pattern <= 69) {
+                      if (!updateCurrentImagesForPattern(pattern)) {
+                        // File doesn't exist for this pattern, switch to pattern 1
+                        pattern = 1;
+                        patternChooser = 1;
+                        EEPROM.write(10, 1);
+                        EEPROM.commit();
+                        EEPROM.write(11, 1);
+                        EEPROM.commit();
+                      }
+                    }
+                  }
                 }
               }
               else

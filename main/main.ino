@@ -37,8 +37,8 @@ ESP8266WiFiMulti WiFiMulti;
 #include <FastLED.h>
 
 int newBrightness = 20; // setting 20 for battery and so white is not too much! This is re-set on startup, for safety and battery
-#define DATA_PIN D2     // D2 for D1Mini, 2 for ESP-01
-#define CLOCK_PIN D1    // D1 for D1Mini, 0 for ESP-01
+#define DATA_PIN 2     // D2 for D1Mini, 2 for ESP-01
+#define CLOCK_PIN 1    // D1 for D1Mini, 0 for ESP-01
 
 File f;
 File a;
@@ -57,21 +57,22 @@ boolean auxillary = false; // true for second (auxillary) poi - auxillary don't 
 ////////////////////////////HOW MANY PIXELS? - 2 variables to edit-  //////////////////
 
 //#define NUM_LEDS 37
-// #define NUM_LEDS 61
+#define NUM_LEDS 61
 //   #define NUM_LEDS 73
-#define NUM_LEDS 121
+// #define NUM_LEDS 121
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
 
 //#define NUM_PX 36
-// #define NUM_PX 60
+#define NUM_PX 60
 //   #define NUM_PX 72
-#define NUM_PX 120
+// #define NUM_PX 120
 
 // 24000 is too large - oom error, 120x200
 // const int maxPX = 20736 // 144x144 - very large, may be unstable?
-const int maxPX = 19200; // 120x160 - very large, may be unstable? 
+// const int maxPX = 19200; // 120x160 - very large, may be unstable? 
+const int maxPX = 13200; //60x220
 // const int maxPX = 20736; //enough for 72x288 or 36x576 - very large, may be unstable?
 // const int maxPX = 10368; //enough for 72x144 or 36x288
 // const int maxPX = 14400; //enough for 72x200 or 36x400
@@ -94,7 +95,7 @@ ESP8266WebServer server(80);
 int status = WL_IDLE_STATUS;
 // char ssid[] = "RouterName"; //  your network SSID (name) - now read from SPIFFS, no need for hard coding
 // char pass[] = "RouterPassword";    // your network password (use for WPA, or use as key for WEP)
-char apName[] = "Smart_Poi7"; //"Smart_Poi_2";
+char apName[] = "Smart_Poi10"; //"Smart_Poi_2";
 char apPass[] = "SmartOne";   //"password";
 int apChannel = 1;
 int keyIndex = 0; // your network key Index number (needed only for WEP)
@@ -111,13 +112,13 @@ uint8_t addrNumC = 8;
 uint8_t addrNumD = 78;
 
 ////////////////////////////////////// UDP CODE OPTIONAL: ///////////////////////////////////////////////////////////////////////////
-// const unsigned int localPort = 2390; // local port to listen on
+const unsigned int localPort = 2390; // local port to listen on
 
-// byte packetBuffer[NUM_PX]; // buffer to hold incoming packet
-// // char  ReplyBuffer[] = "acknowledged";       // a string to send back
-// const size_t bufferSize = 1024; // Adjust buffer size as needed
+byte packetBuffer[NUM_PX]; // buffer to hold incoming packet
+// char  ReplyBuffer[] = "acknowledged";       // a string to send back
+const size_t bufferSize = 1024; // Adjust buffer size as needed
 
-// WiFiUDP Udp;
+WiFiUDP Udp;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -131,8 +132,8 @@ int statusCode;
 
 ////////////////////////////////////////////////////////UDP CODE OPTIONAL: //////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////setup timer: ////////////////////////////////////////////////////////////////
-// unsigned long previousMillis = 0; // will store last time LED was updated
-// unsigned long previousMillis2 = 0;
+unsigned long previousMillis = 0; // will store last time LED was updated
+unsigned long previousMillis2 = 0;
 /////////////////////////////////////////////////////////////////////////////////
 unsigned long previousMillis3 = 0;
 long interval = 5000; // after this interval switch over to internal
@@ -183,6 +184,11 @@ int maxImages = 52; // how many can we have? 50 is enough for big poi, memory wi
 int minImages = 0;  // start of block - change according to pattern!
 // Below is a hack! Needs a better address system. Not doing upgrade for SmartPoi, MagicPoi can have any number of files with any filename, depending on Flash size. 
 String images = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; 
+String images2 = "abcde";
+String images3 = "fghij";
+String images4 = "klmnopqrst";
+String images5 = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+String currentImages = images;
 String bin = "a.bin";                                                             
 
 int uploadCounter = 1;
@@ -191,6 +197,9 @@ boolean wifiEventDetect = false;
 boolean start = true;
 
 boolean routerOption = false;
+
+
+bool updateCurrentImagesForPattern(int pattern);
 
 /**
  * @brief Setup function, called once at program start.
@@ -236,6 +245,16 @@ void setup()
   ///////////////////////////////////////////////////////LittleFS: /////////////////////////////////////////////////////////
   // always use this to "mount" the filesystem
   bool result = LittleFS.begin();
+  // Update current images for the initial pattern
+  if (!updateCurrentImagesForPattern(pattern)) {
+    // No files available for this pattern, switch to pattern 1
+    pattern = 1;
+    patternChooser = 1;
+    EEPROM.write(10, 1);
+    EEPROM.write(11, 1);
+    EEPROM.commit();
+    updateCurrentImagesForPattern(pattern);
+  }
   String router;
 
   // The following is related to router settings (using AP mode currently)
@@ -244,21 +263,21 @@ void setup()
   fastLEDIndicate(); // indicates AP (Auxillary: Red, Main: Blue) or STA mode (Green)
 
   /////// UDP OPTIONAL ///////////
-  // Udp.begin(localPort);
+  Udp.begin(localPort);
   
   
 }
 
-// volatile byte X;
-// volatile byte Y;
-// volatile byte R1;
-// volatile byte G1;
-// volatile byte M1;
+volatile byte X;
+volatile byte Y;
+volatile byte R1;
+volatile byte G1;
+volatile byte M1;
 
-// volatile unsigned long currentMillis = millis();
-// volatile unsigned long currentMillis2 = millis();
-// volatile int packetSize;
-// volatile int len;
+volatile unsigned long currentMillis = millis();
+volatile unsigned long currentMillis2 = millis();
+volatile int packetSize;
+volatile int len;
 ////////////////////////////////
 /**
  * @brief Main loop function, called repeatedly after setup.
@@ -337,6 +356,14 @@ void loop()
 
   switch (pattern)
   {
+  case 0:
+    currentMillis2 = millis();
+    packetSize = Udp.parsePacket();
+    if (packetSize)
+    {
+      handleUDP();
+    }
+    break;
   case 1:
   {
     funColourJam();
@@ -346,42 +373,116 @@ void loop()
   // more options for patterns and spiffs loading here
   case 2:
   {
-    minImages = 0; // start of block
-    maxImages = 4; // end of block
-    bin.setCharAt(0, images.charAt(imageToUse));
+    // Ensure imageToUse is within bounds of currentImages
+    if (imageToUse >= currentImages.length()) {
+      imageToUse = 0;
+    }
+    bin.setCharAt(0, currentImages.charAt(imageToUse));
     showLittleFSImage();
     break;
   }
   case 3:
   {
-    minImages = 5;  // start of block
-    maxImages = 10; // end of block
-    bin.setCharAt(0, images.charAt(imageToUse));
+    // Ensure imageToUse is within bounds of currentImages
+    if (imageToUse >= currentImages.length()) {
+      imageToUse = 0;
+    }
+    bin.setCharAt(0, currentImages.charAt(imageToUse));
     showLittleFSImage();
     break;
   }
   case 4:
   {
-    minImages = 11; // start of block
-    maxImages = 20; // end of block
-    bin.setCharAt(0, images.charAt(imageToUse));
+    // Ensure imageToUse is within bounds of currentImages
+    if (imageToUse >= currentImages.length()) {
+      imageToUse = 0;
+    }
+    bin.setCharAt(0, currentImages.charAt(imageToUse));
     showLittleFSImage();
     break;
   }
   case 5:
   {
-    minImages = 0;  // start of block
-    maxImages = 62; // end of block
-    bin.setCharAt(0, images.charAt(imageToUse));
+    // Ensure imageToUse is within bounds of currentImages
+    if (imageToUse >= currentImages.length()) {
+      imageToUse = 0;
+    }
+    bin.setCharAt(0, currentImages.charAt(imageToUse));
     showLittleFSImage();
     break;
   }
   case 7:
   {
     // do nothing - new option for use during uploading
-    Serial.print(">");
-    FastLED.delay(100);
+    FastLED.showColor(CRGB::Black);
     yield();
+    break;
+  }
+  case 8:
+  case 9:
+  case 10:
+  case 11:
+  case 12:
+  case 13:
+  case 14:
+  case 15:
+  case 16:
+  case 17:
+  case 18:
+  case 19:
+  case 20:
+  case 21:
+  case 22:
+  case 23:
+  case 24:
+  case 25:
+  case 26:
+  case 27:
+  case 28:
+  case 29:
+  case 30:
+  case 31:
+  case 32:
+  case 33:
+  case 34:
+  case 35:
+  case 36:
+  case 37:
+  case 38:
+  case 39:
+  case 40:
+  case 41:
+  case 42:
+  case 43:
+  case 44:
+  case 45:
+  case 46:
+  case 47:
+  case 48:
+  case 49:
+  case 50:
+  case 51:
+  case 52:
+  case 53:
+  case 54:
+  case 55:
+  case 56:
+  case 57:
+  case 58:
+  case 59:
+  case 60:
+  case 61:
+  case 62:
+  case 63:
+  case 64:
+  case 65:
+  case 66:
+  case 67:
+  case 68:
+  case 69:
+  {
+    bin.setCharAt(0, currentImages.charAt(0));
+    showLittleFSImage();
     break;
   }
   default:
@@ -401,4 +502,73 @@ void loop()
   ///////////////////////////////////// End optional UDP code //////////////////////////////////////////////////////////////////////////
 
   yield(); // give WiFi and other processor processes time to work
+}
+
+bool updateCurrentImagesForPattern(int pattern) {
+  String tempImages;
+
+  switch(pattern) {
+    case 2:
+      tempImages = images2;
+      break;
+    case 3:
+      tempImages = images3;
+      break;
+    case 4:
+      tempImages = images4;
+      break;
+    case 5:
+      tempImages = images5;
+      break;
+    default:
+      // For patterns 8+, use single character from images
+      if(pattern >= 8 && pattern <= 69) {
+        tempImages = String(images.charAt(pattern - 8));
+        // Check if the file actually exists
+        String testBin = bin;
+        int binIndex = (testBin.charAt(0) == '/') ? 1 : 0;
+        testBin.setCharAt(binIndex, tempImages.charAt(0));
+        if(LittleFS.exists(testBin)) {
+          // For single character patterns, set min/max to 0
+          currentImages = tempImages;
+          minImages = 0;
+          maxImages = 0;
+          return true;
+        } else {
+          // File doesn't exist
+          return false;
+        }
+      } else {
+        tempImages = currentImages; // Keep current
+        return true;
+      }
+  }
+
+  // Check if any files exist for this pattern and build filtered list
+  bool anyFileExists = false;
+  String testBin = bin;
+  int binIndex = (testBin.charAt(0) == '/') ? 1 : 0;
+  String filteredImages = "";
+
+  for(int i = 0; i < tempImages.length(); i++) {
+    testBin.setCharAt(binIndex, tempImages.charAt(i));
+    if(LittleFS.exists(testBin)) {
+      anyFileExists = true;
+      filteredImages += tempImages.charAt(i);
+    }
+  }
+
+  if(anyFileExists) {
+    currentImages = filteredImages;
+    minImages = 0;
+    maxImages = currentImages.length() - 1;
+    // Reset imageToUse if it's out of bounds
+    if (imageToUse >= currentImages.length()) {
+      imageToUse = 0;
+    }
+    return true;
+  } else {
+    // No files available, return false to indicate pattern should be switched
+    return false;
+  }
 }
