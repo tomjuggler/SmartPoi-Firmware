@@ -397,7 +397,13 @@ void checkFilesInSetup()
 }
 
 // =====================================================================
-// ESP-NOW Callbacks & Initialisation
+// ESP-NOW Debug Counters (defined here, extern in main.ino)
+// =====================================================================
+volatile unsigned long espNowFrameCount = 0;
+volatile unsigned long espNowStateCount = 0;
+volatile unsigned long espNowSendCount = 0;
+volatile uint8_t espNowLastSendStatus = 255;  // 255 = never sent
+
 // =====================================================================
 
 /**

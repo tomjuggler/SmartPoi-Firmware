@@ -226,13 +226,12 @@ void initEspNow();
 void broadcastState();
 void applyMasterState(EspNowStateMsg &state);
 
-// ESP-NOW debug counters
-volatile unsigned long espNowFrameCount = 0;
-volatile unsigned long espNowStateCount = 0;
-volatile unsigned long espNowSendCount = 0;
-volatile uint8_t espNowLastSendStatus = 255;  // 255 = never sent
+// ESP-NOW debug counters (defined in initalize.ino)
+extern volatile unsigned long espNowFrameCount;
+extern volatile unsigned long espNowStateCount;
+extern volatile unsigned long espNowSendCount;
+extern volatile uint8_t espNowLastSendStatus;
 unsigned long lastEspNowDebug = 0;
-
 bool updateCurrentImagesForPattern(int pattern);
 
 /**
