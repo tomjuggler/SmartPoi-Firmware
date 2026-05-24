@@ -396,6 +396,127 @@ void checkFilesInSetup()
   Serial.println(remainingSpace);
 }
 
+// =====================================================================
+// ESP-NOW Callbacks & Initialisation
+// =====================================================================
+
+/**
+ * @brief ESP-NOW receive callback. MUST be fast — single-core ESP8266!
+ *        Never call FastLED.show(), Serial.print(), or file I/O here.
+ */
+void onEspNowRecv(uint8_t *mac, uint8_t *data, uint8_t len) {
+    // Check if this is a state-sync message (starts with "SP")
+    if (len == sizeof(EspNowStateMsg) && data[0] == 'S' && data[1] == 'P') {
+        memcpy((void*)&espNowState, data, sizeof(EspNowStateMsg));
+        espNowStateReady = true;
+        return;
+    }
+    
+    // Otherwise, treat as pixel data (must be exactly NUM_PX bytes)
+    if (len == NUM_PX) {
+        memcpy(espNowFrame, data, len);
+        espNowFrameReady = true;
+    }
+    // Wrong length — silently ignore
+}
+
+/**
+ * @brief ESP-NOW send callback (for debugging).
+ */
+void onEspNowSent(uint8_t *mac, uint8_t status) {
+    // Optional: log failures
+    // Serial.print(status == 0 ? "OK" : "FAIL");
+}
+
+/**
+ * @brief Initialise ESP-NOW for dual-transport pixel reception
+ *        and master-slave state sync.
+ */
+void initEspNow() {
+    // Disable WiFi sleep to prevent ESP-NOW packet loss
+    WiFi.setSleepMode(WIFI_NONE_SLEEP);
+    
+    if (esp_now_init() != 0) {
+        Serial.println("ESP-NOW init failed!");
+        return;
+    }
+    
+    // Register callbacks
+    esp_now_register_recv_cb(onEspNowRecv);
+    esp_now_register_send_cb(onEspNowSent);
+    
+    // Add broadcast peer (unencrypted — default on ESP8266)
+    esp_now_peer_info_t peerInfo;
+    memset(&peerInfo, 0, sizeof(peerInfo));
+    memcpy(peerInfo.peer_addr, broadcastMac, 6);
+    peerInfo.channel = 0;  // use current WiFi channel
+    peerInfo.ifidx = WIFI_IF_STA;  // ESP8266-specific
+    
+    if (esp_now_add_peer(&peerInfo) != 0) {
+        Serial.println("Failed to add broadcast peer");
+    }
+    
+    Serial.println("ESP-NOW ready");
+}
+
+/**
+ * @brief Apply received master state to this auxiliary device.
+ *        Overrides the local ChangePatternPeriodically() timer.
+ */
+void applyMasterState(EspNowStateMsg &state) {
+    // Validate magic bytes
+    if (state.magic[0] != 'S' || state.magic[1] != 'P') return;
+    
+    // Apply pattern state
+    pattern = state.pattern;
+    interval = state.interval;
+    imageToUse = state.imageToUse;
+    maxImages = state.maxImages;
+    
+    // Sync the timer — set previousMillis3 to "now" so we don't
+    // immediately advance, but keep imageToUse as received
+    previousMillis3 = millis();
+    
+    // Update EEPROM for persistence across reboots
+    EEPROM.write(11, pattern);
+    // Store interval in EEPROM too (converted from ms to seconds for storage)
+    int intervalSecs = interval / 1000;
+    if (intervalSecs < 1) intervalSecs = 1;
+    if (intervalSecs > 1800) intervalSecs = 1800;
+    EEPROM.write(12, intervalSecs);
+    EEPROM.commit();
+    
+    // Reload image cache for the new pattern
+    updateCurrentImagesForPattern(pattern);
+    
+    Serial.print("Synced to main: pattern=");
+    Serial.print(pattern);
+    Serial.print(" interval=");
+    Serial.print(interval);
+    Serial.print(" imageToUse=");
+    Serial.println(imageToUse);
+}
+
+/**
+ * @brief Broadcast current pattern state to auxiliary via ESP-NOW.
+ *        Called after any state change on the main device.
+ */
+void broadcastState() {
+    if (auxillary) return;  // only main broadcasts
+    
+    EspNowStateMsg msg;
+    msg.magic[0] = 'S';
+    msg.magic[1] = 'P';
+    msg.msgType = 0x01;
+    msg.pattern = pattern;
+    msg.interval = interval;
+    msg.timestamp = millis();
+    msg.imageToUse = imageToUse;
+    msg.maxImages = maxImages;
+    
+    esp_now_send(broadcastMac, (uint8_t*)&msg, sizeof(msg));
+}
+
 /**
  * @brief Configures Wi-Fi settings based on the selected mode.
  *
@@ -439,6 +560,7 @@ void wifiChooser(char router_array[], char pwd_array[])
       }
       // LED on test:
       //  digitalWrite(LED_BUILTIN, LOW);
+      initEspNow();  // ESP-NOW ready after WiFi connection
     }
     else
     { // main poi here
@@ -462,6 +584,7 @@ void wifiChooser(char router_array[], char pwd_array[])
       }
       // LED on test:
       //  digitalWrite(LED_BUILTIN, LOW);
+      initEspNow();  // ESP-NOW ready after AP starts
     }
   }
   else
@@ -499,6 +622,7 @@ void wifiChooser(char router_array[], char pwd_array[])
     
     uploadCounter = 1;
   }
+  initEspNow();  // ESP-NOW ready after router connection
 
 }
 

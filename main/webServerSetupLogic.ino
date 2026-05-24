@@ -401,6 +401,7 @@ void handleFileUpload()
     fileSize = 0;
 
     server.send(200, "text/plain", "Upload successful");
+    broadcastState();  // ESP-NOW: notify auxiliary of new file upload
   }
   else if (upload.status == UPLOAD_FILE_ABORTED)
   {
@@ -647,6 +648,7 @@ void webServerSetupLogic(String router, String pass)
               statusCode = 200;
               imageToUse = 0;
               previousMillis3 = millis(); //re-set timer here!
+              broadcastState();  // ESP-NOW: notify auxiliary of image reset
               server.send(200, "text/plain", ""); });
 
   // settings - returns in format SSID, PASS, Channel, A, B, C, D, Pattern - ABCD is IP address numbers
@@ -776,6 +778,7 @@ void webServerSetupLogic(String router, String pass)
                 EEPROM.commit();
                 content = "{\"Success\":\"Pattern set\"}";
                 statusCode = 200;
+                broadcastState();  // ESP-NOW: notify auxiliary of pattern change
                 server.send(statusCode, "application/json", content);
               }
               else
@@ -816,6 +819,7 @@ void webServerSetupLogic(String router, String pass)
                 }
                 content = "{\"Success\":\" your interval is set \"}";
                 statusCode = 200;
+                broadcastState();  // ESP-NOW: notify auxiliary of interval change
 
                 // Send the response
                 server.send(statusCode, "application/json", content);
@@ -857,6 +861,7 @@ void webServerSetupLogic(String router, String pass)
 
                 content = "{\"Success\":\" your brightness is set \"}";
                 statusCode = 200;
+                broadcastState();  // ESP-NOW: notify auxiliary of brightness change
 
                 // Send the response
                 server.send(statusCode, "application/json", content);
@@ -1053,6 +1058,7 @@ void webServerSetupLogic(String router, String pass)
               } // nothing
 
               // Send the status code response
+                broadcastState();  // ESP-NOW: notify auxiliary of settings change
               server.send(statusCode, "application/json", content);
               // delay(50);
               //    ESP.restart(); //not using this right now but see https://github.com/esp8266/Arduino/issues/1722#issuecomment-192829825

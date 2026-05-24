@@ -14,8 +14,13 @@
  */
 void ChangePatternPeriodically()
 {
+  // On auxiliary, the autonomous timer serves as fallback.
+  // applyMasterState() (called from ESP-NOW sync) resets previousMillis3
+  // and imageToUse, keeping the auxiliary in lockstep with the main.
+  // The timer only fires if no sync has been received for 'interval' ms.
+  
   unsigned long currentMillis3 = millis();
-  if (currentMillis3 - previousMillis3 >= interval) // should not ever be true if udp is sending at correct speed!
+  if (currentMillis3 - previousMillis3 >= interval)
   {
     imageToUse++;
     previousMillis3 = currentMillis3;

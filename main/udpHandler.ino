@@ -28,7 +28,13 @@ void handleUDP(){
     state = 0; //udp good signal state 
 
     // read the packet into packetBufffer
-    len = Udp.read(packetBuffer, NUM_PX);
+    if (espNowDataReady) {
+      // Data already in packetBuffer from ESP-NOW (copied in loop())
+      len = NUM_PX;
+      espNowDataReady = false;
+    } else {
+      len = Udp.read(packetBuffer, NUM_PX);
+    }
     if (len > 0) packetBuffer[len] = 0;
     ////////////////////////////////////FastLED Code://///////////
     for (int i = 0; i < NUM_PX; i++)

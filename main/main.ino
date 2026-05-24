@@ -33,6 +33,7 @@ File fsUploadFile;
 ESP8266WiFiMulti WiFiMulti;
 #include <WiFiUdp.h>
 
+#include <espnow.h>  // ESP-NOW for ESP8266 dual-transport & master-slave sync
 //////////////////////////////////////////FastLED code:////////////
 #include <FastLED.h>
 
@@ -199,6 +200,32 @@ boolean start = true;
 boolean routerOption = false;
 
 
+// --- ESP-NOW dual-transport & master-slave sync ---
+volatile bool espNowFrameReady = false;
+uint8_t espNowFrame[NUM_PX];              // pixel data receive buffer
+volatile bool espNowDataReady = false;    // true when espNowFrame was copied into packetBuffer
+
+// Master-slave state sync message
+struct __attribute__((packed)) EspNowStateMsg {
+    uint8_t  magic[2];       // 'S', 'P'
+    uint8_t  msgType;        // 0x01 = state update
+    uint8_t  pattern;
+    uint32_t interval;
+    uint32_t timestamp;
+    int16_t  imageToUse;
+    int16_t  maxImages;
+};
+
+volatile bool espNowStateReady = false;
+EspNowStateMsg espNowState;
+
+uint8_t broadcastMac[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+
+// Forward declarations for ESP-NOW functions (defined in initalize.ino)
+void initEspNow();
+void broadcastState();
+void applyMasterState(EspNowStateMsg &state);
+
 bool updateCurrentImagesForPattern(int pattern);
 
 /**
@@ -323,8 +350,13 @@ void loop()
 
   dnsServer.processNextRequest();
   server.handleClient();
+  // ESP-NOW state sync: auxiliary receives and applies master state
+  if (auxillary && espNowStateReady) {
+    applyMasterState(espNowState);
+    espNowStateReady = false;
+  }
+  
   ChangePatternPeriodically(); 
-
 ///////////////////////////// OPTIONAL: UDP Packet handling (STREAMING from app option): /////////////////////////////////////////////////
   //////////////////////////////////////////////////////////// check if there is no signal ////////////////////////////////////////////////
   // currentMillis = millis();
@@ -357,6 +389,15 @@ void loop()
   switch (pattern)
   {
   case 0:
+    // --- ESP-NOW: check for incoming pixel frame before UDP ---
+    if (espNowFrameReady) {
+      memcpy(packetBuffer, (const uint8_t*)espNowFrame, NUM_PX);
+      espNowFrameReady = false;
+      espNowDataReady = true;
+      handleUDP();
+      break;
+    }
+    
     currentMillis2 = millis();
     packetSize = Udp.parsePacket();
     if (packetSize)
