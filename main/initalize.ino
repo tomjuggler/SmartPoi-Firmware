@@ -576,7 +576,7 @@ void wifiChooser(char router_array[], char pwd_array[])
     else
     { // main poi here
       // Serial.println("main POI");
-      WiFi.mode(WIFI_AP);
+      WiFi.mode(WIFI_AP_STA);  // AP+STA needed for ESP-NOW coexistence
       WiFi.setOutputPower(19.25);
       WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
       WiFi.softAP(apName, apPass, apChannel); // use pre-set values here
