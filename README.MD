@@ -5,20 +5,16 @@ Works well on D1 mini (fully tested) and may work OK on ESP-01 (not recommended 
 Other ESP8266 boards - mileage may vary. 
 
 ## Features
-- ESP-NOW master-slave synchronisation (main + auxiliary Poi)
-- Dual-transport pixel reception (UDP + ESP-NOW)
 - Web UI for pattern, brightness, interval, and file management
 - LittleFS image storage
 
 ## Arduino Libraries Required
 Install via Arduino IDE Library Manager:
 - **FastLED** — LED strip control
-- **LittleFS** — file system (may be built into ESP8266 core)
 
 Built into ESP8266 core (no install needed):
 - ESP8266WiFi, ESP8266WebServer, ESP8266WiFiMulti
-- DNSServer, WiFiUdp, EEPROM
-- espnow (ESP-NOW communication)
+- DNSServer, WiFiUdp, EEPROM, LittleFS
 
 ## Control App
 **Android Controls** — download from Google Play:  
