@@ -616,9 +616,9 @@ void wifiChooser(char router_array[], char pwd_array[])
       }
     }
     
+    initEspNow();  // ESP-NOW ready after router connection
     uploadCounter = 1;
   }
-  initEspNow();  // ESP-NOW ready after router connection
 
 }
 
