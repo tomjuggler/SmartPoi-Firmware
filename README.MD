@@ -28,6 +28,10 @@ Built into ESP8266 core (no install needed):
 See the step-by-step guide:  
 [https://www.circusscientist.com/2026/05/21/installing-smartpoi-d1-mini-version-with-arduino-ide-v2/](https://www.circusscientist.com/2026/05/21/installing-smartpoi-d1-mini-version-with-arduino-ide-v2/)
 
+## Newer ESP32 Version
+A newer, more capable ESP32 version of SmartPoi is available:  
+[https://github.com/tomjuggler/SmartPoi_ESP32](https://github.com/tomjuggler/SmartPoi_ESP32) — includes OTA upload with ElegantOTA.
+
 ## Magic Poi (ESP32)
 Coming soon — see [magicpoi.com](http://magicpoi.com)  
 Support development on Patreon: [https://patreon.com/c/circusscientist](https://patreon.com/c/circusscientist)
