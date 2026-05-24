@@ -1,7 +1,8 @@
 # SmartPoi ESP8266 Firmware
 
 Combined 36, 60, and 120px version of SmartPoi ESP8266 firmware.  
-Works well on D1 mini and OK on ESP-01.
+Works well on D1 mini (fully tested) and may work OK on ESP-01 (not recommended anymore).
+Other ESP8266 boards - mileage may vary. 
 
 ## Features
 - ESP-NOW master-slave synchronisation (main + auxiliary Poi)
