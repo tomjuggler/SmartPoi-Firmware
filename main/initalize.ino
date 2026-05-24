@@ -409,6 +409,7 @@ void onEspNowRecv(uint8_t *mac, uint8_t *data, uint8_t len) {
     if (len == sizeof(EspNowStateMsg) && data[0] == 'S' && data[1] == 'P') {
         memcpy((void*)&espNowState, data, sizeof(EspNowStateMsg));
         espNowStateReady = true;
+        espNowStateCount++;
         return;
     }
     
@@ -416,6 +417,7 @@ void onEspNowRecv(uint8_t *mac, uint8_t *data, uint8_t len) {
     if (len == NUM_PX) {
         memcpy(espNowFrame, data, len);
         espNowFrameReady = true;
+        espNowFrameCount++;
     }
     // Wrong length — silently ignore
 }
@@ -424,8 +426,7 @@ void onEspNowRecv(uint8_t *mac, uint8_t *data, uint8_t len) {
  * @brief ESP-NOW send callback (for debugging).
  */
 void onEspNowSent(uint8_t *mac, uint8_t status) {
-    // Optional: log failures
-    // Serial.print(status == 0 ? "OK" : "FAIL");
+    espNowLastSendStatus = status;  // 0 = success
 }
 
 /**
@@ -510,7 +511,15 @@ void broadcastState() {
     msg.imageToUse = imageToUse;
     msg.maxImages = maxImages;
     
-    esp_now_send(broadcastMac, (uint8_t*)&msg, sizeof(msg));
+    uint8_t result = esp_now_send(broadcastMac, (uint8_t*)&msg, sizeof(msg));
+    espNowSendCount++;
+    espNowLastSendStatus = result;
+    Serial.print("ESP-NOW broadcast: pattern=");
+    Serial.print(pattern);
+    Serial.print(" interval=");
+    Serial.print(interval);
+    Serial.print(" result=");
+    Serial.println(result);
 }
 
 /**

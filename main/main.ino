@@ -226,6 +226,13 @@ void initEspNow();
 void broadcastState();
 void applyMasterState(EspNowStateMsg &state);
 
+// ESP-NOW debug counters
+volatile unsigned long espNowFrameCount = 0;
+volatile unsigned long espNowStateCount = 0;
+volatile unsigned long espNowSendCount = 0;
+volatile uint8_t espNowLastSendStatus = 255;  // 255 = never sent
+unsigned long lastEspNowDebug = 0;
+
 bool updateCurrentImagesForPattern(int pattern);
 
 /**
@@ -291,6 +298,12 @@ void setup()
 
   /////// UDP OPTIONAL ///////////
   Udp.begin(localPort);
+  // ESP-NOW: broadcast initial state so auxiliary syncs immediately on boot
+  if (!auxillary) {
+    delay(2000);  // give ESP-NOW a moment to stabilise after WiFi init
+    broadcastState();
+  }
+  
   
   
 }
@@ -328,6 +341,20 @@ volatile int len;
  */
 void loop()
 {
+  // --- ESP-NOW periodic debug output (every 10 seconds) ---
+  if (millis() - lastEspNowDebug > 10000) {
+    lastEspNowDebug = millis();
+    Serial.print("ESP-NOW stats: frames=");
+    Serial.print(espNowFrameCount);
+    Serial.print(" states=");
+    Serial.print(espNowStateCount);
+    Serial.print(" sends=");
+    Serial.print(espNowSendCount);
+    Serial.print(" sendStatus=");
+    Serial.println(espNowLastSendStatus);
+  }
+  
+
   //todo: do we need this? looks like an experiment - maybe remove start completely
   // this only works once:
   // if (start == false)
