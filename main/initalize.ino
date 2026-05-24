@@ -445,14 +445,10 @@ void initEspNow() {
     esp_now_register_recv_cb(onEspNowRecv);
     esp_now_register_send_cb(onEspNowSent);
     
-    // Add broadcast peer (unencrypted — default on ESP8266)
-    esp_now_peer_info_t peerInfo;
-    memset(&peerInfo, 0, sizeof(peerInfo));
-    memcpy(peerInfo.peer_addr, broadcastMac, 6);
-    peerInfo.channel = 0;  // use current WiFi channel
-    peerInfo.ifidx = WIFI_IF_STA;  // ESP8266-specific
-    
-    if (esp_now_add_peer(&peerInfo) != 0) {
+    // Add broadcast peer (unencrypted)
+    // ESP8266 esp_now_add_peer signature: (mac, role, channel, key, key_len)
+    // Use role 0 (ESP_NOW_ROLE_COMBO / idle) and channel 0 (current)
+    if (esp_now_add_peer(broadcastMac, 0, 0, NULL, 0) != 0) {
         Serial.println("Failed to add broadcast peer");
     }
     
