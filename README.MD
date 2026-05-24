@@ -1,13 +1,42 @@
-Combined 36 and 72px (and now 120px) version of SmartPoi ESP8266 firmware
-Works well on D1 mini and OK on ESP-01
+# SmartPoi ESP8266 Firmware
 
-see circusscientist.com for details on how to get this to work
+Combined 36, 60, and 120px version of SmartPoi ESP8266 firmware.  
+Works well on D1 mini (fully tested) and may work OK on ESP-01 (not recommended anymore).
+Other ESP8266 boards - mileage may vary. 
 
-DOCUMENTATION: https://tomjuggler.github.io/SmartPoi-Firmware/html/
-*please note that this is a very old project, based on code I did 10 years ago while learning C++. It's messy! 
+## Features
+- ESP-NOW master-slave synchronisation (main + auxiliary Poi)
+- Dual-transport pixel reception (UDP + ESP-NOW)
+- Web UI for pattern, brightness, interval, and file management
+- LittleFS image storage
 
-To upload images and control the poi please see smartpoi-js-utilities (works in a browser)
- 
-Under active development
+## Arduino Libraries Required
+Install via Arduino IDE Library Manager:
+- **FastLED** — LED strip control
+- **LittleFS** — file system (may be built into ESP8266 core)
 
-Coming soon: "Magic Poi" for ESP32 - see http://magicpoi.circusscientist.com 
+Built into ESP8266 core (no install needed):
+- ESP8266WiFi, ESP8266WebServer, ESP8266WiFiMulti
+- DNSServer, WiFiUdp, EEPROM
+- espnow (ESP-NOW communication)
+
+## Control App
+**Android Controls** — download from Google Play:  
+[https://play.google.com/store/apps/details?id=com.circusscientist.smartpoicontrols](https://play.google.com/store/apps/details?id=com.circusscientist.smartpoicontrols)
+
+## Install Tutorial
+See the step-by-step guide:  
+[https://www.circusscientist.com/2026/05/21/installing-smartpoi-d1-mini-version-with-arduino-ide-v2/](https://www.circusscientist.com/2026/05/21/installing-smartpoi-d1-mini-version-with-arduino-ide-v2/)
+
+## Newer ESP32 Version
+A newer, more capable ESP32 version of SmartPoi is available:  
+[https://github.com/tomjuggler/SmartPoi_ESP32](https://github.com/tomjuggler/SmartPoi_ESP32) — includes OTA upload with ElegantOTA.
+
+## Magic Poi (ESP32)
+Coming soon — see [magicpoi.com](http://magicpoi.com)  
+Support development on Patreon: [https://patreon.com/c/circusscientist](https://patreon.com/c/circusscientist)
+
+---
+*Please note this is a very old project, based on code I wrote 10 years ago while learning C++. It's messy!*
+
+Under active development.
