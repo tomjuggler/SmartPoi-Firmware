@@ -448,6 +448,9 @@ void initEspNow() {
         return;
     }
     
+    // Set local role (mandatory on ESP8266 before sending)
+    esp_now_set_self_role(ESP_NOW_ROLE_COMBO);
+    
     // Register callbacks
     esp_now_register_recv_cb(onEspNowRecv);
     esp_now_register_send_cb(onEspNowSent);

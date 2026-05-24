@@ -48,7 +48,7 @@ File a;
 File settings;
 
 /////////////////////////////MAIN OR AUXILLARY POI? //////////////////////////////////////
-boolean auxillary = false; // true for second (auxillary) poi - auxillary don't work alone!!!
+boolean auxillary = true; // true for second (auxillary) poi - auxillary don't work alone!!!
 /////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////TYPE OF LED's to use///////////////////////////////////////
@@ -351,6 +351,10 @@ void loop()
     Serial.print(espNowSendCount);
     Serial.print(" sendStatus=");
     Serial.println(espNowLastSendStatus);
+    // Periodic heartbeat: re-broadcast state so late-joining aux can sync
+    if (!auxillary) {
+      broadcastState();
+    }
   }
   
 
