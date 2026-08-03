@@ -716,6 +716,16 @@ void webServerSetupLogic(String router, String pass)
   }
 
   // SERVER INIT
+  // Serve the SmartPoi control page (site.htm) at the root - parity with ESP32
+  server.on("/", HTTP_GET, []() {
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+    server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+    server.sendHeader("Access-Control-Allow-Credentials", "true");
+    server.send(200, "text/html", responseHTML); // SmartPoi control page (backup: site.htm)
+  });
+  // /site is a friendly alias for the root page (parity with ESP32)
+  server.on("/site", HTTP_GET, []() { server.sendHeader("Location", "/"); server.send(302, "text/plain", ""); });
   server.on("/", HTTP_OPTIONS, handleOptions); // Handle CORS preflight requests
   // list directory
   server.on("/list", HTTP_GET, handleFileList);
