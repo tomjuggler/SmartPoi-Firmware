@@ -34,9 +34,13 @@ ESP8266WiFiMulti WiFiMulti;
 #include <WiFiUdp.h>
 
 //////////////////////////////////////////FastLED code:////////////
+#include <ElegantOTA.h> // OTA updates - install via Arduino Library Manager (ElegantOTA by Ayush Sharma)
 #include <FastLED.h>
 
 int newBrightness = 20; // setting 20 for battery and so white is not too much! This is re-set on startup, for safety and battery
+int targetBrightness = 20; // requested brightness - checkBrightness() ramps newBrightness toward it (backported from ESP32)
+#define BRIGHTNESS_RAMP_INTERVAL 20  // milliseconds between ramp steps
+#define BRIGHTNESS_RAMP_STEP 5       // brightness change per interval
 #define DATA_PIN 2     // D2 for D1Mini, 2 for ESP-01
 #define CLOCK_PIN 1    // D1 for D1Mini, 0 for ESP-01
 
@@ -189,7 +193,7 @@ String images3 = "fghij";
 String images4 = "klmnopqrst";
 String images5 = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 String currentImages = images;
-String bin = "a.bin";                                                             
+String bin = "/a.bin"; // leading slash - unified path handling (matches ESP32 version)
 
 int uploadCounter = 1;
 
@@ -198,6 +202,21 @@ boolean start = true;
 
 boolean routerOption = false;
 
+// ===== Pattern file existence cache (backported from ESP32) =====
+// Avoids repeated LittleFS.exists() calls which spam framework errors
+// and slow down pattern switching.
+bool littleFSMounted = false;      // set after LittleFS.begin()
+bool patternFileExistsCache[62];   // 26 lowercase + 26 uppercase + 10 digits
+bool cacheInitialized = false;
+bool uploadInProgress = false; // Flag to disable FastLED operations during upload (backported from ESP32)
+
+// Forward declarations for pattern file cache
+void initializePatternFileCache();
+void refreshPatternFileCacheEntry(char patternChar);
+void refreshPatternFileCache();
+bool checkPatternFileExists(char patternChar);
+// Smooth brightness ramp (defined in timeFunc.ino)
+void checkBrightness();
 
 bool updateCurrentImagesForPattern(int pattern);
 
@@ -245,6 +264,8 @@ void setup()
   ///////////////////////////////////////////////////////LittleFS: /////////////////////////////////////////////////////////
   // always use this to "mount" the filesystem
   bool result = LittleFS.begin();
+  littleFSMounted = result; // track mount state (used by pattern file cache)
+  initializePatternFileCache(); // build pattern file existence cache once
   // Update current images for the initial pattern
   if (!updateCurrentImagesForPattern(pattern)) {
     // No files available for this pattern, switch to pattern 1
@@ -323,7 +344,9 @@ void loop()
 
   dnsServer.processNextRequest();
   server.handleClient();
-  ChangePatternPeriodically(); 
+  ElegantOTA.loop(); // handle OTA firmware/filesystem updates (ElegantOTA)
+  ChangePatternPeriodically();
+  checkBrightness(); // smooth brightness ramp (backported from ESP32)
 
 ///////////////////////////// OPTIONAL: UDP Packet handling (STREAMING from app option): /////////////////////////////////////////////////
   //////////////////////////////////////////////////////////// check if there is no signal ////////////////////////////////////////////////
@@ -354,7 +377,12 @@ void loop()
   //  { // this is backup, if udp not received ie: connection dropped for > interval millisecs
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  switch (pattern)
+  // Skip LED operations during file uploads (single-core ESP8266: cooperative yield)
+  if (uploadInProgress)
+  {
+    yield();
+  }
+  else switch (pattern)
   {
   case 0:
     currentMillis2 = millis();
@@ -377,7 +405,7 @@ void loop()
     if (imageToUse >= currentImages.length()) {
       imageToUse = 0;
     }
-    bin.setCharAt(0, currentImages.charAt(imageToUse));
+    bin.setCharAt(1, currentImages.charAt(imageToUse));
     showLittleFSImage();
     break;
   }
@@ -387,7 +415,7 @@ void loop()
     if (imageToUse >= currentImages.length()) {
       imageToUse = 0;
     }
-    bin.setCharAt(0, currentImages.charAt(imageToUse));
+    bin.setCharAt(1, currentImages.charAt(imageToUse));
     showLittleFSImage();
     break;
   }
@@ -397,7 +425,7 @@ void loop()
     if (imageToUse >= currentImages.length()) {
       imageToUse = 0;
     }
-    bin.setCharAt(0, currentImages.charAt(imageToUse));
+    bin.setCharAt(1, currentImages.charAt(imageToUse));
     showLittleFSImage();
     break;
   }
@@ -407,7 +435,7 @@ void loop()
     if (imageToUse >= currentImages.length()) {
       imageToUse = 0;
     }
-    bin.setCharAt(0, currentImages.charAt(imageToUse));
+    bin.setCharAt(1, currentImages.charAt(imageToUse));
     showLittleFSImage();
     break;
   }
@@ -481,8 +509,13 @@ void loop()
   case 68:
   case 69:
   {
-    bin.setCharAt(0, currentImages.charAt(0));
+    bin.setCharAt(1, currentImages.charAt(0));
     showLittleFSImage();
+    break;
+  }
+  case 70:
+  {
+    cylonMulticolour(); // Cylon/Knight Rider multicolour (parity with ESP32)
     break;
   }
   default:
@@ -502,6 +535,58 @@ void loop()
   ///////////////////////////////////// End optional UDP code //////////////////////////////////////////////////////////////////////////
 
   yield(); // give WiFi and other processor processes time to work
+}
+
+// ===== Pattern file cache functions (backported from ESP32) =====
+void initializePatternFileCache() {
+  if (cacheInitialized) return;
+
+  // Check each possible pattern file once and cache the result
+  for (int i = 0; i < 62; i++) {
+    String testBin = bin;
+    testBin.setCharAt(1, images.charAt(i));
+    // Use exists() instead of open() to avoid framework error messages
+    patternFileExistsCache[i] = littleFSMounted ? LittleFS.exists(testBin) : false;
+    delay(1); // Small delay to prevent overwhelming the filesystem
+  }
+  cacheInitialized = true;
+}
+
+// Refresh a specific cache entry when a file changes
+void refreshPatternFileCacheEntry(char patternChar) {
+  int index = images.indexOf(patternChar);
+  if (index == -1) return; // Character not in images string
+
+  String testBin = bin;
+  testBin.setCharAt(1, patternChar);
+  if (littleFSMounted && LittleFS.exists(testBin)) {
+    patternFileExistsCache[index] = true;
+  } else {
+    patternFileExistsCache[index] = false;
+  }
+}
+
+// Refresh entire cache (use sparingly)
+void refreshPatternFileCache() {
+  for (int i = 0; i < 62; i++) {
+    String testBin = bin;
+    testBin.setCharAt(1, images.charAt(i));
+    if (littleFSMounted && LittleFS.exists(testBin)) {
+      patternFileExistsCache[i] = true;
+    } else {
+      patternFileExistsCache[i] = false;
+    }
+    delay(1);
+  }
+}
+
+bool checkPatternFileExists(char patternChar) {
+  int index = images.indexOf(patternChar);
+  if (index == -1) return false; // Character not in images string
+  if (!cacheInitialized) {
+    initializePatternFileCache();
+  }
+  return patternFileExistsCache[index];
 }
 
 bool updateCurrentImagesForPattern(int pattern) {
@@ -524,11 +609,8 @@ bool updateCurrentImagesForPattern(int pattern) {
       // For patterns 8+, use single character from images
       if(pattern >= 8 && pattern <= 69) {
         tempImages = String(images.charAt(pattern - 8));
-        // Check if the file actually exists
-        String testBin = bin;
-        int binIndex = (testBin.charAt(0) == '/') ? 1 : 0;
-        testBin.setCharAt(binIndex, tempImages.charAt(0));
-        if(LittleFS.exists(testBin)) {
+        // Check if the file actually exists (using cache)
+        if(checkPatternFileExists(tempImages.charAt(0))) {
           // For single character patterns, set min/max to 0
           currentImages = tempImages;
           minImages = 0;
@@ -546,13 +628,11 @@ bool updateCurrentImagesForPattern(int pattern) {
 
   // Check if any files exist for this pattern and build filtered list
   bool anyFileExists = false;
-  String testBin = bin;
-  int binIndex = (testBin.charAt(0) == '/') ? 1 : 0;
+  // bin always uses leading slash (e.g. "/a.bin") - unified path handling
   String filteredImages = "";
 
   for(int i = 0; i < tempImages.length(); i++) {
-    testBin.setCharAt(binIndex, tempImages.charAt(i));
-    if(LittleFS.exists(testBin)) {
+    if(checkPatternFileExists(tempImages.charAt(i))) {
       anyFileExists = true;
       filteredImages += tempImages.charAt(i);
     }

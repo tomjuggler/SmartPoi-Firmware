@@ -125,7 +125,7 @@ void handleUDP(){
     }
 
     //FastLED.delay(2); //not just for emulator!
-     LEDS.show();
+    FastLED.show();
 //    delayMicroseconds(200);
 //    FastLED.delay(1);
     ///////////////////////////////////end FastLed Code//////////////

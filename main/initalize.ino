@@ -35,7 +35,8 @@ void eepromBrightnessChooser(int addr)
     ////Serial.println(newBrightness);
   }
 
-  FastLED.setBrightness(newBrightness); // should I be removing this becos https://github.com/FastLED/FastLED/wiki/FastLED-Temporal-Dithering
+  targetBrightness = newBrightness;  // sync target for smooth ramp (backported from ESP32)
+  FastLED.setBrightness(newBrightness);
   FastLED.showColor(CRGB::Black);
 }
 

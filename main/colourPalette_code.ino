@@ -381,31 +381,6 @@ void add_glitter() //from https://gist.github.com/kriegsman/ccffc81a74bc03636ce1
 }
 
 
-// This example shows how to set up a static color palette
-// which is stored in PROGMEM (flash), which is almost always more
-// plentiful than RAM.  A static PROGMEM palette like this
-// takes up 64 bytes of flash.
-const TProgmemPalette16 myRedWhiteBluePalette_p PROGMEM =
-{
-  CRGB::Red,
-  CRGB::Gray, // 'white' is too bright compared to red and blue
-  CRGB::Blue,
-  CRGB::Black,
-
-  CRGB::Red,
-  CRGB::Gray,
-  CRGB::Blue,
-  CRGB::Black,
-
-  CRGB::Red,
-  CRGB::Red,
-  CRGB::Gray,
-  CRGB::Gray,
-  CRGB::Blue,
-  CRGB::Blue,
-  CRGB::Black,
-  CRGB::Black
-};
 
 /**
  * @brief Implements the "Colour Jam" pattern.
@@ -526,3 +501,43 @@ void funColourJam()
 // the first sixteen entries from the virtual palette (of 256), you'd get
 // Green, followed by a smooth gradient from green-to-blue, and then Blue.
 
+// ===== Cylon/Knight Rider multicolour pattern 70 (backported from ESP32) =====
+/**
+ * @brief Fades all LEDs by scaling brightness down
+ * @details Reduces brightness of all LEDs by scaling factor 250/256
+ * @note Uses FastLED's nscale8() for efficient fading
+ */
+void fadeall()
+{
+  for (int i = 0; i < NUM_LEDS; i++)
+  {
+    leds[i].nscale8(250);
+  }
+}
+
+/**
+ * @brief Cylon/Knight Rider multicolour scanning pattern
+ * @details Sweeps a rainbow hue back and forth across the LED strip
+ * @note Adapted from MagicPoi_Alpha led_peripheral.cpp (ESP32 version)
+ * @note Uses FastLED.delay() to yield to WiFi on single-core ESP8266
+ */
+void cylonMulticolour()
+{
+  static uint8_t hue = 0;
+  
+  for (int i = 0; i < NUM_LEDS; i++)
+  {
+    leds[i] = CHSV(hue++, 255, 255);
+    FastLED.show();
+    fadeall();
+    FastLED.delay(10); // yields to WiFi (ESP32 uses vTaskDelay)
+  }
+  
+  for (int i = (NUM_LEDS) - 1; i >= 0; i--)
+  {
+    leds[i] = CHSV(hue++, 255, 255);
+    FastLED.show();
+    fadeall();
+    FastLED.delay(10);
+  }
+}

@@ -1,4 +1,10 @@
+#include <ElegantOTA.h> // OTA updates - install via Arduino Library Manager (ElegantOTA by Ayush Sharma)
+
 bool updateCurrentImagesForPattern(int pattern);
+// Pattern file cache functions (defined in main.ino)
+// Load-once image cache functions (defined in showLittleFSImage.ino)
+void markFileForReload(char patternChar);
+void refreshPatternFileCacheEntry(char patternChar);
 
 /**
  * @brief Handles requests to get the number of pixels.
@@ -192,6 +198,10 @@ void handleFileRead()
   }
   Serial.print("handleFileRead: ");
   String path = server.arg("file");
+  // Ensure path starts with '/' for LittleFS (unified path handling)
+  if(!path.startsWith("/")) {
+    path = "/" + path;
+  }
   Serial.println("handleFileRead: " + path);
   // if (path.endsWith("/"))
   //   path += "index.htm";
@@ -290,6 +300,8 @@ void handleFileUpload()
 
   // Initialize file size tracking variable
   static size_t fileSize = 0;
+  static char fullPath[16]; // Static buffer for full path (max: "/a.bin" + null)
+  static int savedPattern = -1;  // Preserve pattern across upload callbacks
 
   if (upload.status == UPLOAD_FILE_START)
   {
@@ -321,6 +333,14 @@ void handleFileUpload()
     // Reset file size tracking
     fileSize = 0;
 
+    // Remember uploaded pattern file name for cache refresh on completion
+    snprintf(fullPath, sizeof(fullPath), "%s", filename.c_str());
+
+    // Save current pattern and set to 7 (LEDs off) during upload
+    savedPattern = pattern;
+    pattern = 7;
+    uploadInProgress = true; // Disable FastLED operations during upload
+
     // Open file for writing
     fsUploadFile = LittleFS.open(filename, "w");
     filename = String();
@@ -339,6 +359,12 @@ void handleFileUpload()
         LittleFS.remove(upload.filename); // Remove the partially written file
       }
 
+      // Reset upload state before returning error
+      uploadInProgress = false;
+      if (savedPattern != -1) {
+        pattern = savedPattern;
+        savedPattern = -1;
+      }
       // Send error response and return
       server.send(500, "text/plain", "File size exceeds limit");
       return;
@@ -356,6 +382,12 @@ void handleFileUpload()
         LittleFS.remove(upload.filename); // Remove the partially written file
       }
 
+      // Reset upload state before returning error
+      uploadInProgress = false;
+      if (savedPattern != -1) {
+        pattern = savedPattern;
+        savedPattern = -1;
+      }
       // Send error response and return
       server.send(500, "text/plain", "File size exceeds limit");
       return;
@@ -373,6 +405,12 @@ void handleFileUpload()
         LittleFS.remove(upload.filename); // Remove the partially written file
       }
 
+      // Reset upload state before returning error
+      uploadInProgress = false;
+      if (savedPattern != -1) {
+        pattern = savedPattern;
+        savedPattern = -1;
+      }
       // Send error response and return
       server.send(500, "text/plain", "Not enough space remaining to save the file");
       return;
@@ -393,8 +431,23 @@ void handleFileUpload()
       fsUploadFile.close();
     }
 
+    // Re-enable FastLED operations and restore pattern
+    uploadInProgress = false;
+    if(savedPattern != -1) {
+      pattern = savedPattern;
+      savedPattern = -1;  // Reset for next upload
+    }
+
     // Update current images for the current pattern after file upload
     updateCurrentImagesForPattern(pattern);
+
+    // Refresh cache entry for this pattern file (format like /a.bin)
+    if(strlen(fullPath) >= 2) {
+      char patternChar = fullPath[1];
+      refreshPatternFileCacheEntry(patternChar);
+      // Also mark file for reload if it's currently loaded
+      markFileForReload(patternChar);
+    }
 
     // Reset upload counter and file size tracker
     uploadCounter = 1;
@@ -412,6 +465,13 @@ void handleFileUpload()
       fsUploadFile.close();
       LittleFS.remove(upload.filename); // Remove the incomplete file
       Serial.println("Aborted file removed");
+    }
+
+    // Re-enable FastLED operations and restore pattern
+    uploadInProgress = false;
+    if(savedPattern != -1) {
+      pattern = savedPattern;
+      savedPattern = -1;
     }
 
     // Send an error response for aborted upload
@@ -450,6 +510,10 @@ void handleFileDelete()
   if (server.args() == 0)
     return server.send(500, "text/plain", "BAD ARGS");
   String path = server.arg(0);
+  // Ensure path starts with '/' for LittleFS (unified path handling)
+  if(!path.startsWith("/")) {
+    path = "/" + path;
+  }
   // Serial.println("handleFileDelete: " + path);
   if (path == "/")
     return server.send(500, "text/plain", "BAD PATH");
@@ -457,6 +521,12 @@ void handleFileDelete()
     return server.send(404, "text/plain", "FileNotFound");
   Serial.println(path);
   LittleFS.remove(path);
+  // Refresh cache entry if this was a pattern file (format /x.bin)
+  if(path.length() >= 2 && path.endsWith(".bin")) {
+    refreshPatternFileCacheEntry(path[1]);
+    // Also mark file for reload if it's currently loaded
+    markFileForReload(path[1]);
+  }
   server.send(200, "text/plain", "");
   path = String();
 }
@@ -490,6 +560,10 @@ void handleFileCreate()
   if (server.args() == 0)
     return server.send(500, "text/plain", "BAD ARGS");
   String path = server.arg(0);
+  // Ensure path starts with '/' for LittleFS (unified path handling)
+  if(!path.startsWith("/")) {
+    path = "/" + path;
+  }
   // Serial.println("handleFileCreate: " + path);
   if (path == "/")
     return server.send(500, "text/plain", "BAD PATH");
@@ -531,6 +605,10 @@ void handleFileList()
   }
 
   String path = server.arg("dir");
+  // Ensure path starts with '/' for LittleFS (unified path handling)
+  if(!path.startsWith("/")) {
+    path = "/" + path;
+  }
   // Serial.println("handleFileList: " + path);
   Dir dir = LittleFS.openDir(path);
   path = String();
@@ -574,7 +652,41 @@ void handleFileList()
  * @param router The router setting to use
  * @param pass The password to use
  * @note This function sets up the web server and its routes, but does not start the server.
+ * @note Starts ElegantOTA for OTA firmware/filesystem updates at the end.
  */
+
+// ===== ElegantOTA callbacks (backported from ESP32 tasks.cpp) =====
+unsigned long ota_progress_millis = 0;
+
+void onOTAStart()
+{
+  // Log when OTA has started
+  Serial.println("OTA update started!");
+}
+
+void onOTAProgress(size_t current, size_t final)
+{
+  // Log every 1 second
+  if (millis() - ota_progress_millis > 1000)
+  {
+    ota_progress_millis = millis();
+    Serial.printf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
+  }
+}
+
+void onOTAEnd(bool success)
+{
+  // Log when OTA has finished
+  if (success)
+  {
+    Serial.println("OTA update finished successfully!");
+  }
+  else
+  {
+    Serial.println("There was an error during OTA update!");
+  }
+}
+
 void webServerSetupLogic(String router, String pass)
 {
   int checkChannel;
@@ -624,6 +736,24 @@ void webServerSetupLogic(String router, String pass)
       },
       handleFileUpload);
 
+  // Captive portal checks (Android/Apple/Windows) - redirect to root (parity with ESP32)
+  server.on("/generate_204", HTTP_GET, []() { server.sendHeader("Location", "/"); server.send(302, "text/plain", ""); });
+  server.on("/hotspot-detect.html", HTTP_GET, []() { server.sendHeader("Location", "/"); server.send(302, "text/plain", ""); });
+  server.on("/connectivity-check.html", HTTP_GET, []() { server.sendHeader("Location", "/"); server.send(302, "text/plain", ""); });
+
+  // ElegantOTA UI lives at /update - /elegant is a friendly alias (parity with ESP32)
+  server.on("/elegant", HTTP_GET, []() { server.sendHeader("Location", "/update"); server.send(302, "text/plain", ""); });
+
+  // Availability probe used by the SmartPoi app (parity with ESP32)
+  server.on("/poi-available", HTTP_GET, []()
+            {
+              server.sendHeader("Access-Control-Allow-Origin", "*");
+              server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, FETCH");
+              server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+              server.sendHeader("Access-Control-Allow-Credentials", "true");
+              server.send(200, "text/plain", "1");
+            });
+
   // called when the url is not defined here - captive portal
   server.onNotFound([]()
                     {
@@ -663,10 +793,13 @@ void webServerSetupLogic(String router, String pass)
               String settingsPASS = settings.readStringUntil('\n');
 
               settings.close();
-              // delay(100);
+              // Use snprintf for efficient string building (backported from ESP32)
               int newChannel = int(EEPROM.read(13));
-              content = settingsSSID + "," + settingsPASS + "," + newChannel + "," + addrNumA + "," + addrNumB + "," + addrNumC + "," + addrNumD + "," + patternChooser;
-              server.send(statusCode, "text/html", content); });
+              char buffer[256]; // ssid(32)+pwd(32)+channel(2)+addresses(3*3)+pattern(2)+separators
+              snprintf(buffer, sizeof(buffer), "%s,%s,%d,%d,%d,%d,%d,%d",
+                       settingsSSID.c_str(), settingsPASS.c_str(),
+                       newChannel, addrNumA, addrNumB, addrNumC, addrNumD, patternChooser);
+              server.send(statusCode, "text/html", buffer); });
 
   // to activate in browser: http://192.168.1.78/router?router=1
   // don't forget main: http://192.168.1.1/router?router=1
@@ -734,7 +867,7 @@ void webServerSetupLogic(String router, String pass)
                 int newPatt = onAddress.toInt();
                 Serial.println(newPatt);
                 
-                if(newPatt < 0 || newPatt > 62) {
+                if(newPatt < 0 || newPatt > 70) {
                     content = "{\"Error\":\"Invalid pattern\"}";
                     statusCode = 400;
                     server.send(statusCode, "application/json", content);
@@ -839,20 +972,10 @@ void webServerSetupLogic(String router, String pass)
               String onNewBRT = server.arg("brt");
               if (onNewBRT.length() > 0)
               {
-                newBrightness = onNewBRT.toInt();
-                if (newBrightness > 254)
-                {
-                  newBrightness = 255;
-                }
-                if (newBrightness < 20)
-                {
-                  newBrightness = 20;
-                }
+                targetBrightness = constrain(onNewBRT.toInt(), 20, 255);
+                // Note: newBrightness will gradually ramp to targetBrightness via checkBrightness()
 
-                FastLED.setBrightness(newBrightness); // should I be removing this becos https://github.com/FastLED/FastLED/wiki/FastLED-Temporal-Dithering
-                FastLED.showColor(CRGB::Black);
-
-                EEPROM.write(15, newBrightness);
+                EEPROM.write(15, targetBrightness);
                 EEPROM.commit(); // save for next time
 
                 content = "{\"Success\":\" your brightness is set \"}";
@@ -1008,7 +1131,7 @@ void webServerSetupLogic(String router, String pass)
               {
                 int newPatt = onAddress.toInt();
                 
-                if(newPatt >= 0 && newPatt <= 62) {
+                if(newPatt >= 0 && newPatt <= 70) {
                   patternChooser = newPatt;
                   EEPROM.write(10, newPatt);
                   EEPROM.commit();
@@ -1059,4 +1182,15 @@ void webServerSetupLogic(String router, String pass)
             });
 
   server.begin();
+
+  // === ElegantOTA: OTA firmware & filesystem updates ===
+  // Sync mode with ESP8266WebServer (ESP8266 cannot afford async web server RAM).
+  // ElegantOTA registers the /update route for both firmware (.bin) and
+  // filesystem (.littlefs.bin) uploads - essential for updating while sealed in housing.
+  ElegantOTA.begin(&server);
+  ElegantOTA.setAutoReboot(true); // Reboot after successful update
+  ElegantOTA.onStart(onOTAStart);
+  ElegantOTA.onProgress(onOTAProgress);
+  ElegantOTA.onEnd(onOTAEnd);
+  Serial.println("ElegantOTA started - OTA updates available at /update");
 }
