@@ -33,6 +33,12 @@ File fsUploadFile;
 ESP8266WiFiMulti WiFiMulti;
 #include <WiFiUdp.h>
 
+//////////////////////////////////////////SmartPoi API check-in:////////////
+#include <ESP8266HTTPClient.h> // HTTP client for SmartPoi API check-in (built into ESP8266 core)
+#include <WiFiClientSecure.h>  // BearSSL TLS client for HTTPS check-in (built into ESP8266 core)
+#include <ArduinoJson.h>       // JSON parsing for check-in response (install via Library Manager)
+/////////////////////////////////////////////////////////////////////////////
+
 //////////////////////////////////////////FastLED code:////////////
 #include <ElegantOTA.h> // OTA updates - install via Arduino Library Manager (ElegantOTA by Ayush Sharma)
 #include <FastLED.h>
@@ -217,6 +223,8 @@ void refreshPatternFileCache();
 bool checkPatternFileExists(char patternChar);
 // Smooth brightness ramp (defined in timeFunc.ino)
 void checkBrightness();
+// SmartPoi API check-in (defined at bottom of this file, called at end of setup)
+void sendSmartPoiCheckin();
 
 bool updateCurrentImagesForPattern(int pattern);
 
@@ -285,6 +293,9 @@ void setup()
 
   /////// UDP OPTIONAL ///////////
   Udp.begin(localPort);
+
+  // Send one-time check-in to SmartPoi API (Router mode only, backported from ESP32)
+  sendSmartPoiCheckin();
   
   
 }
@@ -650,5 +661,80 @@ bool updateCurrentImagesForPattern(int pattern) {
   } else {
     // No files available, return false to indicate pattern should be switched
     return false;
+  }
+}
+/**
+ * @brief Sends a one-time check-in to the SmartPoi API (Router mode only).
+ *
+ * Backported from ESP32 main.cpp sendSmartPoiCheckin().
+ * ESP8266 differences:
+ *  - HTTPS requires a BearSSL WiFiClientSecure instance passed to http.begin()
+ *  - setInsecure() skips X.509 validation (ESP32's http.begin(url) does not verify by default either)
+ *  - ESP8266 core disables C++ exceptions, so no try/catch wrapper
+ */
+void sendSmartPoiCheckin()
+{
+  // Don't send check-in in AP mode (wifiModeChooser == 1)
+  if (wifiModeChooser == 1)
+  {
+    Serial.println("AP mode detected, skipping SmartPoi check-in");
+    return;
+  }
+
+  // Wait for WiFi to be initialized and connected
+  if (WiFi.status() == WL_CONNECTED)
+  {
+    // ESP8266: HTTPS needs a BearSSL WiFiClientSecure (ESP8266 core 3.x)
+    WiFiClientSecure secureClient;
+    secureClient.setInsecure(); // skip cert validation (parity with ESP32 default behaviour)
+
+    HTTPClient http;
+
+    // Begin the HTTPS request with the secure client
+    if (!http.begin(secureClient, "https://smartpoifirmware.circusscientist.com/api/smartpoi-checkin"))
+    {
+      Serial.println("Failed to begin HTTPS connection for SmartPoi check-in");
+      return;
+    }
+
+    // Set timeout to 5000ms to avoid blocking too long
+    http.setTimeout(5000); // ESP8266 HTTPClient only has setTimeout (no setConnectTimeout)
+
+    // Send GET request
+    int httpResponseCode = http.GET();
+
+    if (httpResponseCode > 0)
+    {
+      String response = http.getString();
+      Serial.println("SmartPoi API Response: " + response);
+
+      // Try to parse JSON response
+      DynamicJsonDocument doc(1024);
+      DeserializationError error = deserializeJson(doc, response);
+
+      if (!error)
+      {
+        const char *status = doc["status"];
+        const char *message = doc["message"];
+        const char *timestamp = doc["timestamp"];
+        const char *ip = doc["ip"];
+
+        Serial.printf("Check-in successful - Status: %s, IP: %s\n", status, ip);
+      }
+      else
+      {
+        Serial.println("Failed to parse JSON response");
+      }
+    }
+    else
+    {
+      Serial.printf("HTTP GET failed, error: %s\n", http.errorToString(httpResponseCode).c_str());
+    }
+
+    http.end();
+  }
+  else
+  {
+    Serial.println("WiFi not connected, skipping SmartPoi check-in");
   }
 }

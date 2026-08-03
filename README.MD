@@ -16,9 +16,18 @@ Other ESP8266 boards - mileage may vary.
 Install via Arduino IDE Library Manager:
 - **FastLED** — LED strip control
 - **ElegantOTA** — OTA firmware/filesystem updates (by Ayush Sharma). Requires a 4MB flash board (e.g. D1 mini).
+- **ArduinoJson** — JSON parsing for the SmartPoi API check-in (use version 6.x, e.g. 6.21.1, to match the ESP32 version).
 
 Built into ESP8266 core (no install needed):
 - ESP8266WiFi, ESP8266WebServer, ESP8266WiFiMulti
+- ESP8266HTTPClient, WiFiClientSecure (BearSSL), DNSServer, WiFiUdp, EEPROM, LittleFS
+
+## SmartPoi API Check-in
+
+In Router mode only (not AP mode), the poi sends a one-time HTTPS GET check-in to `https://smartpoifirmware.circusscientist.com/api/smartpoi-checkin` at startup (backported from the ESP32 version). The JSON response (status/ip/timestamp) is logged over Serial.
+
+> HTTPS on ESP8266 uses BearSSL `WiFiClientSecure` with `setInsecure()` (no X.509 validation) — the ESP32's `http.begin(url)` does not verify certificates by default either. TLS needs the "SSL: All" core option (already set in `tools/compile_check.sh`).
+
 - DNSServer, WiFiUdp, EEPROM, LittleFS
 
 ## OTA Updates (ElegantOTA)
